@@ -13,9 +13,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { UserPlus, Mail, Lock, User, GraduationCap, Sparkles } from 'lucide-react';
 
 const registerSchema = z.object({
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    name: z.string().min(1, 'Name is required'),
+    email: z.string().email('Harap masukkan alamat email yang valid'),
+    password: z.string().min(8, 'Kata sandi minimal 8 karakter'),
+    name: z.string().min(1, 'Nama wajib diisi'),
     role: z.enum(['MENTEE', 'MENTOR']),
 });
 
@@ -48,7 +48,7 @@ export default function RegisterPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Registration failed');
+                throw new Error(errorData.message || 'Registrasi gagal');
             }
 
             const result = await response.json();
@@ -56,7 +56,7 @@ export default function RegisterPage() {
             // Redirect to login
             window.location.href = '/login?registered=true';
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
+            setError(err instanceof Error ? err.message : 'Registrasi gagal. Silakan coba lagi.');
         } finally {
             setIsLoading(false);
         }
@@ -73,7 +73,7 @@ export default function RegisterPage() {
                     <h1 className="text-3xl font-bold text-primary">
                         BelajarShafa
                     </h1>
-                    <p className="text-muted-foreground mt-2">Create your account and start learning</p>
+                    <p className="text-muted-foreground mt-2">Buat akun Anda dan mulai belajar</p>
                 </div>
 
                 {/* Register Card */}
@@ -81,10 +81,10 @@ export default function RegisterPage() {
                     <CardHeader className="space-y-1">
                         <CardTitle className="text-2xl font-bold flex items-center gap-2">
                             <UserPlus className="w-6 h-6 text-primary" />
-                            Create Account
+                            Buat Akun
                         </CardTitle>
                         <CardDescription>
-                            Join our community of learners and mentors
+                            Bergabunglah dengan komunitas pembelajar dan mentor kami
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -93,12 +93,12 @@ export default function RegisterPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="name" className="flex items-center gap-2">
                                     <User className="w-4 h-4 text-muted-foreground" />
-                                    Full Name
+                                    Nama Lengkap
                                 </Label>
                                 <Input
                                     id="name"
                                     type="text"
-                                    placeholder="John Doe"
+                                    placeholder="Nama Anda"
                                     {...register('name')}
                                     className={errors.name ? 'border-destructive' : ''}
                                 />
@@ -113,12 +113,12 @@ export default function RegisterPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="flex items-center gap-2">
                                     <Mail className="w-4 h-4 text-muted-foreground" />
-                                    Email Address
+                                    Alamat Email
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="you@example.com"
+                                    placeholder="anda@contoh.com"
                                     {...register('email')}
                                     className={errors.email ? 'border-destructive' : ''}
                                 />
@@ -133,7 +133,7 @@ export default function RegisterPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="password" className="flex items-center gap-2">
                                     <Lock className="w-4 h-4 text-muted-foreground" />
-                                    Password
+                                    Kata Sandi
                                 </Label>
                                 <Input
                                     id="password"
@@ -153,7 +153,7 @@ export default function RegisterPage() {
                             <div className="space-y-2">
                                 <Label className="flex items-center gap-2">
                                     <GraduationCap className="w-4 h-4 text-muted-foreground" />
-                                    I want to join as
+                                    Saya ingin bergabung sebagai
                                 </Label>
                                 <Select
                                     value={selectedRole}
@@ -163,7 +163,7 @@ export default function RegisterPage() {
                                     }}
                                 >
                                     <SelectTrigger className={errors.role ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Select your role" />
+                                        <SelectValue placeholder="Pilih peran Anda" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="MENTEE">
@@ -171,7 +171,7 @@ export default function RegisterPage() {
                                                 <div className="w-2 h-2 rounded-full bg-blue-500" />
                                                 <div>
                                                     <div className="font-medium">Mentee</div>
-                                                    <div className="text-xs text-muted-foreground">I want to learn</div>
+                                                    <div className="text-xs text-muted-foreground">Saya ingin belajar</div>
                                                 </div>
                                             </div>
                                         </SelectItem>
@@ -180,7 +180,7 @@ export default function RegisterPage() {
                                                 <div className="w-2 h-2 rounded-full bg-purple-500" />
                                                 <div>
                                                     <div className="font-medium">Mentor</div>
-                                                    <div className="text-xs text-muted-foreground">I want to teach</div>
+                                                    <div className="text-xs text-muted-foreground">Saya ingin mengajar</div>
                                                 </div>
                                             </div>
                                         </SelectItem>
@@ -204,12 +204,12 @@ export default function RegisterPage() {
                                     </div>
                                     <div className="flex-1">
                                         <h4 className="font-semibold text-sm mb-1">
-                                            {selectedRole === 'MENTEE' ? 'As a Mentee' : 'As a Mentor'}
+                                            {selectedRole === 'MENTEE' ? 'Sebagai Mentee' : 'Sebagai Mentor'}
                                         </h4>
                                         <p className="text-xs text-muted-foreground">
                                             {selectedRole === 'MENTEE'
-                                                ? 'You can enroll in classes, track your progress, and connect with experienced mentors.'
-                                                : 'You can create classes, share your knowledge, and guide students on their learning journey.'
+                                                ? 'Anda dapat mendaftar ke kelas, melacak kemajuan, dan terhubung dengan mentor berpengalaman.'
+                                                : 'Anda dapat membuat kelas, berbagi pengetahuan, dan membimbing siswa dalam perjalanan belajar mereka.'
                                             }
                                         </p>
                                     </div>
@@ -232,12 +232,12 @@ export default function RegisterPage() {
                                 {isLoading ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                                        Creating account...
+                                        Membuat akun...
                                     </>
                                 ) : (
                                     <>
                                         <UserPlus className="w-4 h-4 mr-2" />
-                                        Create Account
+                                        Buat Akun
                                     </>
                                 )}
                             </Button>
@@ -245,12 +245,12 @@ export default function RegisterPage() {
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4">
                         <div className="text-sm text-center text-muted-foreground">
-                            Already have an account?{' '}
+                            Sudah punya akun?{' '}
                             <Link
                                 href="/login"
                                 className="font-semibold text-primary hover:underline transition-colors"
                             >
-                                Sign in instead
+                                Masuk di sini
                             </Link>
                         </div>
                     </CardFooter>
@@ -258,13 +258,13 @@ export default function RegisterPage() {
 
                 {/* Footer */}
                 <p className="text-center text-sm text-muted-foreground mt-8">
-                    By creating an account, you agree to our{' '}
+                    Dengan membuat akun, Anda menyetujui{' '}
                     <Link href="/terms" className="underline hover:text-primary transition-colors">
-                        Terms of Service
+                        Syarat Layanan
                     </Link>
-                    {' '}and{' '}
+                    {' '}dan{' '}
                     <Link href="/privacy" className="underline hover:text-primary transition-colors">
-                        Privacy Policy
+                        Kebijakan Privasi
                     </Link>
                 </p>
             </div>

@@ -23,11 +23,11 @@ export default function Home() {
 
             {/* Main Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 text-primary leading-tight">
-              Learn & Grow Together
+              Belajar & Tumbuh Bersama
             </h1>
 
             <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
-              Connect with expert mentors, join engaging classes, and accelerate your learning journey with{' '}
+              Terhubung dengan mentor ahli, ikuti kelas yang menarik, dan percepat perjalanan belajar Anda dengan{' '}
               <span className="font-semibold text-foreground">BelajarShafa</span>
             </p>
 
@@ -38,7 +38,7 @@ export default function Home() {
                   size="lg"
                   className="bg-primary shadow-2xl text-lg px-8 py-6 group"
                 >
-                  Get Started Free
+                  Mulai Gratis
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
@@ -48,7 +48,7 @@ export default function Home() {
                   variant="outline"
                   className="border-2 text-lg px-8 py-6 hover:bg-accent"
                 >
-                  Sign In
+                  Masuk
                 </Button>
               </Link>
             </div>
@@ -57,15 +57,15 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-primary mb-2">1000+</div>
-                <div className="text-sm text-muted-foreground">Active Students</div>
+                <div className="text-sm text-muted-foreground">Siswa Aktif</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-chart-1 mb-2">50+</div>
-                <div className="text-sm text-muted-foreground">Expert Mentors</div>
+                <div className="text-sm text-muted-foreground">Mentor Ahli</div>
               </div>
               <div className="text-center">
                 <div className="text-3xl md:text-4xl font-bold text-chart-2 mb-2">100+</div>
-                <div className="text-sm text-muted-foreground">Courses</div>
+                <div className="text-sm text-muted-foreground">Kelas</div>
               </div>
             </div>
           </div>
@@ -84,13 +84,13 @@ export default function Home() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
-              Why Choose{' '}
+              Mengapa Pilih{' '}
               <span className="text-primary">
                 BelajarShafa
               </span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Everything you need to succeed in your learning journey
+              Semua yang Anda butuhkan untuk sukses dalam perjalanan belajar Anda
             </p>
           </div>
 
@@ -101,9 +101,9 @@ export default function Home() {
                 <div className="w-14 h-14 rounded-2xl bg-blue-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <BookOpen className="w-7 h-7 text-white" />
                 </div>
-                <CardTitle className="text-2xl">Interactive Classes</CardTitle>
+                <CardTitle className="text-2xl">Kelas Interaktif</CardTitle>
                 <CardDescription className="text-base">
-                  Engage with live sessions, assignments, and comprehensive learning materials
+                  Berinteraksi dengan sesi langsung, tugas, dan materi pembelajaran yang komprehensif
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -114,9 +114,9 @@ export default function Home() {
                 <div className="w-14 h-14 rounded-2xl bg-purple-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Users className="w-7 h-7 text-white" />
                 </div>
-                <CardTitle className="text-2xl">Expert Mentors</CardTitle>
+                <CardTitle className="text-2xl">Mentor Ahli</CardTitle>
                 <CardDescription className="text-base">
-                  Learn from experienced professionals who are passionate about teaching
+                  Belajar dari profesional berpengalaman yang bersemangat dalam mengajar
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -127,9 +127,9 @@ export default function Home() {
                 <div className="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                   <Trophy className="w-7 h-7 text-white" />
                 </div>
-                <CardTitle className="text-2xl">Track Progress</CardTitle>
+                <CardTitle className="text-2xl">Lacak Kemajuan</CardTitle>
                 <CardDescription className="text-base">
-                  Monitor your achievements and celebrate milestones along the way
+                  Pantau pencapaian Anda dan rayakan tonggak pencapaian sepanjang perjalanan
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -141,9 +141,9 @@ export default function Home() {
       <section className="py-20 px-4 bg-background">
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-bold mb-4">How It Works</h2>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4">Cara Kerjanya</h2>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-              Get started in three simple steps
+              Mulai dalam tiga langkah sederhana
             </p>
           </div>
 
@@ -158,9 +158,9 @@ export default function Home() {
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 mt-2">
                     <GraduationCap className="w-7 h-7 text-primary" />
                   </div>
-                  <CardTitle className="text-xl">Create Your Account</CardTitle>
+                  <CardTitle className="text-xl">Buat Akun Anda</CardTitle>
                   <CardDescription>
-                    Sign up as a mentee to learn or as a mentor to teach
+                    Daftar sebagai mentee untuk belajar atau sebagai mentor untuk mengajar
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -176,9 +176,9 @@ export default function Home() {
                   <div className="w-14 h-14 rounded-2xl bg-chart-1/10 flex items-center justify-center mb-4 mt-2">
                     <Target className="w-7 h-7 text-chart-1" />
                   </div>
-                  <CardTitle className="text-xl">Choose Your Path</CardTitle>
+                  <CardTitle className="text-xl">Pilih Jalur Anda</CardTitle>
                   <CardDescription>
-                    Browse classes or create your own course to share knowledge
+                    Jelajahi kelas atau buat kursus Anda sendiri untuk berbagi pengetahuan
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -194,9 +194,9 @@ export default function Home() {
                   <div className="w-14 h-14 rounded-2xl bg-chart-2/10 flex items-center justify-center mb-4 mt-2">
                     <Sparkles className="w-7 h-7 text-chart-2" />
                   </div>
-                  <CardTitle className="text-xl">Start Learning</CardTitle>
+                  <CardTitle className="text-xl">Mulai Belajar</CardTitle>
                   <CardDescription>
-                    Engage with content, track progress, and achieve your goals
+                    Berinteraksi dengan konten, lacak kemajuan, dan capai tujuan Anda
                   </CardDescription>
                 </CardHeader>
               </Card>
@@ -211,10 +211,10 @@ export default function Home() {
           <Card className="border-2 shadow-2xl overflow-hidden">
             <div className="bg-primary p-12 text-center text-primary-foreground">
               <h2 className="text-4xl md:text-5xl font-bold mb-4">
-                Ready to Start Your Journey?
+                Siap Memulai Perjalanan Anda?
               </h2>
               <p className="text-xl mb-8 opacity-90">
-                Join thousands of learners and mentors today
+                Bergabunglah dengan ribuan pembelajar dan mentor hari ini
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href="/register">
@@ -223,7 +223,7 @@ export default function Home() {
                     variant="secondary"
                     className="text-lg px-8 py-6 group shadow-xl"
                   >
-                    Get Started Now
+                    Mulai Sekarang
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
@@ -233,7 +233,7 @@ export default function Home() {
                     variant="outline"
                     className="border-2 border-primary-foreground text-primary-foreground hover:bg-primary-foreground hover:text-primary text-lg px-8 py-6"
                   >
-                    Sign In
+                    Masuk
                   </Button>
                 </Link>
               </div>
@@ -254,36 +254,36 @@ export default function Home() {
                 <span className="font-bold text-lg">BelajarShafa</span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Empowering learners and mentors to achieve their goals together.
+                Memberdayakan pembelajar dan mentor untuk mencapai tujuan mereka bersama.
               </p>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Product</h3>
+              <h3 className="font-semibold mb-4">Produk</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/features" className="hover:text-primary transition-colors">Features</Link></li>
-                <li><Link href="/pricing" className="hover:text-primary transition-colors">Pricing</Link></li>
-                <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+                <li><Link href="/features" className="hover:text-primary transition-colors">Fitur</Link></li>
+                <li><Link href="/pricing" className="hover:text-primary transition-colors">Harga</Link></li>
+                <li><Link href="/about" className="hover:text-primary transition-colors">Tentang Kami</Link></li>
               </ul>
             </div>
             <div>
-              <h3 className="font-semibold mb-4">Resources</h3>
+              <h3 className="font-semibold mb-4">Sumber Daya</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link></li>
+                <li><Link href="/docs" className="hover:text-primary transition-colors">Dokumentasi</Link></li>
                 <li><Link href="/blog" className="hover:text-primary transition-colors">Blog</Link></li>
-                <li><Link href="/support" className="hover:text-primary transition-colors">Support</Link></li>
+                <li><Link href="/support" className="hover:text-primary transition-colors">Dukungan</Link></li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold mb-4">Legal</h3>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
-                <li><Link href="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link></li>
+                <li><Link href="/privacy" className="hover:text-primary transition-colors">Kebijakan Privasi</Link></li>
+                <li><Link href="/terms" className="hover:text-primary transition-colors">Syarat Layanan</Link></li>
+                <li><Link href="/cookies" className="hover:text-primary transition-colors">Kebijakan Cookie</Link></li>
               </ul>
             </div>
           </div>
           <div className="pt-8 border-t text-center text-sm text-muted-foreground">
-            <p>© 2025 BelajarShafa. All rights reserved.</p>
+            <p>© 2025 BelajarShafa. Hak cipta dilindungi.</p>
           </div>
         </div>
       </footer>

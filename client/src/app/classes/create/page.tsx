@@ -16,11 +16,11 @@ import { getProfile, UserProfile } from '@/lib/api/auth';
 import { ArrowLeft, Plus, Check, X } from 'lucide-react';
 
 const createClassSchema = z.object({
-    name: z.string().min(3, 'Class name must be at least 3 characters'),
+    name: z.string().min(3, 'Nama kelas minimal 3 karakter'),
     description: z.string().optional(),
     startDate: z.string().optional(),
     endDate: z.string().optional(),
-    mentorIds: z.array(z.string()).min(1, 'Please select at least one mentor'),
+    mentorIds: z.array(z.string()).min(1, 'Harap pilih setidaknya satu mentor'),
 });
 
 type CreateClassFormValues = z.infer<typeof createClassSchema>;
@@ -61,7 +61,7 @@ export default function CreateClassPage() {
                 }
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load data');
+            setError(err instanceof Error ? err.message : 'Gagal memuat data');
         }
     };
 
@@ -84,7 +84,7 @@ export default function CreateClassPage() {
 
     const onSubmit = async (data: CreateClassFormValues) => {
         if (selectedMentorIds.length === 0) {
-            setError('Please select at least one mentor');
+            setError('Harap pilih setidaknya satu mentor');
             return;
         }
 
@@ -103,7 +103,7 @@ export default function CreateClassPage() {
             const newClass = await createClass(classData);
             router.push(`/classes/${newClass.id}`);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create class');
+            setError(err instanceof Error ? err.message : 'Gagal membuat kelas');
         } finally {
             setLoading(false);
         }
@@ -126,7 +126,7 @@ export default function CreateClassPage() {
                     <Link href="/dashboard">
                         <Button variant="ghost" size="sm">
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Dashboard
+                            Kembali ke Dasbor
                         </Button>
                     </Link>
                 </div>
@@ -136,10 +136,10 @@ export default function CreateClassPage() {
                     <CardHeader>
                         <CardTitle className="text-2xl flex items-center gap-2">
                             <Plus className="w-6 h-6 text-primary" />
-                            Create New Class
+                            Buat Kelas Baru
                         </CardTitle>
                         <CardDescription>
-                            Set up a new mentoring class and assign mentors
+                            Siapkan kelas mentoring baru dan tetapkan mentor
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -147,11 +147,11 @@ export default function CreateClassPage() {
                             {/* Class Name */}
                             <div className="space-y-2">
                                 <Label htmlFor="name">
-                                    Class Name <span className="text-destructive">*</span>
+                                    Nama Kelas <span className="text-destructive">*</span>
                                 </Label>
                                 <Input
                                     id="name"
-                                    placeholder="e.g., Introduction to Web Development"
+                                    placeholder="contoh: Pengenalan Pengembangan Web"
                                     {...register('name')}
                                     className={errors.name ? 'border-destructive' : ''}
                                 />
@@ -162,10 +162,10 @@ export default function CreateClassPage() {
 
                             {/* Description */}
                             <div className="space-y-2">
-                                <Label htmlFor="description">Description</Label>
+                                <Label htmlFor="description">Deskripsi</Label>
                                 <textarea
                                     id="description"
-                                    placeholder="Describe what this class is about..."
+                                    placeholder="Jelaskan tentang kelas ini..."
                                     {...register('description')}
                                     className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-input bg-background"
                                 />
@@ -174,7 +174,7 @@ export default function CreateClassPage() {
                             {/* Dates */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="startDate">Start Date</Label>
+                                    <Label htmlFor="startDate">Tanggal Mulai</Label>
                                     <Input
                                         id="startDate"
                                         type="date"
@@ -182,7 +182,7 @@ export default function CreateClassPage() {
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="endDate">End Date</Label>
+                                    <Label htmlFor="endDate">Tanggal Selesai</Label>
                                     <Input
                                         id="endDate"
                                         type="date"
@@ -194,11 +194,11 @@ export default function CreateClassPage() {
                             {/* Mentor Selection */}
                             <div className="space-y-2">
                                 <Label>
-                                    Select Mentors <span className="text-destructive">*</span>
+                                    Pilih Mentor <span className="text-destructive">*</span>
                                 </Label>
                                 {mentors.length === 0 ? (
                                     <p className="text-sm text-muted-foreground">
-                                        No mentors available. Please create mentor accounts first.
+                                        Tidak ada mentor tersedia. Harap buat akun mentor terlebih dahulu.
                                     </p>
                                 ) : (
                                     <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-4">
@@ -240,7 +240,7 @@ export default function CreateClassPage() {
                                                         <p className="font-medium text-sm">
                                                             {mentor.name}
                                                             {isCurrentUser && (
-                                                                <span className="ml-2 text-xs text-muted-foreground">(You)</span>
+                                                                <span className="ml-2 text-xs text-muted-foreground">(Anda)</span>
                                                             )}
                                                         </p>
                                                         <p className="text-xs text-muted-foreground">{mentor.email}</p>
@@ -296,19 +296,19 @@ export default function CreateClassPage() {
                             <div className="flex gap-4">
                                 <Link href="/dashboard">
                                     <Button type="button" variant="outline" className="flex-1">
-                                        Cancel
+                                        Batal
                                     </Button>
                                 </Link>
                                 <Button type="submit" className="flex-1" disabled={loading}>
                                     {loading ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                                            Creating...
+                                            Membuat...
                                         </>
                                     ) : (
                                         <>
                                             <Plus className="w-4 h-4 mr-2" />
-                                            Create Class
+                                            Buat Kelas
                                         </>
                                     )}
                                 </Button>

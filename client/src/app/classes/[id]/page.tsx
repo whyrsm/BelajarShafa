@@ -42,7 +42,7 @@ export default function ClassDetailPage() {
             setClassData(classDataResult);
             setUser(userData);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load class');
+            setError(err instanceof Error ? err.message : 'Gagal memuat kelas');
             if (err instanceof Error && err.message.includes('404')) {
                 router.push('/dashboard');
             }
@@ -52,7 +52,7 @@ export default function ClassDetailPage() {
     };
 
     const handleDelete = async () => {
-        if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+        if (!confirm('Apakah Anda yakin ingin menghapus kelas ini? Tindakan ini tidak dapat dibatalkan.')) {
             return;
         }
 
@@ -61,14 +61,14 @@ export default function ClassDetailPage() {
             await deleteClass(classId);
             router.push('/dashboard');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to delete class');
+            setError(err instanceof Error ? err.message : 'Gagal menghapus kelas');
         } finally {
             setDeleting(false);
         }
     };
 
     const handleLeave = async () => {
-        if (!confirm('Are you sure you want to leave this class?')) {
+        if (!confirm('Apakah Anda yakin ingin keluar dari kelas ini?')) {
             return;
         }
 
@@ -77,14 +77,14 @@ export default function ClassDetailPage() {
             await leaveClass(classId);
             router.push('/dashboard');
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to leave class');
+            setError(err instanceof Error ? err.message : 'Gagal keluar dari kelas');
         } finally {
             setLeaving(false);
         }
     };
 
     const handleRemoveMentee = async (menteeId: string) => {
-        if (!confirm('Are you sure you want to remove this mentee from the class?')) {
+        if (!confirm('Apakah Anda yakin ingin mengeluarkan mentee ini dari kelas?')) {
             return;
         }
 
@@ -92,13 +92,13 @@ export default function ClassDetailPage() {
             await removeMentee(classId, menteeId);
             loadData(); // Reload to update the list
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to remove mentee');
+            setError(err instanceof Error ? err.message : 'Gagal mengeluarkan mentee');
         }
     };
 
     const formatDate = (dateString?: string) => {
-        if (!dateString) return 'Not set';
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return 'Tidak ditetapkan';
+        return new Date(dateString).toLocaleDateString('id-ID', {
             year: 'numeric',
             month: 'long',
             day: 'numeric',
@@ -117,7 +117,7 @@ export default function ClassDetailPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading class details...</p>
+                    <p className="text-muted-foreground">Memuat detail kelas...</p>
                 </div>
             </div>
         );
@@ -128,10 +128,10 @@ export default function ClassDetailPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <Card>
                     <CardContent className="pt-6">
-                        <p className="text-destructive">Class not found</p>
+                        <p className="text-destructive">Kelas tidak ditemukan</p>
                         <Link href="/dashboard">
                             <Button variant="outline" className="mt-4">
-                                Back to Dashboard
+                                Kembali ke Dasbor
                             </Button>
                         </Link>
                     </CardContent>
@@ -148,7 +148,7 @@ export default function ClassDetailPage() {
                     <Link href="/dashboard">
                         <Button variant="ghost" size="sm">
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Dashboard
+                            Kembali ke Dasbor
                         </Button>
                     </Link>
                 </div>
@@ -172,7 +172,7 @@ export default function ClassDetailPage() {
                                     <div className="flex-1">
                                         <CardTitle className="text-2xl mb-2">{classData.name}</CardTitle>
                                         <CardDescription>
-                                            {classData.description || 'No description provided'}
+                                            {classData.description || 'Tidak ada deskripsi'}
                                         </CardDescription>
                                     </div>
                                     {canEdit && (
@@ -189,7 +189,7 @@ export default function ClassDetailPage() {
                                                     disabled={deleting}
                                                 >
                                                     <Trash2 className="w-4 h-4 mr-2" />
-                                                    {deleting ? 'Deleting...' : 'Delete'}
+                                                    {deleting ? 'Menghapus...' : 'Hapus'}
                                                 </Button>
                                             )}
                                         </div>
@@ -202,7 +202,7 @@ export default function ClassDetailPage() {
                                     <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border">
                                         <Code className="w-5 h-5 text-primary" />
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Class Code</p>
+                                            <p className="text-sm text-muted-foreground">Kode Kelas</p>
                                             <p className="font-mono font-bold text-lg text-primary">
                                                 {classData.code}
                                             </p>
@@ -214,14 +214,14 @@ export default function ClassDetailPage() {
                                         <div className="flex items-center gap-3 p-4 rounded-lg border">
                                             <Calendar className="w-5 h-5 text-muted-foreground" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">Start Date</p>
+                                                <p className="text-sm text-muted-foreground">Tanggal Mulai</p>
                                                 <p className="font-medium">{formatDate(classData.startDate)}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3 p-4 rounded-lg border">
                                             <Calendar className="w-5 h-5 text-muted-foreground" />
                                             <div>
-                                                <p className="text-sm text-muted-foreground">End Date</p>
+                                                <p className="text-sm text-muted-foreground">Tanggal Selesai</p>
                                                 <p className="font-medium">{formatDate(classData.endDate)}</p>
                                             </div>
                                         </div>
@@ -236,7 +236,7 @@ export default function ClassDetailPage() {
                                             disabled={leaving}
                                         >
                                             <LogOut className="w-4 h-4 mr-2" />
-                                            {leaving ? 'Leaving...' : 'Leave Class'}
+                                            {leaving ? 'Keluar...' : 'Keluar dari Kelas'}
                                         </Button>
                                     )}
                                 </div>
@@ -245,9 +245,9 @@ export default function ClassDetailPage() {
 
                         {/* Mentors List */}
                         <MemberList
-                            title="Mentors"
+                            title="Mentor"
                             members={classData.mentors}
-                            emptyMessage="No mentors assigned yet"
+                            emptyMessage="Belum ada mentor yang ditetapkan"
                         />
                     </div>
 
@@ -256,9 +256,9 @@ export default function ClassDetailPage() {
                         {/* Mentees List (only for Mentors/Managers) */}
                         {canViewMentees && (
                             <MemberList
-                                title="Mentees"
+                                title="Mentee"
                                 members={classData.mentees}
-                                emptyMessage="No mentees enrolled yet"
+                                emptyMessage="Belum ada mentee yang terdaftar"
                                 showRemoveButton={isMentor || isManager}
                                 onRemove={handleRemoveMentee}
                             />
@@ -267,22 +267,22 @@ export default function ClassDetailPage() {
                         {/* Stats Card */}
                         <Card>
                             <CardHeader>
-                                <CardTitle className="text-lg">Class Statistics</CardTitle>
+                                <CardTitle className="text-lg">Statistik Kelas</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Mentors</span>
+                                        <span className="text-sm text-muted-foreground">Mentor</span>
                                         <span className="font-semibold">{classData.mentors.length}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Mentees</span>
+                                        <span className="text-sm text-muted-foreground">Mentee</span>
                                         <span className="font-semibold">{classData.mentees.length}</span>
                                     </div>
                                     <div className="flex items-center justify-between">
-                                        <span className="text-sm text-muted-foreground">Created</span>
+                                        <span className="text-sm text-muted-foreground">Dibuat</span>
                                         <span className="font-semibold text-xs">
-                                            {new Date(classData.createdAt).toLocaleDateString()}
+                                            {new Date(classData.createdAt).toLocaleDateString('id-ID')}
                                         </span>
                                     </div>
                                 </div>

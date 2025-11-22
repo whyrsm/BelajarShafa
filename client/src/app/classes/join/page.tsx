@@ -15,9 +15,9 @@ import { ArrowLeft, BookOpen, CheckCircle2, Code } from 'lucide-react';
 
 const joinClassSchema = z.object({
     code: z.string()
-        .min(6, 'Class code must be at least 6 characters')
-        .max(8, 'Class code must be at most 8 characters')
-        .regex(/^[A-Z0-9]+$/i, 'Class code must contain only letters and numbers'),
+        .min(6, 'Kode kelas minimal 6 karakter')
+        .max(8, 'Kode kelas maksimal 8 karakter')
+        .regex(/^[A-Z0-9]+$/i, 'Kode kelas hanya boleh berisi huruf dan angka'),
 });
 
 type JoinClassFormValues = z.infer<typeof joinClassSchema>;
@@ -50,7 +50,7 @@ export default function JoinClassPage() {
                 router.push(`/classes/${classData.id}`);
             }, 2000);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to join class');
+            setError(err instanceof Error ? err.message : 'Gagal bergabung dengan kelas');
         } finally {
             setLoading(false);
         }
@@ -64,7 +64,7 @@ export default function JoinClassPage() {
                     <Link href="/dashboard">
                         <Button variant="ghost" size="sm">
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Dashboard
+                            Kembali ke Dasbor
                         </Button>
                     </Link>
                 </div>
@@ -75,21 +75,21 @@ export default function JoinClassPage() {
                         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 mx-auto">
                             <BookOpen className="w-8 h-8 text-primary" />
                         </div>
-                        <CardTitle className="text-2xl text-center">Join a Class</CardTitle>
+                        <CardTitle className="text-2xl text-center">Gabung Kelas</CardTitle>
                         <CardDescription className="text-center">
-                            Enter the class code provided by your mentor
+                            Masukkan kode kelas yang diberikan oleh mentor Anda
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         {success ? (
                             <div className="text-center py-8">
                                 <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-                                <h3 className="text-lg font-semibold mb-2">Successfully Joined!</h3>
+                                <h3 className="text-lg font-semibold mb-2">Berhasil Bergabung!</h3>
                                 <p className="text-muted-foreground mb-4">
-                                    You have been added to the class. Redirecting...
+                                    Anda telah ditambahkan ke kelas. Mengalihkan...
                                 </p>
                                 <Link href={`/classes/${joinedClassId}`}>
-                                    <Button>Go to Class</Button>
+                                    <Button>Ke Kelas</Button>
                                 </Link>
                             </div>
                         ) : (
@@ -98,11 +98,11 @@ export default function JoinClassPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="code" className="flex items-center gap-2">
                                         <Code className="w-4 h-4 text-muted-foreground" />
-                                        Class Code
+                                        Kode Kelas
                                     </Label>
                                     <Input
                                         id="code"
-                                        placeholder="Enter 6-8 character code"
+                                        placeholder="Masukkan kode 6-8 karakter"
                                         {...register('code')}
                                         className={`text-center text-lg font-mono tracking-wider uppercase ${
                                             errors.code ? 'border-destructive' : ''
@@ -117,7 +117,7 @@ export default function JoinClassPage() {
                                     )}
                                     {codeValue && !errors.code && (
                                         <p className="text-xs text-muted-foreground">
-                                            Code: {codeValue.toUpperCase()}
+                                            Kode: {codeValue.toUpperCase()}
                                         </p>
                                     )}
                                 </div>
@@ -125,8 +125,8 @@ export default function JoinClassPage() {
                                 {/* Info Box */}
                                 <div className="p-4 rounded-lg bg-muted/50 border">
                                     <p className="text-sm text-muted-foreground">
-                                        <strong>Note:</strong> Class codes are 6-8 characters long and contain only letters and numbers.
-                                        Ask your mentor for the class code if you don't have it.
+                                        <strong>Catatan:</strong> Kode kelas terdiri dari 6-8 karakter dan hanya berisi huruf dan angka.
+                                        Tanyakan mentor Anda untuk kode kelas jika Anda tidak memilikinya.
                                     </p>
                                 </div>
 
@@ -142,12 +142,12 @@ export default function JoinClassPage() {
                                     {loading ? (
                                         <>
                                             <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                                            Joining...
+                                            Bergabung...
                                         </>
                                     ) : (
                                         <>
                                             <BookOpen className="w-4 h-4 mr-2" />
-                                            Join Class
+                                            Gabung Kelas
                                         </>
                                     )}
                                 </Button>

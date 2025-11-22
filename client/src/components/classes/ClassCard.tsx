@@ -13,8 +13,8 @@ interface ClassCardProps {
 
 export function ClassCard({ classData, showActions = true }: ClassCardProps) {
     const formatDate = (dateString?: string) => {
-        if (!dateString) return 'Not set';
-        return new Date(dateString).toLocaleDateString('en-US', {
+        if (!dateString) return 'Tidak ditetapkan';
+        return new Date(dateString).toLocaleDateString('id-ID', {
             year: 'numeric',
             month: 'short',
             day: 'numeric',
@@ -28,7 +28,7 @@ export function ClassCard({ classData, showActions = true }: ClassCardProps) {
                     <div className="flex-1">
                         <CardTitle className="text-xl mb-2">{classData.name}</CardTitle>
                         <CardDescription className="line-clamp-2">
-                            {classData.description || 'No description provided'}
+                            {classData.description || 'Tidak ada deskripsi'}
                         </CardDescription>
                     </div>
                 </div>
@@ -45,11 +45,11 @@ export function ClassCard({ classData, showActions = true }: ClassCardProps) {
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            <span>{classData.mentors.length} Mentor{classData.mentors.length !== 1 ? 's' : ''}</span>
+                            <span>{classData.mentors.length} Mentor</span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Users className="w-4 h-4" />
-                            <span>{classData.mentees.length} Mentee{classData.mentees.length !== 1 ? 's' : ''}</span>
+                            <span>{classData.mentees.length} Mentee</span>
                         </div>
                     </div>
 
@@ -65,7 +65,7 @@ export function ClassCard({ classData, showActions = true }: ClassCardProps) {
                     {showActions && (
                         <Link href={`/classes/${classData.id}`}>
                             <Button variant="outline" className="w-full mt-4">
-                                View Details
+                                Lihat Detail
                                 <ArrowRight className="w-4 h-4 ml-2" />
                             </Button>
                         </Link>

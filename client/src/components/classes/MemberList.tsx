@@ -22,7 +22,7 @@ interface MemberListProps {
 export function MemberList({ 
     title, 
     members, 
-    emptyMessage = 'No members yet',
+    emptyMessage = 'Belum ada anggota',
     onRemove,
     showRemoveButton = false 
 }: MemberListProps) {
@@ -79,7 +79,7 @@ export function MemberList({
                                         onClick={() => onRemove(member.id)}
                                         className="text-destructive hover:text-destructive"
                                     >
-                                        Remove
+                                        Hapus
                                     </Button>
                                 )}
                             </div>

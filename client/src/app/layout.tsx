@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "BelajarShafa - Learn & Grow Together",
-  description: "A modern learning management platform connecting mentors and mentees",
+  title: "BelajarShafa - Belajar & Tumbuh Bersama",
+  description: "Platform manajemen pembelajaran modern yang menghubungkan mentor dan mentee",
 };
 
 export default function RootLayout({
@@ -19,7 +19,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="id" className={inter.variable}>
       <body className="antialiased">
         {children}
       </body>

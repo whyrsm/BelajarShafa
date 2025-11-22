@@ -37,7 +37,7 @@ export default function DashboardPage() {
             setClasses(classesData);
             setUser(userData);
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to load data');
+            setError(err instanceof Error ? err.message : 'Gagal memuat data');
             if (err instanceof Error && err.message.includes('401')) {
                 localStorage.removeItem('access_token');
                 router.push('/login');
@@ -60,7 +60,7 @@ export default function DashboardPage() {
             <div className="min-h-screen flex items-center justify-center">
                 <div className="text-center">
                     <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-muted-foreground">Loading...</p>
+                    <p className="text-muted-foreground">Memuat...</p>
                 </div>
             </div>
         );
@@ -79,15 +79,15 @@ export default function DashboardPage() {
                             <div>
                                 <h1 className="text-xl font-bold">BelajarShafa</h1>
                                 <p className="text-xs text-muted-foreground">
-                                    {user?.role === 'MANAGER' && 'Manager Dashboard'}
-                                    {user?.role === 'MENTOR' && 'Mentor Dashboard'}
-                                    {user?.role === 'MENTEE' && 'Mentee Dashboard'}
+                                    {user?.role === 'MANAGER' && 'Dasbor Manager'}
+                                    {user?.role === 'MENTOR' && 'Dasbor Mentor'}
+                                    {user?.role === 'MENTEE' && 'Dasbor Mentee'}
                                 </p>
                             </div>
                         </div>
                         <Button variant="outline" onClick={handleLogout}>
                             <LogOut className="w-4 h-4 mr-2" />
-                            Logout
+                            Keluar
                         </Button>
                     </div>
                 </div>
@@ -101,7 +101,7 @@ export default function DashboardPage() {
                         <Link href="/classes/create">
                             <Button size="lg">
                                 <Plus className="w-5 h-5 mr-2" />
-                                Create Class
+                                Buat Kelas
                             </Button>
                         </Link>
                     )}
@@ -109,7 +109,7 @@ export default function DashboardPage() {
                         <Link href="/classes/join">
                             <Button size="lg" variant="outline">
                                 <BookOpen className="w-5 h-5 mr-2" />
-                                Join Class
+                                Gabung Kelas
                             </Button>
                         </Link>
                     )}
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-6">
                         <BookOpen className="w-6 h-6 text-primary" />
                         <h2 className="text-2xl font-bold">
-                            {user?.role === 'MENTEE' ? 'My Classes' : 'My Classes'}
+                            {user?.role === 'MENTEE' ? 'Kelas Saya' : 'Kelas Saya'}
                         </h2>
                     </div>
 
@@ -138,19 +138,19 @@ export default function DashboardPage() {
                             <CardContent className="pt-6">
                                 <div className="text-center py-12">
                                     <Users className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                                    <h3 className="text-lg font-semibold mb-2">No classes yet</h3>
+                                    <h3 className="text-lg font-semibold mb-2">Belum ada kelas</h3>
                                     <p className="text-muted-foreground mb-4">
                                         {canCreateClass
-                                            ? 'Create your first class to get started'
+                                            ? 'Buat kelas pertama Anda untuk memulai'
                                             : canJoinClass
-                                            ? 'Join a class using a class code'
-                                            : 'You are not enrolled in any classes'}
+                                            ? 'Gabung kelas menggunakan kode kelas'
+                                            : 'Anda belum terdaftar di kelas manapun'}
                                     </p>
                                     {canCreateClass && (
                                         <Link href="/classes/create">
                                             <Button>
                                                 <Plus className="w-4 h-4 mr-2" />
-                                                Create Class
+                                                Buat Kelas
                                             </Button>
                                         </Link>
                                     )}
@@ -158,7 +158,7 @@ export default function DashboardPage() {
                                         <Link href="/classes/join">
                                             <Button>
                                                 <BookOpen className="w-4 h-4 mr-2" />
-                                                Join Class
+                                                Gabung Kelas
                                             </Button>
                                         </Link>
                                     )}

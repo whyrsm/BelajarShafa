@@ -12,8 +12,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { LogIn, Mail, Lock, Sparkles } from 'lucide-react';
 
 const loginSchema = z.object({
-    email: z.string().email('Please enter a valid email address'),
-    password: z.string().min(1, 'Password is required'),
+    email: z.string().email('Harap masukkan alamat email yang valid'),
+    password: z.string().min(1, 'Kata sandi wajib diisi'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -40,7 +40,7 @@ export default function LoginPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Login failed');
+                throw new Error('Login gagal');
             }
 
             const result = await response.json();
@@ -49,7 +49,7 @@ export default function LoginPage() {
             localStorage.setItem('access_token', result.access_token);
             window.location.href = '/dashboard';
         } catch (err) {
-            setError('Login failed. Please check your credentials and try again.');
+            setError('Login gagal. Harap periksa kredensial Anda dan coba lagi.');
         } finally {
             setIsLoading(false);
         }
@@ -66,7 +66,7 @@ export default function LoginPage() {
                     <h1 className="text-3xl font-bold text-primary">
                         BelajarShafa
                     </h1>
-                    <p className="text-muted-foreground mt-2">Welcome back! Please login to continue</p>
+                    <p className="text-muted-foreground mt-2">Selamat datang kembali! Silakan masuk untuk melanjutkan</p>
                 </div>
 
                 {/* Login Card */}
@@ -74,10 +74,10 @@ export default function LoginPage() {
                     <CardHeader className="space-y-1">
                         <CardTitle className="text-2xl font-bold flex items-center gap-2">
                             <LogIn className="w-6 h-6 text-primary" />
-                            Sign In
+                            Masuk
                         </CardTitle>
                         <CardDescription>
-                            Enter your credentials to access your account
+                            Masukkan kredensial Anda untuk mengakses akun
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -86,12 +86,12 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="email" className="flex items-center gap-2">
                                     <Mail className="w-4 h-4 text-muted-foreground" />
-                                    Email Address
+                                    Alamat Email
                                 </Label>
                                 <Input
                                     id="email"
                                     type="email"
-                                    placeholder="you@example.com"
+                                    placeholder="anda@contoh.com"
                                     {...register('email')}
                                     className={errors.email ? 'border-destructive' : ''}
                                 />
@@ -106,7 +106,7 @@ export default function LoginPage() {
                             <div className="space-y-2">
                                 <Label htmlFor="password" className="flex items-center gap-2">
                                     <Lock className="w-4 h-4 text-muted-foreground" />
-                                    Password
+                                    Kata Sandi
                                 </Label>
                                 <Input
                                     id="password"
@@ -138,12 +138,12 @@ export default function LoginPage() {
                                 {isLoading ? (
                                     <>
                                         <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
-                                        Signing in...
+                                        Masuk...
                                     </>
                                 ) : (
                                     <>
                                         <LogIn className="w-4 h-4 mr-2" />
-                                        Sign In
+                                        Masuk
                                     </>
                                 )}
                             </Button>
@@ -151,17 +151,17 @@ export default function LoginPage() {
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-4">
                         <div className="text-sm text-center text-muted-foreground">
-                            Don't have an account?{' '}
+                            Belum punya akun?{' '}
                             <Link
                                 href="/register"
                                 className="font-semibold text-primary hover:underline transition-colors"
                             >
-                                Create one now
+                                Buat sekarang
                             </Link>
                         </div>
                         <div className="text-xs text-center text-muted-foreground">
                             <Link href="/forgot-password" className="hover:text-primary transition-colors">
-                                Forgot your password?
+                                Lupa kata sandi?
                             </Link>
                         </div>
                     </CardFooter>
@@ -169,13 +169,13 @@ export default function LoginPage() {
 
                 {/* Footer */}
                 <p className="text-center text-sm text-muted-foreground mt-8">
-                    By signing in, you agree to our{' '}
+                    Dengan masuk, Anda menyetujui{' '}
                     <Link href="/terms" className="underline hover:text-primary transition-colors">
-                        Terms of Service
+                        Syarat Layanan
                     </Link>
-                    {' '}and{' '}
+                    {' '}dan{' '}
                     <Link href="/privacy" className="underline hover:text-primary transition-colors">
-                        Privacy Policy
+                        Kebijakan Privasi
                     </Link>
                 </p>
             </div>
