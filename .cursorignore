@@ -1,0 +1,95 @@
+# Security - Sensitive files
+.env
+.env.*
+*.env
+*.env.local
+*.env.*.local
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.cer
+*.jks
+*.keystore
+secrets/
+**/secrets/**
+*.secret
+*.private
+settings.local.json
+
+# Token Optimization - Dependencies
+node_modules/
+**/node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Token Optimization - Build outputs
+dist/
+**/dist/
+build/
+**/build/
+.next/
+**/.next/
+out/
+**/out/
+next-env.d.ts
+**/next-env.d.ts
+*.tsbuildinfo
+*.js.map
+*.d.ts.map
+**/dist/**/*.d.ts
+node_modules/.prisma/
+**/node_modules/.prisma/
+
+# Token Optimization - Cache directories
+.cache/
+**/.cache/
+.parcel-cache/
+**/.parcel-cache/
+.npm/
+**/.npm/
+.eslintcache
+*.log
+logs/
+**/logs/
+
+# Token Optimization - Version control
+.git/
+.gitignore
+.gitattributes
+
+# Token Optimization - IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Token Optimization - Test coverage
+coverage/
+**/coverage/
+.nyc_output/
+**/.nyc_output/
+*.lcov
+
+# Token Optimization - Temporary files
+tmp/
+temp/
+*.tmp
+*.temp
+
+# Token Optimization - Database files (if any)
+*.db
+*.sqlite
+*.sqlite3
+docker-data/
+.docker/
+
+# Keep these included (commented out means they're accessible):
+# docs/ - Keep for design/architecture context
+# **/migrations/ - Keep for database schema context
+# **/*.spec.ts - Keep for test context
