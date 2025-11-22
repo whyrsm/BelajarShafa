@@ -28,6 +28,12 @@ export declare class UsersController {
         createdAt: Date;
         updatedAt: Date;
     }[]>;
+    findMentors(): import(".prisma/client").Prisma.PrismaPromise<{
+        email: string;
+        name: string;
+        id: string;
+        avatarUrl: string;
+    }[]>;
     findOne(id: string): import(".prisma/client").Prisma.Prisma__UserClient<{
         email: string;
         password: string;

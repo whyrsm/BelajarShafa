@@ -44,6 +44,17 @@ let UsersService = class UsersService {
     remove(id) {
         return this.prisma.user.delete({ where: { id } });
     }
+    findMentors() {
+        return this.prisma.user.findMany({
+            where: { role: 'MENTOR' },
+            select: {
+                id: true,
+                name: true,
+                email: true,
+                avatarUrl: true,
+            },
+        });
+    }
 };
 exports.UsersService = UsersService;
 exports.UsersService = UsersService = __decorate([

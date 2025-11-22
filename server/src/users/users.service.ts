@@ -42,4 +42,16 @@ export class UsersService {
   remove(id: string) {
     return this.prisma.user.delete({ where: { id } });
   }
+
+  findMentors() {
+    return this.prisma.user.findMany({
+      where: { role: 'MENTOR' },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        avatarUrl: true,
+      },
+    });
+  }
 }

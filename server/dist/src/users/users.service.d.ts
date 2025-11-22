@@ -76,4 +76,10 @@ export declare class UsersService {
         createdAt: Date;
         updatedAt: Date;
     }, never, import("@prisma/client/runtime/client").DefaultArgs, import(".prisma/client").Prisma.PrismaClientOptions>;
+    findMentors(): import(".prisma/client").Prisma.PrismaPromise<{
+        email: string;
+        name: string;
+        id: string;
+        avatarUrl: string;
+    }[]>;
 }

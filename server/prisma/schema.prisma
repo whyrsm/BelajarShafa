@@ -64,19 +64,19 @@ model Organization {
 }
 
 model Class {
-  id             String       @id @default(uuid())
+  id             String        @id @default(uuid())
   name           String
   description    String?
-  code           String       @unique
-  organizationId String
+  code           String        @unique
+  organizationId String?
   startDate      DateTime?
   endDate        DateTime?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  organization   Organization? @relation(fields: [organizationId], references: [id])
   sessions       Session[]
-  mentees        User[]       @relation("ClassMentee")
-  mentors        User[]       @relation("ClassMentor")
+  mentees        User[]        @relation("ClassMentee")
+  mentors        User[]        @relation("ClassMentor")
 }
 
 model Session {
