@@ -17,13 +17,15 @@ model User {
   isVerified      Boolean        @default(false)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
-  attendances     Attendance[]
+  attendances     Attendance[]  @relation("AttendanceUser")
   menteeProfile   MenteeProfile?
   mentorProfile   MentorProfile?
   joinedClasses   Class[]        @relation("ClassMentee")
   mentoredClasses Class[]        @relation("ClassMentor")
   managedOrgs     Organization[] @relation("OrgManager")
   memberOrgs      Organization[] @relation("OrgMember")
+  createdSessions Session[]      @relation("SessionCreator")
+  markedAttendances Attendance[] @relation("AttendanceMarker")
 }
 
 model MentorProfile {
@@ -80,17 +82,23 @@ model Class {
 }
 
 model Session {
-  id          String       @id @default(uuid())
-  title       String
-  description String?
-  startTime   DateTime
-  endTime     DateTime
-  location    String?
-  classId     String
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  attendances Attendance[]
-  class       Class        @relation(fields: [classId], references: [id])
+  id                   String       @id @default(uuid())
+  title                String
+  description          String?
+  startTime            DateTime
+  endTime              DateTime
+  type                 SessionType
+  location             String?
+  meetingUrl           String?
+  checkInWindowMinutes Int          @default(15)
+  checkInCloseMinutes  Int          @default(30)
+  classId              String
+  createdBy            String
+  createdAt            DateTime     @default(now())
+  updatedAt            DateTime     @updatedAt
+  attendances          Attendance[]
+  class                Class        @relation(fields: [classId], references: [id])
+  creator              User         @relation("SessionCreator", fields: [createdBy], references: [id])
 }
 
 model Attendance {
@@ -100,10 +108,12 @@ model Attendance {
   status      AttendanceStatus
   checkInTime DateTime?
   notes       String?
+  markedBy    String?
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   session     Session          @relation(fields: [sessionId], references: [id])
-  user        User             @relation(fields: [userId], references: [id])
+  user        User             @relation("AttendanceUser", fields: [userId], references: [id])
+  marker      User?            @relation("AttendanceMarker", fields: [markedBy], references: [id])
 
   @@unique([sessionId, userId])
 }
@@ -132,4 +142,9 @@ enum AttendanceStatus {
   ABSENT
   PERMIT
   SICK
+}
+
+enum SessionType {
+  ONLINE
+  OFFLINE
 }

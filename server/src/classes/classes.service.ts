@@ -180,6 +180,24 @@ export class ClassesService {
                             name: true,
                         },
                     },
+                    sessions: {
+                        select: {
+                            id: true,
+                            title: true,
+                            startTime: true,
+                            endTime: true,
+                            type: true,
+                        },
+                        orderBy: {
+                            startTime: 'desc',
+                        },
+                        take: 5, // Limit to recent 5 sessions for list view
+                    },
+                    _count: {
+                        select: {
+                            sessions: true,
+                        },
+                    },
                 },
                 orderBy: {
                     createdAt: 'desc',
@@ -218,6 +236,24 @@ export class ClassesService {
                             name: true,
                         },
                     },
+                    sessions: {
+                        select: {
+                            id: true,
+                            title: true,
+                            startTime: true,
+                            endTime: true,
+                            type: true,
+                        },
+                        orderBy: {
+                            startTime: 'desc',
+                        },
+                        take: 5, // Limit to recent 5 sessions for list view
+                    },
+                    _count: {
+                        select: {
+                            sessions: true,
+                        },
+                    },
                 },
                 orderBy: {
                     createdAt: 'desc',
@@ -254,6 +290,24 @@ export class ClassesService {
                         select: {
                             id: true,
                             name: true,
+                        },
+                    },
+                    sessions: {
+                        select: {
+                            id: true,
+                            title: true,
+                            startTime: true,
+                            endTime: true,
+                            type: true,
+                        },
+                        orderBy: {
+                            startTime: 'desc',
+                        },
+                        take: 5, // Limit to recent 5 sessions for list view
+                    },
+                    _count: {
+                        select: {
+                            sessions: true,
                         },
                     },
                 },
@@ -295,6 +349,37 @@ export class ClassesService {
                     select: {
                         id: true,
                         name: true,
+                    },
+                },
+                sessions: {
+                    include: {
+                        creator: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                            },
+                        },
+                        attendances: {
+                            include: {
+                                user: {
+                                    select: {
+                                        id: true,
+                                        name: true,
+                                        email: true,
+                                        avatarUrl: true,
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    orderBy: {
+                        startTime: 'desc',
+                    },
+                },
+                _count: {
+                    select: {
+                        sessions: true,
                     },
                 },
             },
