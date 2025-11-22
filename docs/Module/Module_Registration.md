@@ -5,7 +5,6 @@
 - Setiap registrasi memerlukan verifikasi email
 - Mentor registration memerlukan approval dari Manager
 - Setiap user memiliki profil yang dapat dilengkapi setelah registrasi
-- Sistem mendukung social login (Google) sebagai alternatif
 
 ### Functional Requirements
 
@@ -101,23 +100,6 @@
     - Mentor dapat reply via email atau update aplikasi
 - Manager dapat melihat history semua actions (audit trail)
 
-#### FR-REG-005: Social Login (Google)
-- User dapat login/register menggunakan Google:
-  - Klik tombol "Continue with Google"
-  - Redirect ke Google OAuth
-  - Setelah authorize, sistem ambil data: email, nama, foto profil
-  - Jika email sudah terdaftar: login langsung
-  - Jika email belum terdaftar: 
-    - Buat account baru dengan status "Verified" (skip email verification)
-    - User pilih role: Mentee atau Mentor
-    - Redirect ke form completion sesuai role (pre-fill data dari Google)
-- Social login account tetap perlu complete profile sesuai role
-- Mentor dari social login tetap perlu approval dari Manager
-    - User pilih role: Mentee atau Mentor
-    - Redirect ke form completion sesuai role
-- Social login account tetap perlu complete profile sesuai role
-- Mentor dari social login tetap perlu approval dari Manager
-
 #### FR-REG-006: Password Requirements & Security
 - Password harus memenuhi kriteria:
   - Minimal 8 karakter
@@ -177,10 +159,6 @@
 - Jika email sudah terdaftar:
   - Tampilkan error: "Email already registered"
   - Berikan opsi: "Forgot Password?" atau "Login"
-- Untuk social login:
-  - Check email dari OAuth provider
-  - Jika sudah terdaftar dengan email biasa: link accounts (merge)
-  - Jika sudah terdaftar dengan social login lain: tampilkan error, suggest login dengan method yang sudah ada
 
 ### Non-Functional Requirements
 - Email verification token harus expired dalam 24 jam

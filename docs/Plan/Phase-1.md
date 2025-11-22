@@ -15,7 +15,7 @@ The goal of Phase 1 is to build the **Minimum Viable Product (MVP)** that allows
 ### 1. System Foundation (Technical)
 Before any features, the skeleton must be ready.
 -   **Tech Stack**: Next.js (Frontend), NestJS (Backend), PostgreSQL + Prisma (DB).
--   **Infrastructure**: CI/CD pipeline, Docker (optional for local), Cloudflare R2 setup.
+-   **Infrastructure**: Cloudflare R2 setup.
 
 ### 2. Authentication & User Management
 Users must be able to enter the system securely.
