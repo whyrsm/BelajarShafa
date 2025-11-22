@@ -1,0 +1,162 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  MENTOR
+  MENTEE
+}
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
+enum ApplicationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  name          String
+  role          UserRole
+  gender        Gender?
+  avatarUrl     String?
+  isVerified    Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  mentorProfile MentorProfile?
+  menteeProfile MenteeProfile?
+  
+  // Organization relations
+  managedOrgs   Organization[] @relation("OrgManager")
+  memberOrgs    Organization[] @relation("OrgMember")
+
+  // Class relations
+  mentoredClasses Class[] @relation("ClassMentor")
+  joinedClasses   Class[] @relation("ClassMentee")
+
+  // Attendance
+  attendances     Attendance[]
+}
+
+model MentorProfile {
+  id              String            @id @default(uuid())
+  userId          String            @unique
+  user            User              @relation(fields: [userId], references: [id])
+  
+  currentJob      String
+  company         String
+  experienceYears Int
+  linkedinUrl     String?
+  expertise       String[]
+  motivation      String
+  availability    String[]
+  
+  applicationStatus ApplicationStatus @default(PENDING)
+  rejectionReason   String?
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+}
+
+model MenteeProfile {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Organization {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  logoUrl     String?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  managers    User[]   @relation("OrgManager")
+  members     User[]   @relation("OrgMember")
+  classes     Class[]
+}
+
+model Class {
+  id             String   @id @default(uuid())
+  name           String
+  description    String?
+  code           String   @unique // 6-8 chars
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  
+  startDate      DateTime?
+  endDate        DateTime?
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  mentors        User[]   @relation("ClassMentor")
+  mentees        User[]   @relation("ClassMentee")
+  sessions       Session[]
+}
+
+model Session {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  startTime   DateTime
+  endTime     DateTime
+  location    String? // Link or physical location
+  classId     String
+  class       Class    @relation(fields: [classId], references: [id])
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  attendances Attendance[]
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  PERMIT
+  SICK
+}
+
+model Attendance {
+  id          String           @id @default(uuid())
+  sessionId   String
+  session     Session          @relation(fields: [sessionId], references: [id])
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  
+  status      AttendanceStatus
+  checkInTime DateTime?
+  notes       String?
+  
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([sessionId, userId])
+}
