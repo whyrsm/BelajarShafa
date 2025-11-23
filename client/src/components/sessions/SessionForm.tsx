@@ -45,9 +45,6 @@ export function SessionForm({ classId, session, onSuccess, onCancel, hideHeader 
                   startTime: session.startTime
                       ? new Date(session.startTime).toISOString().slice(0, 16)
                       : '',
-                  endTime: session.endTime
-                      ? new Date(session.endTime).toISOString().slice(0, 16)
-                      : '',
                   type: session.type || 'ONLINE',
                   location: session.location || '',
                   meetingUrl: session.meetingUrl || '',
@@ -57,7 +54,6 @@ export function SessionForm({ classId, session, onSuccess, onCancel, hideHeader 
                   title: '',
                   description: '',
                   startTime: '',
-                  endTime: '',
                   type: 'ONLINE',
                   location: '',
                   meetingUrl: '',
@@ -148,37 +144,20 @@ export function SessionForm({ classId, session, onSuccess, onCancel, hideHeader 
                             )}
                         />
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                                control={form.control}
-                                name="startTime"
-                                rules={{ required: 'Waktu mulai wajib diisi' }}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Waktu Mulai</FormLabel>
-                                        <FormControl>
-                                            <Input type="datetime-local" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-
-                            <FormField
-                                control={form.control}
-                                name="endTime"
-                                rules={{ required: 'Waktu selesai wajib diisi' }}
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Waktu Selesai</FormLabel>
-                                        <FormControl>
-                                            <Input type="datetime-local" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                        </div>
+                        <FormField
+                            control={form.control}
+                            name="startTime"
+                            rules={{ required: 'Waktu mulai wajib diisi' }}
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Waktu Mulai</FormLabel>
+                                    <FormControl>
+                                        <Input type="datetime-local" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
 
                         <FormField
                             control={form.control}

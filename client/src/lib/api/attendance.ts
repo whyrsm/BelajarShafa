@@ -71,7 +71,7 @@ export interface AttendanceHistoryItem {
         id: string;
         title: string;
         startTime: string;
-        endTime: string;
+        endTime?: string;
     };
     attendance: Attendance | null;
 }

@@ -36,11 +36,13 @@ export class SessionsService {
       }
     }
 
-    // Validate endTime is after startTime
+    // Validate endTime is after startTime if provided
     const startTime = new Date(createSessionDto.startTime);
-    const endTime = new Date(createSessionDto.endTime);
-    if (endTime <= startTime) {
-      throw new BadRequestException('End time must be after start time');
+    if (createSessionDto.endTime) {
+      const endTime = new Date(createSessionDto.endTime);
+      if (endTime <= startTime) {
+        throw new BadRequestException('End time must be after start time');
+      }
     }
 
     // Validate type-specific fields
@@ -58,7 +60,7 @@ export class SessionsService {
         title: createSessionDto.title,
         description: createSessionDto.description,
         startTime,
-        endTime,
+        endTime: createSessionDto.endTime ? new Date(createSessionDto.endTime) : null,
         type: createSessionDto.type,
         location: createSessionDto.location,
         meetingUrl: createSessionDto.meetingUrl,
@@ -261,8 +263,8 @@ export class SessionsService {
     if (updateSessionDto.startTime) {
       updateData.startTime = new Date(updateSessionDto.startTime);
     }
-    if (updateSessionDto.endTime) {
-      updateData.endTime = new Date(updateSessionDto.endTime);
+    if (updateSessionDto.endTime !== undefined) {
+      updateData.endTime = updateSessionDto.endTime ? new Date(updateSessionDto.endTime) : null;
     }
     if (updateSessionDto.type) {
       updateData.type = updateSessionDto.type;

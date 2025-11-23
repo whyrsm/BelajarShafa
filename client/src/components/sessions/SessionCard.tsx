@@ -49,10 +49,10 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
     const [deleting, setDeleting] = useState(false);
 
     const startTime = new Date(session.startTime);
-    const endTime = new Date(session.endTime);
+    const endTime = session.endTime ? new Date(session.endTime) : null;
     const now = new Date();
     const isUpcoming = startTime > now;
-    const isPast = endTime < now;
+    const isPast = endTime ? endTime < now : startTime < now;
 
     const canEdit = userRole === 'MANAGER' || userRole === 'MENTOR';
     const canMarkAttendance = userRole === 'MANAGER' || userRole === 'MENTOR';
@@ -101,7 +101,8 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
                         <div className="flex items-center gap-2 text-sm">
                             <Calendar className="w-4 h-4 text-muted-foreground" />
                             <span>
-                                {formatDate(startTime)} - {formatTime(endTime)}
+                                {formatDate(startTime)}
+                                {endTime && ` - ${formatTime(endTime)}`}
                             </span>
                         </div>
                         {session.type === 'ONLINE' ? (

@@ -19,8 +19,8 @@ export class CreateSessionDto {
   startTime: string;
 
   @IsDateString()
-  @IsNotEmpty()
-  endTime: string;
+  @IsOptional()
+  endTime?: string;
 
   @IsEnum(SessionType)
   @IsNotEmpty()

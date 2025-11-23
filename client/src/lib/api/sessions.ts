@@ -29,7 +29,7 @@ export interface Session {
     title: string;
     description?: string;
     startTime: string;
-    endTime: string;
+    endTime?: string;
     type: SessionType;
     location?: string;
     meetingUrl?: string;
@@ -67,7 +67,7 @@ export interface CreateSessionData {
     title: string;
     description?: string;
     startTime: string;
-    endTime: string;
+    endTime?: string;
     type: SessionType;
     location?: string;
     meetingUrl?: string;
