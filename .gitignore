@@ -11,6 +11,8 @@ node_modules/
 server/.env
 client/.env
 
+server/dist
+
 # Local settings
 settings.local.json
 

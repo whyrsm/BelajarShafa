@@ -35,7 +35,7 @@ This is the main value proposition.
 -   **Class Setup**: Create Class, Assign Mentors.
 -   **Enrollment**: Generate Class Code, Mentee Join via Code.
 -   **Sessions**: Schedule Meetings (Online/Offline).
--   **Attendance**: Self Check-in mechanism for Mentees.
+-   **Attendance**: Self Check-in mechanism for Mentees, or mark presence by Mentor
 
 ---
 
