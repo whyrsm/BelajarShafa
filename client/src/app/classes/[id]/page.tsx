@@ -21,11 +21,10 @@ import {
     Calendar,
     Users,
     LogOut,
-    BookOpen,
     ClipboardList,
 } from 'lucide-react';
 
-type TabType = 'overview' | 'sessions' | 'members' | 'attendance';
+type TabType = 'sessions' | 'members' | 'attendance';
 
 export default function ClassDetailPage() {
     const router = useRouter();
@@ -38,7 +37,7 @@ export default function ClassDetailPage() {
     const [user, setUser] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [activeTab, setActiveTab] = useState<TabType>('overview');
+    const [activeTab, setActiveTab] = useState<TabType>('sessions');
     const [showSessionForm, setShowSessionForm] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [leaving, setLeaving] = useState(false);
@@ -201,10 +200,9 @@ export default function ClassDetailPage() {
     }
 
     const tabs = [
-        { id: 'overview' as TabType, label: 'Overview', icon: BookOpen },
-        { id: 'sessions' as TabType, label: 'Sessions', icon: Calendar },
-        { id: 'members' as TabType, label: 'Members', icon: Users },
-        { id: 'attendance' as TabType, label: 'Attendance', icon: ClipboardList },
+        { id: 'sessions' as TabType, label: 'Sesi', icon: Calendar },
+        { id: 'members' as TabType, label: 'Anggota', icon: Users },
+        { id: 'attendance' as TabType, label: 'Kehadiran', icon: ClipboardList },
     ];
 
     return (
@@ -229,47 +227,112 @@ export default function ClassDetailPage() {
                     </Card>
                 )}
 
-                {/* Class Header */}
+                {/* Class Header with Overview */}
                 <Card className="mb-6 border-2">
-                    <CardHeader>
-                        <div className="flex items-start justify-between">
-                            <div className="flex-1">
+                    <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1 min-w-0">
                                 <CardTitle className="text-2xl mb-2">{classData.name}</CardTitle>
-                                <CardDescription>
+                                <CardDescription className="line-clamp-2">
                                     {classData.description || 'Tidak ada deskripsi'}
                                 </CardDescription>
                             </div>
-                            {canEdit && (
-                                <div className="flex gap-2">
+                            <div className="flex gap-2 flex-shrink-0">
+                                {isMentee && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        onClick={handleLeave}
+                                        disabled={leaving}
+                                    >
+                                        <LogOut className="w-4 h-4 mr-2" />
+                                        {leaving ? 'Keluar...' : 'Keluar'}
+                                    </Button>
+                                )}
+                                {canEdit && (
                                     <Button variant="outline" size="sm">
                                         <Edit className="w-4 h-4 mr-2" />
                                         Edit
                                     </Button>
-                                    {canDelete && (
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={handleDelete}
-                                            disabled={deleting}
-                                        >
-                                            <Trash2 className="w-4 h-4 mr-2" />
-                                            {deleting ? 'Menghapus...' : 'Hapus'}
-                                        </Button>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex items-center gap-3 p-4 rounded-lg bg-muted/50 border">
-                            <Code className="w-5 h-5 text-primary" />
-                            <div>
-                                <p className="text-sm text-muted-foreground">Kode Kelas</p>
-                                <p className="font-mono font-bold text-lg text-primary">
-                                    {classData.code}
-                                </p>
+                                )}
+                                {canDelete && (
+                                    <Button
+                                        variant="destructive"
+                                        size="sm"
+                                        onClick={handleDelete}
+                                        disabled={deleting}
+                                    >
+                                        <Trash2 className="w-4 h-4 mr-2" />
+                                        {deleting ? 'Menghapus...' : 'Hapus'}
+                                    </Button>
+                                )}
                             </div>
                         </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                        {/* Stats Grid */}
+                        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
+                            {/* Class Code */}
+                            <div className="col-span-2 flex items-center gap-3 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                                <Code className="w-5 h-5 text-primary flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Kode Kelas</p>
+                                    <p className="font-mono font-bold text-primary truncate">
+                                        {classData.code}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Start Date */}
+                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Mulai</p>
+                                    <p className="text-sm font-medium truncate">
+                                        {formatDate(classData.startDate)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* End Date */}
+                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                                <Calendar className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <div className="min-w-0">
+                                    <p className="text-xs text-muted-foreground">Selesai</p>
+                                    <p className="text-sm font-medium truncate">
+                                        {formatDate(classData.endDate)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Mentors Count */}
+                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                                <Users className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <div>
+                                    <p className="text-xs text-muted-foreground">Mentor</p>
+                                    <p className="text-sm font-medium">{classData.mentors.length}</p>
+                                </div>
+                            </div>
+
+                            {/* Mentees Count */}
+                            <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50 border">
+                                <Users className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                                <div>
+                                    <p className="text-xs text-muted-foreground">Mentee</p>
+                                    <p className="text-sm font-medium">{classData.mentees.length}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Mentors Preview */}
+                        {classData.mentors.length > 0 && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <span>Mentor:</span>
+                                <span className="font-medium text-foreground">
+                                    {classData.mentors.map(m => m.name).join(', ')}
+                                </span>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
 
@@ -298,118 +361,6 @@ export default function ClassDetailPage() {
 
                 {/* Tab Content */}
                 <div>
-                    {activeTab === 'overview' && (
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                            <div className="lg:col-span-2 space-y-6">
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle>Informasi Kelas</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="flex items-center gap-3 p-4 rounded-lg border">
-                                                <Calendar className="w-5 h-5 text-muted-foreground" />
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Tanggal Mulai
-                                                    </p>
-                                                    <p className="font-medium">
-                                                        {formatDate(classData.startDate)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                            <div className="flex items-center gap-3 p-4 rounded-lg border">
-                                                <Calendar className="w-5 h-5 text-muted-foreground" />
-                                                <div>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        Tanggal Selesai
-                                                    </p>
-                                                    <p className="font-medium">
-                                                        {formatDate(classData.endDate)}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        {isMentee && (
-                                            <Button
-                                                variant="outline"
-                                                className="w-full mt-4"
-                                                onClick={handleLeave}
-                                                disabled={leaving}
-                                            >
-                                                <LogOut className="w-4 h-4 mr-2" />
-                                                {leaving ? 'Keluar...' : 'Keluar dari Kelas'}
-                                            </Button>
-                                        )}
-                                    </CardContent>
-                                </Card>
-
-                                <MemberList
-                                    title="Mentor"
-                                    members={classData.mentors}
-                                    emptyMessage="Belum ada mentor yang ditetapkan"
-                                />
-                            </div>
-
-                            <div className="space-y-6">
-                                {canViewMentees && (
-                                    <MemberList
-                                        title="Mentee"
-                                        members={classData.mentees}
-                                        emptyMessage="Belum ada mentee yang terdaftar"
-                                        showRemoveButton={isMentor || isManager}
-                                        onRemove={handleRemoveMentee}
-                                    />
-                                )}
-
-                                <Card>
-                                    <CardHeader>
-                                        <CardTitle className="text-lg">Statistik Kelas</CardTitle>
-                                    </CardHeader>
-                                    <CardContent>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground">
-                                                    Mentor
-                                                </span>
-                                                <span className="font-semibold">
-                                                    {classData.mentors.length}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground">
-                                                    Mentee
-                                                </span>
-                                                <span className="font-semibold">
-                                                    {classData.mentees.length}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground">
-                                                    Sesi
-                                                </span>
-                                                <span className="font-semibold">
-                                                    {sessions.length}
-                                                </span>
-                                            </div>
-                                            <div className="flex items-center justify-between">
-                                                <span className="text-sm text-muted-foreground">
-                                                    Dibuat
-                                                </span>
-                                                <span className="font-semibold text-xs">
-                                                    {new Date(classData.createdAt).toLocaleDateString(
-                                                        'id-ID',
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </div>
-                    )}
-
                     {activeTab === 'sessions' && (
                         <div className="space-y-6">
                             {canCreateSession && (
