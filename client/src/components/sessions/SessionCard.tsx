@@ -6,6 +6,13 @@ import { AttendanceStatus } from '@/lib/api/attendance';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog';
 import { Calendar, MapPin, Video, Edit, Trash2, Users } from 'lucide-react';
 import { CheckInButton } from '@/components/attendance/CheckInButton';
 import { AttendanceMarker } from '@/components/attendance/AttendanceMarker';
@@ -37,8 +44,8 @@ interface SessionCardProps {
 }
 
 export function SessionCard({ session, userRole, userId, onUpdate }: SessionCardProps) {
-    const [showEdit, setShowEdit] = useState(false);
-    const [showAttendance, setShowAttendance] = useState(false);
+    const [editOpen, setEditOpen] = useState(false);
+    const [attendanceOpen, setAttendanceOpen] = useState(false);
     const [deleting, setDeleting] = useState(false);
 
     const startTime = new Date(session.startTime);
@@ -141,10 +148,10 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
                             <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => setShowAttendance(!showAttendance)}
+                                onClick={() => setAttendanceOpen(true)}
                             >
                                 <Users className="w-4 h-4 mr-2" />
-                                {showAttendance ? 'Sembunyikan' : 'Tandai Kehadiran'}
+                                Tandai Kehadiran
                             </Button>
                         )}
 
@@ -153,7 +160,7 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    onClick={() => setShowEdit(!showEdit)}
+                                    onClick={() => setEditOpen(true)}
                                 >
                                     <Edit className="w-4 h-4 mr-2" />
                                     Edit
@@ -170,35 +177,51 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
                             </>
                         )}
                     </div>
-
-                    {showAttendance && canMarkAttendance && (
-                        <div className="pt-4 border-t">
-                            <AttendanceMarker
-                                sessionId={session.id}
-                                session={session}
-                                onSuccess={() => {
-                                    setShowAttendance(false);
-                                    onUpdate?.();
-                                }}
-                            />
-                        </div>
-                    )}
-
-                    {showEdit && canEdit && (
-                        <div className="pt-4 border-t">
-                            <SessionForm
-                                classId={session.classId}
-                                session={session}
-                                onSuccess={() => {
-                                    setShowEdit(false);
-                                    onUpdate?.();
-                                }}
-                                onCancel={() => setShowEdit(false)}
-                            />
-                        </div>
-                    )}
                 </div>
             </CardContent>
+
+            {/* Attendance Dialog */}
+            <Dialog open={attendanceOpen} onOpenChange={setAttendanceOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Tandai Kehadiran</DialogTitle>
+                        <DialogDescription>
+                            Tandai status kehadiran untuk semua mentee dalam sesi ini
+                        </DialogDescription>
+                    </DialogHeader>
+                    <AttendanceMarker
+                        sessionId={session.id}
+                        session={session}
+                        onSuccess={() => {
+                            setAttendanceOpen(false);
+                            onUpdate?.();
+                        }}
+                        hideHeader={true}
+                    />
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Dialog */}
+            <Dialog open={editOpen} onOpenChange={setEditOpen}>
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                        <DialogTitle>Edit Sesi</DialogTitle>
+                        <DialogDescription>
+                            Ubah detail sesi mentoring
+                        </DialogDescription>
+                    </DialogHeader>
+                    <SessionForm
+                        classId={session.classId}
+                        session={session}
+                        onSuccess={() => {
+                            setEditOpen(false);
+                            onUpdate?.();
+                        }}
+                        onCancel={() => setEditOpen(false)}
+                        hideHeader={true}
+                    />
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }

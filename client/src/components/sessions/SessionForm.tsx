@@ -30,9 +30,10 @@ interface SessionFormProps {
     session?: Session;
     onSuccess?: () => void;
     onCancel?: () => void;
+    hideHeader?: boolean;
 }
 
-export function SessionForm({ classId, session, onSuccess, onCancel }: SessionFormProps) {
+export function SessionForm({ classId, session, onSuccess, onCancel, hideHeader = false }: SessionFormProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -87,24 +88,26 @@ export function SessionForm({ classId, session, onSuccess, onCancel }: SessionFo
 
     return (
         <Card>
-            <CardHeader>
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle>{session ? 'Edit Sesi' : 'Buat Sesi Baru'}</CardTitle>
-                        <CardDescription>
-                            {session
-                                ? 'Ubah detail sesi mentoring'
-                                : 'Jadwalkan sesi mentoring baru untuk kelas ini'}
-                        </CardDescription>
+            {!hideHeader && (
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle>{session ? 'Edit Sesi' : 'Buat Sesi Baru'}</CardTitle>
+                            <CardDescription>
+                                {session
+                                    ? 'Ubah detail sesi mentoring'
+                                    : 'Jadwalkan sesi mentoring baru untuk kelas ini'}
+                            </CardDescription>
+                        </div>
+                        {onCancel && (
+                            <Button variant="ghost" size="sm" onClick={onCancel}>
+                                <X className="w-4 h-4" />
+                            </Button>
+                        )}
                     </div>
-                    {onCancel && (
-                        <Button variant="ghost" size="sm" onClick={onCancel}>
-                            <X className="w-4 h-4" />
-                        </Button>
-                    )}
-                </div>
-            </CardHeader>
-            <CardContent>
+                </CardHeader>
+            )}
+            <CardContent className={hideHeader ? 'pt-6' : ''}>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                         {error && (

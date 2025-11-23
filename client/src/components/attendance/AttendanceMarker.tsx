@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -12,7 +11,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Session } from '@/lib/api/sessions';
 import { AttendanceStatus } from '@/lib/api/attendance';
 import { bulkMarkAttendance, AttendanceRecord } from '@/lib/api/attendance';
@@ -23,9 +21,10 @@ interface AttendanceMarkerProps {
     sessionId: string;
     session: Session;
     onSuccess?: () => void;
+    hideHeader?: boolean;
 }
 
-export function AttendanceMarker({ sessionId, session, onSuccess }: AttendanceMarkerProps) {
+export function AttendanceMarker({ sessionId, session, onSuccess, hideHeader = false }: AttendanceMarkerProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
     const [classData, setClassData] = useState<Class | null>(null);
@@ -115,59 +114,126 @@ export function AttendanceMarker({ sessionId, session, onSuccess }: AttendanceMa
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Tandai Kehadiran</CardTitle>
-                <CardDescription>
-                    Tandai status kehadiran untuk semua mentee dalam sesi ini
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
+            {!hideHeader && (
+                <CardHeader>
+                    <CardTitle>Tandai Kehadiran</CardTitle>
+                    <CardDescription>
+                        Tandai status kehadiran untuk semua mentee dalam sesi ini
+                    </CardDescription>
+                </CardHeader>
+            )}
+            <CardContent className={hideHeader ? 'pt-6' : ''}>
                 {error && (
                     <div className="p-3 rounded-md bg-destructive/10 text-destructive text-sm mb-4">
                         {error}
                     </div>
                 )}
 
-                <div className="space-y-4">
-                    {classData.mentees.map(mentee => (
-                        <div key={mentee.id} className="p-4 border rounded-lg space-y-3">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">{mentee.name}</p>
-                                    <p className="text-sm text-muted-foreground">{mentee.email}</p>
-                                </div>
-                            </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full">
+                        <thead>
+                            <tr className="border-b">
+                                <th className="text-left py-3 px-4 font-medium">Nama</th>
+                                <th className="text-left py-3 px-4 font-medium">Status</th>
+                                <th className="text-left py-3 px-4 font-medium">Catatan (opsional)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {classData.mentees.map(mentee => {
+                                const currentStatus = attendanceRecords[mentee.id]?.status || 'PRESENT';
+                                const statusConfig = {
+                                    PRESENT: {
+                                        label: 'Hadir',
+                                        bgColor: 'bg-green-100',
+                                        textColor: 'text-green-800',
+                                        borderColor: 'border-green-300',
+                                        dotColor: 'bg-green-500',
+                                    },
+                                    ABSENT: {
+                                        label: 'Tidak Hadir',
+                                        bgColor: 'bg-red-100',
+                                        textColor: 'text-red-800',
+                                        borderColor: 'border-red-300',
+                                        dotColor: 'bg-red-500',
+                                    },
+                                    PERMIT: {
+                                        label: 'Izin',
+                                        bgColor: 'bg-yellow-100',
+                                        textColor: 'text-yellow-800',
+                                        borderColor: 'border-yellow-300',
+                                        dotColor: 'bg-yellow-500',
+                                    },
+                                    SICK: {
+                                        label: 'Sakit',
+                                        bgColor: 'bg-blue-100',
+                                        textColor: 'text-blue-800',
+                                        borderColor: 'border-blue-300',
+                                        dotColor: 'bg-blue-500',
+                                    },
+                                };
+                                const config = statusConfig[currentStatus];
 
-                            <div className="space-y-2">
-                                <Label>Status</Label>
-                                <Select
-                                    value={attendanceRecords[mentee.id]?.status || 'PRESENT'}
-                                    onValueChange={value =>
-                                        handleStatusChange(mentee.id, value as AttendanceStatus)
-                                    }
-                                >
-                                    <SelectTrigger>
-                                        <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="PRESENT">Hadir</SelectItem>
-                                        <SelectItem value="ABSENT">Tidak Hadir</SelectItem>
-                                        <SelectItem value="PERMIT">Izin</SelectItem>
-                                        <SelectItem value="SICK">Sakit</SelectItem>
-                                    </SelectContent>
-                                </Select>
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label>Catatan (opsional)</Label>
-                                <Input
-                                    value={attendanceRecords[mentee.id]?.notes || ''}
-                                    onChange={e => handleNotesChange(mentee.id, e.target.value)}
-                                    placeholder="Tambahkan catatan jika perlu"
-                                />
-                            </div>
-                        </div>
-                    ))}
+                                return (
+                                    <tr key={mentee.id} className="border-b hover:bg-muted/50">
+                                        <td className="py-3 px-4">
+                                            <div>
+                                                <p className="font-medium">{mentee.name}</p>
+                                                <p className="text-sm text-muted-foreground">{mentee.email}</p>
+                                            </div>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <Select
+                                                value={currentStatus}
+                                                onValueChange={value =>
+                                                    handleStatusChange(mentee.id, value as AttendanceStatus)
+                                                }
+                                            >
+                                                <SelectTrigger
+                                                    className={`w-full ${config.bgColor} ${config.textColor} ${config.borderColor} border font-medium`}
+                                                >
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="PRESENT">
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                                                            Hadir
+                                                        </span>
+                                                    </SelectItem>
+                                                    <SelectItem value="ABSENT">
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-red-500"></span>
+                                                            Tidak Hadir
+                                                        </span>
+                                                    </SelectItem>
+                                                    <SelectItem value="PERMIT">
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                                                            Izin
+                                                        </span>
+                                                    </SelectItem>
+                                                    <SelectItem value="SICK">
+                                                        <span className="flex items-center gap-2">
+                                                            <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                                                            Sakit
+                                                        </span>
+                                                    </SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </td>
+                                        <td className="py-3 px-4">
+                                            <Input
+                                                value={attendanceRecords[mentee.id]?.notes || ''}
+                                                onChange={e => handleNotesChange(mentee.id, e.target.value)}
+                                                placeholder="Tambahkan catatan jika perlu"
+                                                className="w-full"
+                                            />
+                                        </td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
                 </div>
 
                 <div className="mt-6 flex justify-end">
