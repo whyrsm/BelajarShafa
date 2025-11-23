@@ -20,8 +20,23 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
     });
 
     if (!response.ok) {
-        const error = await response.json().catch(() => ({ message: 'An error occurred' }));
-        throw new Error(error.message || `HTTP error! status: ${response.status}`);
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+            const error = await response.json();
+            errorMessage = error.message || errorMessage;
+        } catch {
+            // If response is not JSON, use status text
+            errorMessage = response.statusText || errorMessage;
+        }
+        
+        // Log error for debugging
+        console.error(`API Error [${response.status}]: ${url}`, {
+            status: response.status,
+            statusText: response.statusText,
+            message: errorMessage,
+        });
+        
+        throw new Error(errorMessage);
     }
 
     return response;

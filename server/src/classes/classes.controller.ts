@@ -39,6 +39,13 @@ export class ClassesController {
         return this.classesService.findAll(req.user.userId, req.user.role);
     }
 
+    @Post('join')
+    @UseGuards(RolesGuard)
+    @Roles('MENTEE')
+    joinByCode(@Body() joinClassDto: JoinClassDto, @Request() req) {
+        return this.classesService.joinByCode(joinClassDto, req.user.userId, req.user.role);
+    }
+
     @Get(':id')
     findOne(@Param('id') id: string, @Request() req) {
         return this.classesService.findOne(id, req.user.userId, req.user.role);
@@ -51,25 +58,18 @@ export class ClassesController {
         return this.classesService.update(id, updateClassDto, req.user.userId, req.user.role);
     }
 
-    @Delete(':id')
-    @UseGuards(RolesGuard)
-    @Roles('MANAGER', 'ADMIN')
-    remove(@Param('id') id: string, @Request() req) {
-        return this.classesService.remove(id, req.user.userId, req.user.role);
-    }
-
-    @Post('join')
-    @UseGuards(RolesGuard)
-    @Roles('MENTEE')
-    joinByCode(@Body() joinClassDto: JoinClassDto, @Request() req) {
-        return this.classesService.joinByCode(joinClassDto, req.user.userId, req.user.role);
-    }
-
     @Delete(':id/leave')
     @UseGuards(RolesGuard)
     @Roles('MENTEE')
     leaveClass(@Param('id') id: string, @Request() req) {
         return this.classesService.leaveClass(id, req.user.userId, req.user.role);
+    }
+
+    @Delete(':id/mentees/:menteeId')
+    @UseGuards(RolesGuard)
+    @Roles('MENTOR', 'MANAGER', 'ADMIN')
+    removeMentee(@Param('id') id: string, @Param('menteeId') menteeId: string, @Request() req) {
+        return this.classesService.removeMentee(id, menteeId, req.user.userId, req.user.role);
     }
 
     @Post(':id/mentors')
@@ -79,11 +79,11 @@ export class ClassesController {
         return this.classesService.assignMentors(id, assignMentorsDto, req.user.userId, req.user.role);
     }
 
-    @Delete(':id/mentees/:menteeId')
+    @Delete(':id')
     @UseGuards(RolesGuard)
-    @Roles('MENTOR', 'MANAGER', 'ADMIN')
-    removeMentee(@Param('id') id: string, @Param('menteeId') menteeId: string, @Request() req) {
-        return this.classesService.removeMentee(id, menteeId, req.user.userId, req.user.role);
+    @Roles('MANAGER', 'ADMIN')
+    remove(@Param('id') id: string, @Request() req) {
+        return this.classesService.remove(id, req.user.userId, req.user.role);
     }
 }
 

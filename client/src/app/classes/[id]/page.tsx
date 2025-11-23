@@ -229,14 +229,9 @@ export default function ClassDetailPage() {
 
                 {/* Class Header with Overview */}
                 <Card className="mb-6 border-2">
-                    <CardHeader className="pb-4">
-                        <div className="flex items-start justify-between gap-4">
-                            <div className="flex-1 min-w-0">
-                                <CardTitle className="text-2xl mb-2">{classData.name}</CardTitle>
-                                <CardDescription className="line-clamp-2">
-                                    {classData.description || 'Tidak ada deskripsi'}
-                                </CardDescription>
-                            </div>
+                    <CardHeader className="pb-3">
+                        <div className="flex items-center justify-between gap-4">
+                            <CardTitle className="text-xl">{classData.name}</CardTitle>
                             <div className="flex gap-2 flex-shrink-0">
                                 {isMentee && (
                                     <Button

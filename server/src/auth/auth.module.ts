@@ -12,9 +12,15 @@ import { RolesGuard } from './roles.guard';
   imports: [
     UsersModule,
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_SECRET || 'secretKey', // TODO: use env
-      signOptions: { expiresIn: '60m' },
+    JwtModule.registerAsync({
+      useFactory: () => {
+        // process.env should be loaded by main.ts before app initialization
+        // This factory runs at runtime, so env vars should be available
+        return {
+          secret: process.env.JWT_SECRET || 'secretKey',
+          signOptions: { expiresIn: '60m' },
+        };
+      },
     }),
   ],
   controllers: [AuthController],

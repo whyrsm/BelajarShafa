@@ -31,7 +31,8 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+            const response = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -40,16 +41,30 @@ export default function LoginPage() {
             });
 
             if (!response.ok) {
-                throw new Error('Login gagal');
+                let errorMessage = 'Login gagal';
+                try {
+                    const errorData = await response.json();
+                    errorMessage = errorData.message || errorMessage;
+                } catch {
+                    errorMessage = `Login gagal (${response.status}: ${response.statusText})`;
+                }
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
             console.log('Login success:', result);
+            
+            if (!result.access_token) {
+                throw new Error('Token tidak diterima dari server');
+            }
+            
             // Save token and redirect
             localStorage.setItem('access_token', result.access_token);
             window.location.href = '/dashboard';
         } catch (err) {
-            setError('Login gagal. Harap periksa kredensial Anda dan coba lagi.');
+            const errorMsg = err instanceof Error ? err.message : 'Login gagal. Harap periksa kredensial Anda dan coba lagi.';
+            setError(errorMsg);
+            console.error('Login error:', err);
         } finally {
             setIsLoading(false);
         }
