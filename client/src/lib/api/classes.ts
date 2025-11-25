@@ -14,7 +14,7 @@ async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Re
         ...options.headers,
     };
 
-    const response = await fetch(`${API_URL}${url}`, {
+    const response = await fetch(`${API_URL}/api${url}`, {
         ...options,
         headers,
     });

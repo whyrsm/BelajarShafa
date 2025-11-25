@@ -32,13 +32,21 @@ export default function LoginPage() {
 
         try {
             const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-            const response = await fetch(`${API_URL}/auth/login`, {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(data),
             });
+
+            // Check if response is HTML (error page)
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response received:', text.substring(0, 200));
+                throw new Error('Server mengembalikan respons yang tidak valid. Pastikan server API berjalan di ' + API_URL);
+            }
 
             if (!response.ok) {
                 let errorMessage = 'Login gagal';

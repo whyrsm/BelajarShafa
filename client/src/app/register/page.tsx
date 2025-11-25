@@ -38,7 +38,8 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
+            const response = await fetch(`${API_URL}/api/auth/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,9 +47,21 @@ export default function RegisterPage() {
                 body: JSON.stringify(data),
             });
 
+            // Check if response is HTML (error page)
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const text = await response.text();
+                console.error('Non-JSON response received:', text.substring(0, 200));
+                throw new Error('Server mengembalikan respons yang tidak valid. Pastikan server API berjalan di ' + API_URL);
+            }
+            
             if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Registrasi gagal');
+                try {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Registrasi gagal');
+                } catch (parseError) {
+                    throw new Error(`Registrasi gagal (${response.status}: ${response.statusText})`);
+                }
             }
 
             const result = await response.json();
