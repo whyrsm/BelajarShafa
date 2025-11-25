@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCourseById, Course } from '@/lib/api/courses';
+import { CurriculumBuilder } from '@/components/courses/CurriculumBuilder';
 import { ArrowLeft, BookOpen } from 'lucide-react';
 
 export default function EditCoursePage() {
@@ -57,8 +58,8 @@ export default function EditCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
-        <div className="mb-6">
+      <div className="container mx-auto px-4 py-8 max-w-5xl">
+        <div className="mb-6 flex items-center justify-between">
           <Link href={`/dashboard/courses/${courseId}`}>
             <Button variant="ghost" size="sm">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -71,27 +72,14 @@ export default function EditCoursePage() {
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2">
               <BookOpen className="w-6 h-6" />
-              Edit Kursus: {course.title}
+              Kurikulum: {course.title}
             </CardTitle>
             <CardDescription>
-              Curriculum Builder - Tambah dan kelola topik serta materi
+              Kelola topik dan materi pembelajaran untuk kursus ini
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-center py-12">
-              <p className="text-muted-foreground mb-4">
-                Curriculum Builder dengan drag-and-drop akan diimplementasikan di sini.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Fitur yang akan tersedia:
-              </p>
-              <ul className="text-sm text-muted-foreground mt-2 list-disc list-inside space-y-1">
-                <li>Inline topic editing dengan expand/collapse</li>
-                <li>Drag-and-drop untuk reorder topics</li>
-                <li>Tambahkan materi (Lesson, Quiz, Assignment) per topic</li>
-                <li>Preview dan edit materials</li>
-              </ul>
-            </div>
+            <CurriculumBuilder courseId={courseId} />
           </CardContent>
         </Card>
       </div>
