@@ -26,6 +26,7 @@ model User {
   memberOrgs      Organization[] @relation("OrgMember")
   createdSessions Session[]      @relation("SessionCreator")
   markedAttendances Attendance[] @relation("AttendanceMarker")
+  createdCourses  Course[]      @relation("CourseCreator")
 }
 
 model MentorProfile {
@@ -147,4 +148,84 @@ enum AttendanceStatus {
 enum SessionType {
   ONLINE
   OFFLINE
+}
+
+model CourseCategory {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  courses     Course[]
+}
+
+model Course {
+  id              String            @id @default(uuid())
+  title           String
+  description     String?
+  thumbnailUrl    String?
+  level           CourseLevel
+  estimatedDuration Int?           // in minutes
+  prerequisites   String?
+  type            CourseType        @default(PUBLIC)
+  isActive        Boolean           @default(true)
+  categoryId      String
+  createdById     String
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  category        CourseCategory    @relation(fields: [categoryId], references: [id])
+  creator         User              @relation("CourseCreator", fields: [createdById], references: [id])
+  topics          Topic[]
+}
+
+model Topic {
+  id                String    @id @default(uuid())
+  courseId          String
+  title             String
+  description       String?
+  sequence          Int
+  estimatedDuration Int?      // in minutes
+  isMandatory       Boolean   @default(false)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  course            Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  materials         Material[]
+
+  @@unique([courseId, sequence])
+  @@index([courseId])
+}
+
+model Material {
+  id                String      @id @default(uuid())
+  topicId           String
+  type              MaterialType
+  title             String
+  content           Json        // Flexible JSON structure for different material types
+  sequence          Int
+  estimatedDuration Int?        // in minutes
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  topic             Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, sequence])
+  @@index([topicId])
+}
+
+enum CourseLevel {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseType {
+  PUBLIC
+  PRIVATE
+}
+
+enum MaterialType {
+  VIDEO
+  DOCUMENT
+  ARTICLE
+  EXTERNAL_LINK
 }
