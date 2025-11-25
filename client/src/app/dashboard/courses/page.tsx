@@ -4,12 +4,13 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCourses, Course, CourseFilters } from '@/lib/api/courses';
 import { getCategories, Category } from '@/lib/api/categories';
 import { getProfile, UserProfile } from '@/lib/api/auth';
-import { Plus, BookOpen, Filter } from 'lucide-react';
-import { Select } from '@/components/ui/select';
+import { Plus, BookOpen, Filter, Eye, Search } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Input } from '@/components/ui/input';
 
 export default function CoursesPage() {
   const router = useRouter();
@@ -19,6 +20,7 @@ export default function CoursesPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState<CourseFilters>({});
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -54,6 +56,16 @@ export default function CoursesPage() {
 
   const canCreateCourse = user?.role === 'MANAGER' || user?.role === 'ADMIN';
 
+  // Filter courses based on search query
+  const filteredCourses = courses.filter((course) => {
+    const searchLower = searchQuery.toLowerCase();
+    return (
+      course.title.toLowerCase().includes(searchLower) ||
+      course.description?.toLowerCase().includes(searchLower) ||
+      course.category.name.toLowerCase().includes(searchLower)
+    );
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -84,15 +96,30 @@ export default function CoursesPage() {
           )}
         </div>
 
-        {/* Filters */}
+        {/* Search and Filters */}
         <Card className="mb-6">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Filter className="w-5 h-5" />
-              Filter
+              Pencarian & Filter
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {/* Search Bar */}
+            <div className="mb-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  placeholder="Cari berdasarkan judul, deskripsi, atau kategori..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
+            {/* Filters */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Kategori</label>
@@ -176,38 +203,74 @@ export default function CoursesPage() {
               </div>
             </CardContent>
           </Card>
+        ) : filteredCourses.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12">
+                <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Tidak ada hasil</h3>
+                <p className="text-muted-foreground mb-4">
+                  Tidak ditemukan kursus yang sesuai dengan pencarian Anda.
+                </p>
+                <Button
+                  variant="outline"
+                  onClick={() => setSearchQuery('')}
+                >
+                  Reset Pencarian
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {courses.map((course) => (
-              <Link key={course.id} href={`/dashboard/courses/${course.id}`}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer h-full">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg mb-2">{course.title}</CardTitle>
-                        <CardDescription className="line-clamp-2">
-                          {course.description || 'Tidak ada deskripsi'}
-                        </CardDescription>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span className="bg-primary/10 text-primary px-2 py-1 rounded">
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Judul</TableHead>
+                  <TableHead>Deskripsi</TableHead>
+                  <TableHead>Kategori</TableHead>
+                  <TableHead>Level</TableHead>
+                  <TableHead>Tipe</TableHead>
+                  <TableHead className="text-center">Topik</TableHead>
+                  <TableHead className="text-center">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCourses.map((course) => (
+                  <TableRow key={course.id}>
+                    <TableCell className="font-medium">{course.title}</TableCell>
+                    <TableCell className="max-w-xs truncate">
+                      {course.description || 'Tidak ada deskripsi'}
+                    </TableCell>
+                    <TableCell>
+                      <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
                         {course.category.name}
                       </span>
-                      <span>{course.level}</span>
-                    </div>
-                    {course._count && (
-                      <p className="text-sm text-muted-foreground mt-2">
-                        {course._count.topics} Topik
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
-          </div>
+                    </TableCell>
+                    <TableCell>
+                      {course.level === 'BEGINNER' && 'Pemula'}
+                      {course.level === 'INTERMEDIATE' && 'Menengah'}
+                      {course.level === 'ADVANCED' && 'Lanjutan'}
+                    </TableCell>
+                    <TableCell>
+                      {course.type === 'PUBLIC' ? 'Umum' : 'Private'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {course._count?.topics || 0}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Link href={`/dashboard/courses/${course.id}`}>
+                        <Button variant="ghost" size="sm">
+                          <Eye className="w-4 h-4 mr-1" />
+                          Lihat
+                        </Button>
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
     </div>
