@@ -11,7 +11,8 @@ import {
     BarChart3,
     Settings,
     Building2,
-    Sparkles
+    Sparkles,
+    Library
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -34,9 +35,20 @@ const navItems: NavItem[] = [
         icon: Users,
     },
     {
-        label: 'Course',
+        label: 'Jelajahi Modul',
+        href: '/dashboard/courses/explore',
+        icon: BookOpen,
+    },
+    {
+        label: 'Modul Saya',
+        href: '/dashboard/my-courses',
+        icon: Library,
+    },
+    {
+        label: 'Kelola Modul',
         href: '/dashboard/courses',
         icon: BookOpen,
+        roles: ['MANAGER', 'ADMIN'],
     },
     {
         label: 'Sesi',
@@ -101,7 +113,27 @@ export function Sidebar({ userRole }: SidebarProps) {
             <nav className="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
                 {filteredNavItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    // More specific active state checking
+                    let isActive = false;
+                    if (item.href === '/dashboard/courses') {
+                        // Only active for exact match or courses management pages (create, edit, [id] detail), but not explore/learn
+                        isActive = pathname === item.href || 
+                                  (pathname.startsWith('/dashboard/courses/') && 
+                                   !pathname.includes('/explore') &&
+                                   !pathname.includes('/learn') &&
+                                   !pathname.includes('/my-courses'));
+                    } else if (item.href === '/dashboard/courses/explore') {
+                        // Active for explore and learn pages
+                        isActive = pathname === item.href || 
+                                  (pathname.startsWith('/dashboard/courses/') && 
+                                   (pathname.includes('/explore') || pathname.includes('/learn')));
+                    } else if (item.href === '/dashboard/my-courses') {
+                        // Active for my-courses page
+                        isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    } else {
+                        // Default behavior for other routes
+                        isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+                    }
 
                     return (
                         <Link

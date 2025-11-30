@@ -2,22 +2,18 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { DashboardLayout } from '@/components/navigation';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { CourseCard } from '@/components/courses/CourseCard';
 import { getCourses, Course, CourseFilters } from '@/lib/api/courses';
 import { getCategories, Category } from '@/lib/api/categories';
-import { getProfile, UserProfile } from '@/lib/api/auth';
-import { Plus, BookOpen, Filter, Eye, Search } from 'lucide-react';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Input } from '@/components/ui/input';
+import { Filter, Search, BookOpen } from 'lucide-react';
 
-export default function CoursesPage() {
+export default function ExploreCoursesPage() {
   const router = useRouter();
   const [courses, setCourses] = useState<Course[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState<CourseFilters>({});
@@ -36,14 +32,12 @@ export default function CoursesPage() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const [coursesData, categoriesData, userData] = await Promise.all([
+      const [coursesData, categoriesData] = await Promise.all([
         getCourses(filters),
         getCategories(),
-        getProfile(),
       ]);
       setCourses(coursesData);
       setCategories(categoriesData);
-      setUser(userData);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Gagal memuat data');
       if (err instanceof Error && err.message.includes('401')) {
@@ -54,8 +48,6 @@ export default function CoursesPage() {
       setLoading(false);
     }
   };
-
-  const canCreateCourse = user?.role === 'MANAGER' || user?.role === 'ADMIN';
 
   // Filter courses based on search query
   const filteredCourses = courses.filter((course) => {
@@ -69,12 +61,14 @@ export default function CoursesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Memuat...</p>
+      <DashboardLayout>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-muted-foreground">Memuat...</p>
+          </div>
         </div>
-      </div>
+      </DashboardLayout>
     );
   }
 
@@ -82,19 +76,9 @@ export default function CoursesPage() {
     <DashboardLayout>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Modul</h1>
-            <p className="text-muted-foreground mt-1">Kelola modul pembelajaran</p>
-          </div>
-          {canCreateCourse && (
-            <Link href="/dashboard/courses/create">
-              <Button size="lg">
-                <Plus className="w-5 h-5 mr-2" />
-                Buat Modul
-              </Button>
-            </Link>
-          )}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold mb-2">Jelajahi Modul</h1>
+          <p className="text-muted-foreground">Temukan modul yang sesuai dengan minat Anda</p>
         </div>
 
         {/* Search and Filters */}
@@ -181,97 +165,38 @@ export default function CoursesPage() {
           </Card>
         )}
 
-        {/* Courses List */}
-        {courses.length === 0 ? (
+        {/* Courses Grid */}
+        {filteredCourses.length === 0 ? (
           <Card>
             <CardContent className="pt-6">
               <div className="text-center py-12">
                 <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Belum ada modul</h3>
+                <h3 className="text-lg font-semibold mb-2">Tidak ada modul</h3>
                 <p className="text-muted-foreground mb-4">
-                  {canCreateCourse
-                    ? 'Buat modul pertama Anda untuk memulai'
+                  {searchQuery || Object.values(filters).some(v => v)
+                    ? 'Tidak ditemukan modul yang sesuai dengan pencarian Anda.'
                     : 'Belum ada modul yang tersedia'}
                 </p>
-                {canCreateCourse && (
-                  <Link href="/dashboard/courses/create">
-                    <Button>
-                      <Plus className="w-4 h-4 mr-2" />
-                      Buat Modul
-                    </Button>
-                  </Link>
+                {(searchQuery || Object.values(filters).some(v => v)) && (
+                  <button
+                    onClick={() => {
+                      setSearchQuery('');
+                      setFilters({});
+                    }}
+                    className="text-primary hover:underline"
+                  >
+                    Reset Pencarian
+                  </button>
                 )}
               </div>
             </CardContent>
           </Card>
-        ) : filteredCourses.length === 0 ? (
-          <Card>
-            <CardContent className="pt-6">
-              <div className="text-center py-12">
-                <Search className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Tidak ada hasil</h3>
-                <p className="text-muted-foreground mb-4">
-                  Tidak ditemukan modul yang sesuai dengan pencarian Anda.
-                </p>
-                <Button
-                  variant="outline"
-                  onClick={() => setSearchQuery('')}
-                >
-                  Reset Pencarian
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
         ) : (
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Judul</TableHead>
-                  <TableHead>Deskripsi</TableHead>
-                  <TableHead>Kategori</TableHead>
-                  <TableHead>Level</TableHead>
-                  <TableHead>Tipe</TableHead>
-                  <TableHead className="text-center">Topik</TableHead>
-                  <TableHead className="text-center">Aksi</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredCourses.map((course) => (
-                  <TableRow key={course.id}>
-                    <TableCell className="font-medium">{course.title}</TableCell>
-                    <TableCell className="max-w-xs truncate">
-                      {course.description || 'Tidak ada deskripsi'}
-                    </TableCell>
-                    <TableCell>
-                      <span className="bg-primary/10 text-primary px-2 py-1 rounded text-xs">
-                        {course.category.name}
-                      </span>
-                    </TableCell>
-                    <TableCell>
-                      {course.level === 'BEGINNER' && 'Pemula'}
-                      {course.level === 'INTERMEDIATE' && 'Menengah'}
-                      {course.level === 'ADVANCED' && 'Lanjutan'}
-                    </TableCell>
-                    <TableCell>
-                      {course.type === 'PUBLIC' ? 'Umum' : 'Private'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {course._count?.topics || 0}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Link href={`/dashboard/courses/${course.id}`}>
-                        <Button variant="ghost" size="sm">
-                          <Eye className="w-4 h-4 mr-1" />
-                          Lihat
-                        </Button>
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCourses.map((course) => (
+              <CourseCard key={course.id} course={course} />
+            ))}
+          </div>
         )}
       </div>
     </DashboardLayout>

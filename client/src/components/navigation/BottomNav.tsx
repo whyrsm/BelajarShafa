@@ -8,7 +8,8 @@ import {
     Users,
     GraduationCap,
     Calendar,
-    User
+    User,
+    Library
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -32,9 +33,14 @@ const mobileNavItems: NavItem[] = [
         icon: Users,
     },
     {
-        label: 'Course',
-        href: '/dashboard/courses',
+        label: 'Modul',
+        href: '/dashboard/courses/explore',
         icon: BookOpen,
+    },
+    {
+        label: 'Modul Saya',
+        href: '/dashboard/my-courses',
+        icon: Library,
     },
     {
         label: 'Sesi',

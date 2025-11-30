@@ -11,9 +11,11 @@ import { CategoriesModule } from './categories/categories.module';
 import { CoursesModule } from './courses/courses.module';
 import { TopicsModule } from './topics/topics.module';
 import { MaterialsModule } from './materials/materials.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { ProgressModule } from './progress/progress.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, ClassesModule, SessionsModule, AttendanceModule, CategoriesModule, CoursesModule, TopicsModule, MaterialsModule],
+  imports: [AuthModule, UsersModule, ClassesModule, SessionsModule, AttendanceModule, CategoriesModule, CoursesModule, TopicsModule, MaterialsModule, EnrollmentsModule, ProgressModule],
   controllers: [AppController],
   providers: [AppService],
 })

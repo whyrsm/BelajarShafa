@@ -359,13 +359,28 @@ export class CoursesService {
 
     const totalMaterials = stats?.topics.reduce((sum, topic) => sum + topic._count.materials, 0) || 0;
 
+    // Get enrollment stats
+    const enrollmentCount = await this.prisma.enrollment.count({
+      where: { courseId: id },
+    });
+
+    const completedEnrollments = await this.prisma.enrollment.count({
+      where: {
+        courseId: id,
+        completedAt: {
+          not: null,
+        },
+      },
+    });
+
+    const completionRate = enrollmentCount > 0 ? (completedEnrollments / enrollmentCount) * 100 : 0;
+
     return {
       courseId: id,
       totalTopics: stats?._count.topics || 0,
       totalMaterials,
-      // TODO: Add enrollment stats when enrollment model is implemented
-      totalEnrollments: 0,
-      completionRate: 0,
+      totalEnrollments: enrollmentCount,
+      completionRate: Math.round(completionRate * 100) / 100,
     };
   }
 }

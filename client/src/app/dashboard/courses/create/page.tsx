@@ -15,7 +15,7 @@ import { getCategories, Category } from '@/lib/api/categories';
 import { ArrowLeft, Plus } from 'lucide-react';
 
 const createCourseSchema = z.object({
-  title: z.string().min(3, 'Judul kursus minimal 3 karakter'),
+  title: z.string().min(3, 'Judul modul minimal 3 karakter'),
   description: z.string().optional(),
   level: z.nativeEnum(CourseLevel),
   type: z.nativeEnum(CourseType),
@@ -67,7 +67,7 @@ export default function CreateCoursePage() {
       const newCourse = await createCourse(courseData);
       router.push(`/dashboard/courses/${newCourse.id}/edit`);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Gagal membuat kursus');
+      setError(err instanceof Error ? err.message : 'Gagal membuat modul');
     } finally {
       setLoading(false);
     }
@@ -89,17 +89,17 @@ export default function CreateCoursePage() {
           <CardHeader>
             <CardTitle className="text-2xl flex items-center gap-2">
               <Plus className="w-6 h-6 text-primary" />
-              Buat Kursus Baru
+              Buat Modul Baru
             </CardTitle>
             <CardDescription>
-              Buat kursus baru. Anda dapat menambahkan topik dan materi setelah kursus dibuat.
+              Buat modul baru. Anda dapat menambahkan topik dan materi setelah modul dibuat.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="title">
-                  Judul Kursus <span className="text-destructive">*</span>
+                  Judul Modul <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="title"
@@ -116,7 +116,7 @@ export default function CreateCoursePage() {
                 <Label htmlFor="description">Deskripsi</Label>
                 <textarea
                   id="description"
-                  placeholder="Jelaskan tentang kursus ini..."
+                  placeholder="Jelaskan tentang modul ini..."
                   {...register('description')}
                   className="w-full min-h-[100px] px-3 py-2 text-sm rounded-md border border-input bg-background"
                 />
@@ -162,7 +162,7 @@ export default function CreateCoursePage() {
 
               <div className="space-y-2">
                 <Label htmlFor="type">
-                  Tipe Kursus <span className="text-destructive">*</span>
+                  Tipe Modul <span className="text-destructive">*</span>
                 </Label>
                 <select
                   id="type"
@@ -187,7 +187,7 @@ export default function CreateCoursePage() {
                   </Button>
                 </Link>
                 <Button type="submit" className="flex-1" disabled={loading}>
-                  {loading ? 'Membuat...' : 'Buat Kursus'}
+                  {loading ? 'Membuat...' : 'Buat Modul'}
                 </Button>
               </div>
             </form>

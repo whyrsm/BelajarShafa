@@ -27,6 +27,7 @@ model User {
   createdSessions Session[]      @relation("SessionCreator")
   markedAttendances Attendance[] @relation("AttendanceMarker")
   createdCourses  Course[]      @relation("CourseCreator")
+  enrollments     Enrollment[]
 }
 
 model MentorProfile {
@@ -177,6 +178,7 @@ model Course {
   category        CourseCategory    @relation(fields: [categoryId], references: [id])
   creator         User              @relation("CourseCreator", fields: [createdById], references: [id])
   topics          Topic[]
+  enrollments     Enrollment[]
 }
 
 model Topic {
@@ -207,9 +209,46 @@ model Material {
   createdAt         DateTime    @default(now())
   updatedAt         DateTime    @updatedAt
   topic             Topic       @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  progress          Progress[]
 
   @@unique([topicId, sequence])
   @@index([topicId])
+}
+
+model Enrollment {
+  id              String    @id @default(uuid())
+  userId          String
+  courseId        String
+  enrolledAt      DateTime  @default(now())
+  completedAt     DateTime?
+  progressPercent Float     @default(0)
+  lastAccessedAt  DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course          Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  progress        Progress[]
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+}
+
+model Progress {
+  id              String    @id @default(uuid())
+  enrollmentId    String
+  materialId      String
+  watchedDuration Int       @default(0) // in seconds
+  isCompleted     Boolean   @default(false)
+  lastAccessedAt  DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  enrollment      Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  material        Material  @relation(fields: [materialId], references: [id], onDelete: Cascade)
+
+  @@unique([enrollmentId, materialId])
+  @@index([enrollmentId])
+  @@index([materialId])
 }
 
 enum CourseLevel {

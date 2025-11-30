@@ -48,7 +48,7 @@ export default function EditCoursePage() {
         <div className="container mx-auto px-4 py-8">
           <Card>
             <CardContent className="pt-6">
-              <p className="text-destructive">Kursus tidak ditemukan</p>
+              <p className="text-destructive">Modul tidak ditemukan</p>
             </CardContent>
           </Card>
         </div>
@@ -75,7 +75,7 @@ export default function EditCoursePage() {
               Kurikulum: {course.title}
             </CardTitle>
             <CardDescription>
-              Kelola topik dan materi pembelajaran untuk kursus ini
+              Kelola topik dan materi pembelajaran untuk modul ini
             </CardDescription>
           </CardHeader>
           <CardContent>
