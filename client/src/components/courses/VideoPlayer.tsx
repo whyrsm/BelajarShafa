@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { updateMaterialProgress, getMaterialProgress, markMaterialComplete } from '@/lib/api/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, AlertCircle } from 'lucide-react';
 
 interface VideoPlayerProps {
   materialId: string;
@@ -29,9 +29,12 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(100);
   const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(100); // Track volume before muting
   const [playbackRate, setPlaybackRate] = useState(1);
   const [progress, setProgress] = useState<{ watchedDuration: number; isCompleted: boolean } | null>(null);
+  const [showForwardWarning, setShowForwardWarning] = useState(false);
   const progressSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract YouTube video ID from URL
   const getYouTubeVideoId = (url?: string): string | null => {
@@ -123,6 +126,9 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
           onReady: (event: any) => {
             setIsReady(true);
             setDuration(event.target.getDuration());
+            // Set initial volume
+            event.target.setVolume(volume);
+            event.target.setPlaybackRate(playbackRate);
             if (startTime > 0) {
               event.target.seekTo(startTime, true);
             }
@@ -153,6 +159,9 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
       }
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
+      }
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
       }
     };
   }, [videoId, progress]);
@@ -198,7 +207,7 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
 
   // Update current time periodically
   useEffect(() => {
-    if (!isReady || !isPlaying) return;
+    if (!isReady) return;
 
     const interval = setInterval(() => {
       if (playerInstanceRef.current) {
@@ -211,7 +220,33 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady, isPlaying]);
+  }, [isReady]);
+
+  // Update volume when changed
+  useEffect(() => {
+    if (!isReady || !playerInstanceRef.current) return;
+    try {
+      playerInstanceRef.current.setVolume(volume);
+      // Update mute state based on volume
+      if (volume === 0 && !isMuted) {
+        setIsMuted(true);
+      } else if (volume > 0 && isMuted) {
+        setIsMuted(false);
+      }
+    } catch (error) {
+      console.error('Failed to set volume:', error);
+    }
+  }, [volume, isReady, isMuted]);
+
+  // Update playback rate when changed
+  useEffect(() => {
+    if (!isReady || !playerInstanceRef.current) return;
+    try {
+      playerInstanceRef.current.setPlaybackRate(playbackRate);
+    } catch (error) {
+      console.error('Failed to set playback rate:', error);
+    }
+  }, [playbackRate, isReady]);
 
   const handlePlayPause = () => {
     if (!playerInstanceRef.current) return;
@@ -232,14 +267,58 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
   };
 
   const handleSpeedChange = (speed: number) => {
-    if (!playerInstanceRef.current) return;
-    playerInstanceRef.current.setPlaybackRate(speed);
     setPlaybackRate(speed);
+    // The useEffect will handle applying it to the player
   };
 
   const handleSeek = (seconds: number) => {
     if (!playerInstanceRef.current) return;
+    
+    // Only allow backward seeking, prevent forward seeking
+    if (seconds > currentTime) {
+      // Show warning message
+      setShowForwardWarning(true);
+      
+      // Clear existing timeout
+      if (warningTimeoutRef.current) {
+        clearTimeout(warningTimeoutRef.current);
+      }
+      
+      // Hide warning after 3 seconds
+      warningTimeoutRef.current = setTimeout(() => {
+        setShowForwardWarning(false);
+      }, 3000);
+      
+      return; // Don't seek forward
+    }
+    
+    // Allow backward seeking
     playerInstanceRef.current.seekTo(seconds, true);
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    // Update previous volume if not muted
+    if (!isMuted && newVolume > 0) {
+      setPreviousVolume(newVolume);
+    }
+  };
+
+  const handleMuteToggle = () => {
+    if (!playerInstanceRef.current) return;
+    if (isMuted) {
+      // Unmute and restore previous volume or default to 50
+      const restoreVolume = previousVolume > 0 ? previousVolume : 50;
+      setVolume(restoreVolume);
+      setIsMuted(false);
+    } else {
+      // Mute - save current volume before muting
+      if (volume > 0) {
+        setPreviousVolume(volume);
+      }
+      setVolume(0);
+      setIsMuted(true);
+    }
   };
 
   const formatTime = (seconds: number) => {
@@ -302,16 +381,25 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
 
         {/* Video Controls */}
         <div className="p-4 space-y-4">
+          {/* Forward Warning Message */}
+          {showForwardWarning && (
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-md flex items-center gap-2 text-sm transition-all duration-300">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>Anda tidak dapat melompat ke depan. Hanya dapat kembali ke bagian sebelumnya.</span>
+            </div>
+          )}
+
           {/* Progress Bar */}
           <div>
             <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 cursor-pointer" onClick={(e) => {
+            <div className="w-full bg-gray-200 rounded-full h-2 cursor-pointer relative" onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const percent = (e.clientX - rect.left) / rect.width;
-              handleSeek(percent * duration);
+              const seekTime = percent * duration;
+              handleSeek(seekTime);
             }}>
               <div
                 className="bg-primary h-2 rounded-full transition-all"
@@ -331,6 +419,35 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </Button>
+
+              {/* Volume Control */}
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleMuteToggle}
+                  disabled={!isReady}
+                >
+                  {isMuted || volume === 0 ? (
+                    <VolumeX className="w-4 h-4" />
+                  ) : (
+                    <Volume2 className="w-4 h-4" />
+                  )}
+                </Button>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={volume}
+                  onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
+                  className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+                  style={{
+                    background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${volume}%, rgb(229, 231, 235) ${volume}%, rgb(229, 231, 235) 100%)`
+                  }}
+                  disabled={!isReady}
+                />
+                <span className="text-xs text-muted-foreground w-8">{volume}%</span>
+              </div>
 
               {/* Speed Control */}
               <select
