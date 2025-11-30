@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserPlus, Mail, Lock, User, GraduationCap, Sparkles } from 'lucide-react';
+import { register as registerUser } from '@/lib/api/auth';
 
 const registerSchema = z.object({
     email: z.string().email('Harap masukkan alamat email yang valid'),
@@ -38,33 +39,7 @@ export default function RegisterPage() {
         setError('');
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-            const response = await fetch(`${API_URL}/api/auth/register`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            // Check if response is HTML (error page)
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const text = await response.text();
-                console.error('Non-JSON response received:', text.substring(0, 200));
-                throw new Error('Server mengembalikan respons yang tidak valid. Pastikan server API berjalan di ' + API_URL);
-            }
-            
-            if (!response.ok) {
-                try {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Registrasi gagal');
-                } catch (parseError) {
-                    throw new Error(`Registrasi gagal (${response.status}: ${response.statusText})`);
-                }
-            }
-
-            const result = await response.json();
+            const result = await registerUser(data);
             console.log('Registration success:', result);
             // Redirect to login
             window.location.href = '/login?registered=true';
