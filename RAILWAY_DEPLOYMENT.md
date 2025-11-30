@@ -1,166 +1,131 @@
-# Railway Deployment Guide
+# Railway Deployment Guide for BelajarShafa Monorepo
 
-This project contains both a NestJS backend (server) and Next.js frontend (client) in a monorepo structure.
+This guide explains how to deploy the BelajarShafa monorepo (client + server) on Railway.
 
-## Recommended Approach: Deploy as Separate Services
+## Prerequisites
+
+- Railway account
+- GitHub repository connected to Railway
+- PostgreSQL database set up in Railway
+
+## Deployment Strategy
+
+This monorepo is designed to be deployed as **two separate Railway services**:
+1. **Backend Service** (NestJS API)
+2. **Frontend Service** (Next.js)
+
+## Setup Instructions
 
 ### 1. Deploy the Backend (Server)
 
-1. **Create a new Railway project** or use an existing one
-2. **Add a new service** from your GitHub repository
-3. **Configure the service:**
-   - **Root Directory**: Set to `server` (CRITICAL - must be set!)
-   - **Builder**: Will automatically use `NIXPACKS` (configured in `server/railway.json`)
-   - The nixpacks.toml uses Node.js 20.19+, which is required for Prisma 7.0.0 and Next.js 16.0.3
-
-4. **Set Environment Variables:**
+1. In Railway dashboard, click **"New Project"** → **"Deploy from GitHub repo"**
+2. Select your repository
+3. Configure the service:
+   - **Service Name**: `belajar-shafa-server`
+   - **Root Directory**: `server`
+   - Railway will auto-detect the `Dockerfile`
+4. Add environment variables:
    ```
-   DATABASE_URL=your_postgresql_connection_string
-   JWT_SECRET=your_jwt_secret_here
+   DATABASE_URL=<your-postgres-connection-string>
+   JWT_SECRET=<your-jwt-secret>
    PORT=3001
-   NODE_ENV=production
    ```
-
-5. **Add PostgreSQL Database:**
-   - In Railway, click "New" → "Database" → "PostgreSQL"
-   - Railway will automatically set the `DATABASE_URL` environment variable
-   - The start command includes `npx prisma migrate deploy` to run migrations automatically
+5. Deploy!
 
 ### 2. Deploy the Frontend (Client)
 
-1. **Add another service** to your Railway project
-2. **Configure the service:**
-   - **Root Directory**: Set to `client`
-   - **Build Command**: Will be automatically detected from `client/nixpacks.toml`
-   - **Start Command**: Will be automatically detected from `client/nixpacks.toml`
-
-3. **Set Environment Variables:**
+1. In the same Railway project, click **"New Service"** → **"GitHub repo"**
+2. Select the same repository
+3. Configure the service:
+   - **Service Name**: `belajar-shafa-client`
+   - **Root Directory**: `client`
+   - Railway will auto-detect the `Dockerfile`
+4. Add environment variables:
    ```
-   NEXT_PUBLIC_API_URL=https://your-backend-service.railway.app
-   NODE_ENV=production
+   NEXT_PUBLIC_API_URL=<your-backend-url>
+   NEXT_PUBLIC_ALLOW_FORWARD_SEEK=true
    ```
-
-## Alternative: Deploy from Root (Not Recommended for Production)
-
-If you want to deploy just one service (server) from the root:
-
-1. **Don't set a Root Directory** (deploy from project root)
-2. The root `railway.json` will be used
-3. Set environment variables as needed
+5. Deploy!
 
 ## Configuration Files
 
-- `railway.json` - Railway service configuration
-- `nixpacks.toml` - Nixpacks build configuration (alternative to railway.json)
-- `Dockerfile` - Docker build configuration (fallback if Nixpacks fails)
-- `.npmrc` - npm configuration to handle peer dependency issues
-- All files are provided for maximum compatibility
+The monorepo uses Docker-based deployment with the following structure:
 
-## Important Notes
+```
+/
+├── railway.json                 # Root config (defaults to server)
+├── .dockerignore               # Docker ignore patterns
+├── package.json                # Workspace root
+├── server/
+│   ├── Dockerfile              # Server Docker build
+│   ├── railway.json            # Server Railway config
+│   └── package.json
+└── client/
+    ├── Dockerfile              # Client Docker build
+    ├── railway.json            # Client Railway config
+    └── package.json
+```
 
-### For Server:
-- The server automatically runs `npx prisma migrate deploy` on startup
-- Make sure your `DATABASE_URL` is set correctly
-- The server uses Node.js 20.19+ (required for Prisma 7.0.0)
-- OpenSSL is included for Prisma
+### Key Configuration Details
 
-### For Client:
-- The client connects to the backend via `NEXT_PUBLIC_API_URL`
-- Make sure to update this environment variable with your deployed backend URL
-- The client uses Node.js 20.19+ (required for Next.js 16.0.3)
+- **Node Version**: Uses Node.js 20 LTS (compatible with Prisma 7.0.0)
+- **Docker Context**: Both Dockerfiles use `..` as context to access workspace dependencies
+- **Build Strategy**: Each service is built independently but shares workspace dependencies
+
+## Dockerfiles
+
+### Server Dockerfile (`server/Dockerfile`)
+- Installs workspace dependencies
+- Generates Prisma Client
+- Builds NestJS application
+- Runs migrations on startup
+- Exposes port 3001
+
+### Client Dockerfile (`client/Dockerfile`)
+- Installs workspace dependencies
+- Builds Next.js application
+- Exposes port 3000
 
 ## Troubleshooting
 
-### "No start command was found"
-- Make sure you've set the correct **Root Directory** in Railway
-- Check that the `nixpacks.toml` or `railway.json` file exists in that directory
-- For server: Should be in `/server` directory
-- For client: Should be in `/client` directory
+### Node Version Issues
+If you see "Unsupported engine" errors, ensure:
+- `package.json` engines specify `>=20.19.0`
+- Dockerfiles use `FROM node:20-slim`
 
-### Database Connection Issues
-- Verify `DATABASE_URL` is set correctly
-- Check that the PostgreSQL service is running
-- Ensure your database allows connections from Railway
+### Workspace Dependencies Not Found
+Ensure:
+- `dockerContext: ".."` is set in `railway.json`
+- Root `package.json` is copied before installing dependencies
 
-### Build Failures
+### Prisma Issues
+Ensure:
+- OpenSSL is installed in the Docker image
+- `prisma generate` runs before building
+- `DATABASE_URL` environment variable is set
 
-#### "npm ci" Error / "process did not complete successfully: exit code: 1"
-This error occurs when Railway tries to use `npm ci` which requires a `package-lock.json` file or has issues with workspace structures.
+## Environment Variables
 
-**Solutions:**
-1. **CRITICAL: Set Root Directory correctly**
-   - Go to your Railway service settings
-   - Under "Settings" → "Root Directory", set it to `server` (for backend) or `client` (for frontend)
-   - This ensures Railway builds from the correct directory, not the monorepo root
+### Server Required Variables
+- `DATABASE_URL`: PostgreSQL connection string
+- `JWT_SECRET`: Secret key for JWT tokens
+- `PORT`: Server port (default: 3001)
 
-2. **Use Dockerfile (Already Configured):**
-   - The `server/railway.json` can be changed to use the Dockerfile if Nixpacks fails
-   - Change the "builder" field from "NIXPACKS" to "DOCKERFILE" in `server/railway.json`
-   - The Dockerfile explicitly uses Node.js 20.19 and `npm install` instead of `npm ci`
-   - Railway will automatically detect and use the Dockerfile
+### Client Required Variables
+- `NEXT_PUBLIC_API_URL`: Backend API URL
+- `NEXT_PUBLIC_ALLOW_FORWARD_SEEK`: Enable video seeking
 
-3. **Manual Build Command Override:**
-   - In Railway service settings, go to "Settings" → "Build & Deploy"
-   - Override the build command with: `npm install --legacy-peer-deps && npx prisma generate && npm run build`
-   - This bypasses the default `npm ci` behavior
+## Deployment Workflow
 
-4. **Check Build Logs:**
-   - Look at the full error message in Railway build logs
-   - Ensure all dependencies are in `package.json`
-   - Verify Node.js version compatibility
+1. Push changes to GitHub
+2. Railway automatically detects changes
+3. Builds Docker images
+4. Runs migrations (server only)
+5. Deploys new versions
 
-#### Node.js Version Error / "Prisma only supports Node.js versions 20.19+"
-This error occurs when Railway uses Node.js 18 instead of Node.js 20.19+.
+## Alternative: Single Service Deployment
 
-**Solutions:**
-1. **Use Nixpacks with Explicit Configuration (Now Configured):**
-   - The project now has `.node-version` files specifying Node.js 20.19.0
-   - The `nixpacks.toml` files are configured to use `nodejs-20_x` with a specific nixpkgs archive
-   - Both `server/railway.json` and `client/railway.json` are configured to use NIXPACKS builder
-   - Make sure Root Directory is set to `server` or `client` in Railway settings
-
-2. **Verify Builder Settings:**
-   - In Railway service settings, go to "Settings" → "Build & Deploy"
-   - Ensure "Builder" is set to "Nixpacks" (default)
-   - Railway will detect Node.js 20.19+ from `.node-version` and `nixpacks.toml`
-
-3. **Check package.json engines:**
-   - All package.json files (root, server, client) have `engines` field specifying Node.js >=20.19.0
-   - Railway should respect this configuration
-
-4. **Alternative: Use Dockerfile:**
-   - The `server/Dockerfile` uses `FROM node:20.19-slim` which explicitly uses Node.js 20.19
-   - Change `server/railway.json` builder from "NIXPACKS" to "DOCKERFILE" if Nixpacks fails
-
-## Manual Build Commands (if needed)
-
-If Railway doesn't detect the configuration automatically, you can set these manually:
-
-### Server
-- **Build Command**: `npm install --legacy-peer-deps && npx prisma generate && npm run build`
-- **Start Command**: `npx prisma migrate deploy && npm run start:prod`
-- **Alternative**: Use the provided `Dockerfile` by setting builder to "Dockerfile" in Railway settings
-
-### Client
-- **Build Command**: `npm install && npm run build`
-- **Start Command**: `npm run start`
-
-## Health Check
-
-Once deployed:
-- Backend: `https://your-backend.railway.app` should return a response
-- Frontend: `https://your-frontend.railway.app` should load the app
-- Check that the frontend can communicate with the backend
-
-## Environment Variables Reference
-
-### Required for Server:
-- `DATABASE_URL` - PostgreSQL connection string
-- `JWT_SECRET` - Secret for JWT token generation
-- `PORT` - Port to run on (default: 3001)
-- `NODE_ENV` - Set to "production"
-
-### Required for Client:
-- `NEXT_PUBLIC_API_URL` - URL of your deployed backend
-- `NODE_ENV` - Set to "production"
-
+If you only want to deploy the server (API only), you can:
+1. Use the root `railway.json` which defaults to the server
+2. Deploy without specifying a root directory
+3. The backend will be available at the Railway-provided URL

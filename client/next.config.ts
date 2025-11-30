@@ -7,7 +7,6 @@ config({ path: resolve(__dirname, '../.env') });
 
 const nextConfig: NextConfig = {
   /* config options here */
-  output: 'standalone',
   env: {
     // Explicitly pass through the variable from root .env
     NEXT_PUBLIC_ALLOW_FORWARD_SEEK: process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK,

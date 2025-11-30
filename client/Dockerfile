@@ -1,38 +1,25 @@
-# Use Node.js 20 LTS (required for Prisma 7.0.0 which supports 20.19+)
-FROM node:20-slim AS builder
+# Use Node.js 20 LTS
+FROM node:20-slim
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Copy workspace package files
 COPY package*.json ./
+COPY client/package*.json ./client/
 
-# Install dependencies
+# Install all workspace dependencies
 RUN npm install --legacy-peer-deps --no-audit --no-fund
 
-# Copy source code
-COPY . .
+# Copy client source code
+COPY client ./client
 
-# Build the application
+# Build the Next.js app
+WORKDIR /app/client
 RUN npm run build
-
-# Production image
-FROM node:20-slim AS runner
-
-WORKDIR /app
-
-ENV NODE_ENV=production
-
-# Copy built application
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/public ./public
 
 # Expose port
 EXPOSE 3000
 
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
-
-CMD ["node", "server.js"]
+# Start the client
+CMD ["npm", "run", "start"]
 
