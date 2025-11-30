@@ -9,9 +9,9 @@ This project contains both a NestJS backend (server) and Next.js frontend (clien
 1. **Create a new Railway project** or use an existing one
 2. **Add a new service** from your GitHub repository
 3. **Configure the service:**
-   - **Root Directory**: Set to `server`
-   - **Build Command**: Will be automatically detected from `server/nixpacks.toml`
-   - **Start Command**: Will be automatically detected from `server/nixpacks.toml`
+   - **Root Directory**: Set to `server` (CRITICAL - must be set!)
+   - **Builder**: Will automatically use `Dockerfile` (configured in `server/railway.json`)
+   - The Dockerfile uses Node.js 20, which is required for Prisma 7.0.0 and Next.js 16.0.3
 
 4. **Set Environment Variables:**
    ```
@@ -93,9 +93,10 @@ This error occurs when Railway tries to use `npm ci` which requires a `package-l
    - Under "Settings" → "Root Directory", set it to `server` (for backend) or `client` (for frontend)
    - This ensures Railway builds from the correct directory, not the monorepo root
 
-2. **Use Dockerfile instead of Nixpacks:**
-   - If the error persists, Railway will automatically detect and use the `Dockerfile` in the server directory
-   - The Dockerfile explicitly uses `npm install` instead of `npm ci`
+2. **Use Dockerfile (Already Configured):**
+   - The `server/railway.json` is configured to use the Dockerfile
+   - The Dockerfile explicitly uses Node.js 20 and `npm install` instead of `npm ci`
+   - Railway should automatically detect and use the Dockerfile
 
 3. **Manual Build Command Override:**
    - In Railway service settings, go to "Settings" → "Build & Deploy"
@@ -106,6 +107,24 @@ This error occurs when Railway tries to use `npm ci` which requires a `package-l
    - Look at the full error message in Railway build logs
    - Ensure all dependencies are in `package.json`
    - Verify Node.js version compatibility
+
+#### Node.js Version Error / "Prisma only supports Node.js versions 20.19+"
+This error occurs when Railway uses Node.js 18 instead of Node.js 20.
+
+**Solutions:**
+1. **Use Dockerfile (Recommended):**
+   - The `server/railway.json` is configured to use Dockerfile which explicitly uses Node.js 20
+   - Make sure Root Directory is set to `server` in Railway settings
+   - Railway will use the Dockerfile which has `FROM node:20-slim`
+
+2. **Verify Builder Settings:**
+   - In Railway service settings, go to "Settings" → "Build & Deploy"
+   - Ensure "Builder" is set to "Dockerfile" (not Nixpacks)
+   - If using Nixpacks, it should detect Node.js 20 from `nixpacks.toml` and `.nvmrc`
+
+3. **Check package.json engines:**
+   - Both `server/package.json` and `client/package.json` have `engines` field specifying Node.js 20
+   - Railway should respect this, but Dockerfile is more reliable
 
 ## Manual Build Commands (if needed)
 
