@@ -1,5 +1,5 @@
-# Use Node.js 20.19+ (required for Prisma 7.0.0)
-FROM node:20.19-slim
+# Use Node.js 22.12+ (required for Prisma 7.0.0)
+FROM node:22-slim
 
 # Install OpenSSL for Prisma
 RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*

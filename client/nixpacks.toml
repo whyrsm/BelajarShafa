@@ -1,9 +1,5 @@
 [phases.setup]
-nixPkgs = ["nodejs-20_x"]
-
-[phases.setup.nixPkgsArchive]
-# This archive contains Node.js 20.19+
-archive = "5148520bfab61f99fd25fb9ff7bfbb50dad3c9db"
+nixPkgs = ["nodejs_22"]
 
 [phases.install]
 cmds = ["npm install --legacy-peer-deps --no-audit --no-fund"]
@@ -18,5 +14,5 @@ cmd = "npm run start"
 NPM_CONFIG_LEGACY_PEER_DEPS = "true"
 NPM_CONFIG_FUND = "false"
 NPM_CONFIG_AUDIT = "false"
-NODE_VERSION = "20.19.0"
+NIXPACKS_NODE_VERSION = "22"
 
