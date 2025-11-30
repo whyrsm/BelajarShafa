@@ -11,9 +11,10 @@ interface DocumentViewerProps {
   documentUrl?: string;
   fileName?: string;
   title: string;
+  onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function DocumentViewer({ materialId, documentUrl, fileName, title }: DocumentViewerProps) {
+export function DocumentViewer({ materialId, documentUrl, fileName, title, onProgressUpdate }: DocumentViewerProps) {
   const [isViewed, setIsViewed] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<Date | null>(null);
@@ -43,6 +44,10 @@ export function DocumentViewer({ materialId, documentUrl, fileName, title }: Doc
         try {
           await markMaterialComplete(materialId);
           setIsCompleted(true);
+          // Trigger progress update callback
+          if (onProgressUpdate) {
+            await onProgressUpdate();
+          }
         } catch (error) {
           console.error('Failed to mark document as complete:', error);
         }
@@ -54,7 +59,7 @@ export function DocumentViewer({ materialId, documentUrl, fileName, title }: Doc
         }
       };
     }
-  }, [isViewed, viewStartTime, isCompleted, materialId]);
+  }, [isViewed, viewStartTime, isCompleted, materialId, onProgressUpdate]);
 
   const handleView = () => {
     if (!isViewed) {

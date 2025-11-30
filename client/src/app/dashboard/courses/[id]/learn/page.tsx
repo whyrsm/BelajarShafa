@@ -129,6 +129,36 @@ export default function CourseLearnPage() {
     setSidebarOpen(false);
   };
 
+  // Function to refresh progress data (called after material completion)
+  const refreshProgress = async () => {
+    try {
+      // Refresh enrollment to get updated progressPercent and completedAt
+      const enrollmentData = await getCourseEnrollment(courseId);
+      setEnrollment(enrollmentData);
+
+      // Refresh topic progress if we have a current topic
+      if (currentMaterial?.topicId) {
+        const topicProgress = await getTopicProgress(currentMaterial.topicId);
+        setTopicProgressMap((prev) => {
+          const next = new Map(prev);
+          next.set(currentMaterial.topicId, topicProgress);
+          return next;
+        });
+      }
+
+      // Also refresh all topics to ensure sidebar is up to date
+      if (course?.topics) {
+        const progressPromises = course.topics.map((topic) =>
+          getTopicProgress(topic.id).then((progress) => [topic.id, progress] as const)
+        );
+        const progressResults = await Promise.all(progressPromises);
+        setTopicProgressMap(new Map(progressResults));
+      }
+    } catch (err) {
+      console.error('Failed to refresh progress:', err);
+    }
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -297,6 +327,7 @@ export default function CourseLearnPage() {
                   videoUrl={currentMaterial.content?.videoUrl}
                   title={currentMaterial.title}
                   allowForwardSeek={process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK === 'true'}
+                  onProgressUpdate={refreshProgress}
                 />
               )}
               
@@ -306,6 +337,7 @@ export default function CourseLearnPage() {
                   documentUrl={currentMaterial.content?.documentUrl}
                   fileName={currentMaterial.content?.fileName}
                   title={currentMaterial.title}
+                  onProgressUpdate={refreshProgress}
                 />
               )}
               
@@ -314,6 +346,7 @@ export default function CourseLearnPage() {
                   materialId={currentMaterial.id}
                   content={currentMaterial.content?.articleContent}
                   title={currentMaterial.title}
+                  onProgressUpdate={refreshProgress}
                 />
               )}
               
@@ -322,6 +355,7 @@ export default function CourseLearnPage() {
                   materialId={currentMaterial.id}
                   url={currentMaterial.content?.externalUrl}
                   title={currentMaterial.title}
+                  onProgressUpdate={refreshProgress}
                 />
               )}
             </div>

@@ -17,6 +17,11 @@ interface VideoPlayerProps {
    * Set to true for development/testing purposes.
    */
   allowForwardSeek?: boolean;
+  /**
+   * Callback fired when progress is updated (e.g., when material is completed)
+   * Use this to refresh enrollment and course progress data in parent components
+   */
+  onProgressUpdate?: () => void | Promise<void>;
 }
 
 // YouTube IFrame API types
@@ -27,42 +32,32 @@ declare global {
   }
 }
 
-export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: propAllowForwardSeek }: VideoPlayerProps) {
+export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: propAllowForwardSeek, onProgressUpdate }: VideoPlayerProps) {
   // Check environment variable first, then prop, default to false (prevent forward seek)
-  // For development: Set NEXT_PUBLIC_ALLOW_FORWARD_SEEK=true in .env.local (in client directory)
-  // Or pass allowForwardSeek={true} as a prop to the component
-  // Note: Restart dev server after adding env variable
   const envValue = process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK;
-  const allowForwardSeek = 
-    envValue === 'true' || 
-    propAllowForwardSeek === true;
+  const allowForwardSeekRef = useRef(
+    envValue === 'true' || propAllowForwardSeek === true
+  );
   
-  // Debug logging (remove in production)
-  useEffect(() => {
-    if (process.env.NODE_ENV === 'development') {
-      console.log('[VideoPlayer] Forward seek config:', {
-        envValue,
-        envValueType: typeof envValue,
-        propValue: propAllowForwardSeek,
-        allowForwardSeek,
-        'NEXT_PUBLIC_ALLOW_FORWARD_SEEK': process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK
-      });
-    }
-  }, [envValue, propAllowForwardSeek, allowForwardSeek]);
+  // Refs for mutable values that don't need to trigger re-renders
   const playerRef = useRef<HTMLDivElement>(null);
   const playerInstanceRef = useRef<any>(null);
+  const progressSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastSavedTimeRef = useRef<number>(0);
+  const isCompletedRef = useRef<boolean>(false);
+  
+  // UI State
   const [isReady, setIsReady] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(100);
   const [isMuted, setIsMuted] = useState(false);
-  const [previousVolume, setPreviousVolume] = useState(100); // Track volume before muting
+  const [previousVolume, setPreviousVolume] = useState(100);
   const [playbackRate, setPlaybackRate] = useState(1);
   const [progress, setProgress] = useState<{ watchedDuration: number; isCompleted: boolean } | null>(null);
   const [showForwardWarning, setShowForwardWarning] = useState(false);
-  const progressSaveIntervalRef = useRef<NodeJS.Timeout | null>(null);
-  const warningTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Extract YouTube video ID from URL
   const getYouTubeVideoId = (url?: string): string | null => {
@@ -74,16 +69,20 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
 
   const videoId = getYouTubeVideoId(videoUrl);
 
+  // Load existing progress once on mount
   useEffect(() => {
-    // Load existing progress
+    let isMounted = true;
+    
     const loadProgress = async () => {
       try {
         const materialProgress = await getMaterialProgress(materialId);
-        if (materialProgress) {
+        if (materialProgress && isMounted) {
           setProgress({
             watchedDuration: materialProgress.watchedDuration,
             isCompleted: materialProgress.isCompleted,
           });
+          isCompletedRef.current = materialProgress.isCompleted;
+          lastSavedTimeRef.current = materialProgress.watchedDuration;
         }
       } catch (error) {
         console.error('Failed to load progress:', error);
@@ -91,30 +90,89 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     };
 
     loadProgress();
-  }, [materialId]);
-
-  // Add CSS to hide YouTube UI elements (note: these may not work due to iframe isolation)
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.id = 'youtube-hide-ui';
-    style.textContent = `
-      /* Note: YouTube iframe content is isolated, so we can't directly hide YouTube UI elements via CSS */
-      /* The overlay and playerVars (controls: 0) handle hiding controls */
-    `;
-    if (!document.getElementById('youtube-hide-ui')) {
-      document.head.appendChild(style);
-    }
     
     return () => {
-      const existingStyle = document.getElementById('youtube-hide-ui');
-      if (existingStyle) {
-        document.head.removeChild(existingStyle);
-      }
+      isMounted = false;
     };
-  }, []);
+  }, [materialId]);
 
+  // Optimized save progress function with useCallback and stable dependencies
+  const saveProgress = useCallback(async (timeValue?: number) => {
+    if (!isReady || !playerInstanceRef.current) return;
+    
+    try {
+      const time = timeValue !== undefined ? timeValue : playerInstanceRef.current.getCurrentTime();
+      const dur = playerInstanceRef.current.getDuration();
+      
+      // Skip if time hasn't changed significantly (avoid unnecessary API calls)
+      if (Math.abs(time - lastSavedTimeRef.current) < 3 && !isCompletedRef.current) {
+        return;
+      }
+      
+      const watchedPercent = dur > 0 ? (time / dur) * 100 : 0;
+      const watchedSeconds = Math.floor(time);
+      
+      // Mark as complete if watched 95% or more
+      const isComplete = watchedPercent >= 95 || watchedSeconds >= dur - 1;
+      
+      // Check if this is a new completion
+      const wasJustCompleted = !isCompletedRef.current && isComplete;
+
+      await updateMaterialProgress(materialId, {
+        watchedDuration: watchedSeconds,
+        isCompleted: isComplete,
+      });
+
+      lastSavedTimeRef.current = watchedSeconds;
+      isCompletedRef.current = isComplete;
+      
+      setProgress({
+        watchedDuration: watchedSeconds,
+        isCompleted: isComplete,
+      });
+
+      // Call progress update callback when material is newly completed
+      if (wasJustCompleted && onProgressUpdate) {
+        await onProgressUpdate();
+      }
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
+  }, [isReady, materialId, onProgressUpdate]);
+
+  const handleVideoComplete = useCallback(async () => {
+    if (!playerInstanceRef.current) return;
+    
+    try {
+      const dur = playerInstanceRef.current.getDuration();
+      const wasAlreadyCompleted = isCompletedRef.current;
+      
+      await updateMaterialProgress(materialId, {
+        watchedDuration: Math.floor(dur),
+        isCompleted: true,
+      });
+      
+      isCompletedRef.current = true;
+      setProgress({
+        watchedDuration: Math.floor(dur),
+        isCompleted: true,
+      });
+
+      // Call progress update callback if newly completed
+      if (!wasAlreadyCompleted && onProgressUpdate) {
+        await onProgressUpdate();
+      }
+    } catch (error) {
+      console.error('Failed to mark video as complete:', error);
+    }
+  }, [materialId, onProgressUpdate]);
+
+  // Initialize YouTube player
   useEffect(() => {
     if (!videoId || !playerRef.current) return;
+    
+    // Prevent re-initialization if player already exists
+    if (playerInstanceRef.current) return;
 
     // Load YouTube IFrame API
     if (!window.YT) {
@@ -131,42 +189,40 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     }
 
     function initializePlayer() {
-      if (!playerRef.current || !videoId) return;
+      if (!playerRef.current || !videoId || playerInstanceRef.current) return;
 
-      const startTime = progress?.watchedDuration || 0;
+      // Use ref values instead of state to avoid re-initialization
+      const startTime = lastSavedTimeRef.current || 0;
 
       playerInstanceRef.current = new window.YT.Player(playerRef.current, {
         videoId,
         playerVars: {
           autoplay: 0,
           start: Math.floor(startTime),
-          controls: 0, // Hide YouTube's native controls
+          controls: 0,
           rel: 0,
           modestbranding: 1,
-          disablekb: 1, // Disable keyboard controls
-          fs: 0, // Disable fullscreen button
-          iv_load_policy: 3, // Hide annotations
-          playsinline: 1, // Play inline on mobile
-          showinfo: 0, // Hide video info
-          cc_load_policy: 0, // Hide closed captions by default
+          disablekb: 1,
+          fs: 0,
+          iv_load_policy: 3,
+          playsinline: 1,
+          showinfo: 0,
+          cc_load_policy: 0,
         },
         events: {
           onReady: (event: any) => {
             setIsReady(true);
             setDuration(event.target.getDuration());
-            // Set initial volume
-            event.target.setVolume(volume);
-            event.target.setPlaybackRate(playbackRate);
+            event.target.setVolume(100);
+            event.target.setPlaybackRate(1);
             if (startTime > 0) {
               event.target.seekTo(startTime, true);
             }
           },
           onStateChange: (event: any) => {
-            // YT.PlayerState.PLAYING = 1, PAUSED = 2, ENDED = 0
             setIsPlaying(event.data === 1);
             
             if (event.data === 0) {
-              // Video ended
               handleVideoComplete();
             }
           },
@@ -181,63 +237,33 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
       if (playerInstanceRef.current) {
         try {
           playerInstanceRef.current.destroy();
+          playerInstanceRef.current = null;
         } catch (error) {
           console.error('Error destroying player:', error);
         }
       }
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
+        progressSaveIntervalRef.current = null;
       }
       if (warningTimeoutRef.current) {
         clearTimeout(warningTimeoutRef.current);
+        warningTimeoutRef.current = null;
       }
     };
-  }, [videoId, progress]);
+  }, [videoId, handleVideoComplete]);
 
-  // Save progress function
-  const saveProgress = useCallback(async (currentTimeValue?: number) => {
-    if (!isReady || !playerInstanceRef.current) return;
-    
-    try {
-      const time = currentTimeValue !== undefined ? currentTimeValue : playerInstanceRef.current.getCurrentTime();
-      const duration = playerInstanceRef.current.getDuration();
-      const watchedPercent = duration > 0 ? (time / duration) * 100 : 0;
-      const watchedSeconds = Math.floor(time);
-      
-      // Mark as complete if watched 95% or more (to account for small timing differences)
-      const isComplete = watchedPercent >= 95 || watchedSeconds >= duration - 1;
-
-      await updateMaterialProgress(materialId, {
-        watchedDuration: watchedSeconds,
-        isCompleted: isComplete,
-      });
-
-      setProgress({
-        watchedDuration: watchedSeconds,
-        isCompleted: isComplete,
-      });
-    } catch (error) {
-      console.error('Failed to save progress:', error);
-    }
-  }, [isReady, materialId]);
-
-  // Auto-save progress every 10 seconds while playing
+  // Auto-save progress periodically while playing
   useEffect(() => {
-    if (!isReady) {
-      if (progressSaveIntervalRef.current) {
-        clearInterval(progressSaveIntervalRef.current);
-        progressSaveIntervalRef.current = null;
-      }
-      return;
-    }
+    if (!isReady) return;
 
-    // Save progress periodically while playing
     if (isPlaying) {
+      // Save progress every 15 seconds while playing (reduced frequency)
       progressSaveIntervalRef.current = setInterval(() => {
         saveProgress();
-      }, 10000); // Save every 10 seconds
+      }, 15000);
     } else {
-      // Save progress when paused
+      // Clear interval when paused
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
         progressSaveIntervalRef.current = null;
@@ -249,23 +275,12 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     return () => {
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
+        progressSaveIntervalRef.current = null;
       }
     };
   }, [isReady, isPlaying, saveProgress]);
 
-  // Save progress when current time changes significantly (e.g., after seeking)
-  useEffect(() => {
-    if (!isReady || !playerInstanceRef.current || currentTime === 0) return;
-    
-    // Save progress when time updates (debounced)
-    const timeoutId = setTimeout(() => {
-      saveProgress(currentTime);
-    }, 2000); // Save 2 seconds after time change
-
-    return () => clearTimeout(timeoutId);
-  }, [currentTime, isReady, saveProgress]);
-
-  // Update current time periodically
+  // Update current time periodically (optimized to avoid too many state updates)
   useEffect(() => {
     if (!isReady) return;
 
@@ -273,41 +288,39 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
       if (playerInstanceRef.current) {
         try {
           const time = playerInstanceRef.current.getCurrentTime();
-          const duration = playerInstanceRef.current.getDuration();
-          setCurrentTime(time);
+          const dur = playerInstanceRef.current.getDuration();
           
-          // Auto-save and mark complete when reaching 95% or more
-          if (duration > 0) {
-            const percent = (time / duration) * 100;
-            if (percent >= 95 && (!progress?.isCompleted)) {
-              // Save progress when reaching completion threshold
+          // Only update state if time changed significantly (reduce re-renders)
+          setCurrentTime(prevTime => {
+            const timeDiff = Math.abs(time - prevTime);
+            return timeDiff > 0.5 ? time : prevTime;
+          });
+          
+          // Check for completion threshold (95%)
+          if (dur > 0 && !isCompletedRef.current) {
+            const percent = (time / dur) * 100;
+            if (percent >= 95) {
               saveProgress(time);
             }
           }
         } catch (error) {
-          // Ignore errors
+          // Ignore errors silently
         }
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady, saveProgress, progress?.isCompleted]);
+  }, [isReady, saveProgress]);
 
-  // Update volume when changed
+  // Update volume when changed (optimized to avoid circular dependencies)
   useEffect(() => {
     if (!isReady || !playerInstanceRef.current) return;
     try {
       playerInstanceRef.current.setVolume(volume);
-      // Update mute state based on volume
-      if (volume === 0 && !isMuted) {
-        setIsMuted(true);
-      } else if (volume > 0 && isMuted) {
-        setIsMuted(false);
-      }
     } catch (error) {
       console.error('Failed to set volume:', error);
     }
-  }, [volume, isReady, isMuted]);
+  }, [volume, isReady]);
 
   // Update playback rate when changed
   useEffect(() => {
@@ -319,45 +332,24 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     }
   }, [playbackRate, isReady]);
 
-  const handlePlayPause = () => {
+  const handlePlayPause = useCallback(() => {
     if (!playerInstanceRef.current) return;
     if (isPlaying) {
       playerInstanceRef.current.pauseVideo();
     } else {
       playerInstanceRef.current.playVideo();
     }
-  };
+  }, [isPlaying]);
 
-  const handleVideoComplete = async () => {
-    if (!playerInstanceRef.current) return;
-    
-    try {
-      // Get final duration and mark as complete
-      const duration = playerInstanceRef.current.getDuration();
-      await updateMaterialProgress(materialId, {
-        watchedDuration: Math.floor(duration),
-        isCompleted: true,
-      });
-      
-      setProgress({
-        watchedDuration: Math.floor(duration),
-        isCompleted: true,
-      });
-    } catch (error) {
-      console.error('Failed to mark video as complete:', error);
-    }
-  };
-
-  const handleSpeedChange = (speed: number) => {
+  const handleSpeedChange = useCallback((speed: number) => {
     setPlaybackRate(speed);
-    // The useEffect will handle applying it to the player
-  };
+  }, []);
 
-  const handleSeek = (seconds: number) => {
+  const handleSeek = useCallback((seconds: number) => {
     if (!playerInstanceRef.current) return;
     
     // Check if forward seeking is allowed
-    if (!allowForwardSeek && seconds > currentTime) {
+    if (!allowForwardSeekRef.current && seconds > currentTime) {
       // Show warning message
       setShowForwardWarning(true);
       
@@ -371,7 +363,7 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
         setShowForwardWarning(false);
       }, 3000);
       
-      return; // Don't seek forward
+      return;
     }
     
     // Allow seeking (backward always, forward if allowed)
@@ -380,18 +372,25 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     // Save progress after seeking
     setTimeout(() => {
       saveProgress(seconds);
-    }, 500); // Small delay to ensure seek is complete
-  };
+    }, 500);
+  }, [currentTime, saveProgress]);
 
-  const handleVolumeChange = (newVolume: number) => {
+  const handleVolumeChange = useCallback((newVolume: number) => {
     setVolume(newVolume);
-    // Update previous volume if not muted
-    if (!isMuted && newVolume > 0) {
+    // Update previous volume and mute state
+    if (newVolume > 0) {
       setPreviousVolume(newVolume);
+      if (isMuted) {
+        setIsMuted(false);
+      }
+    } else {
+      if (!isMuted) {
+        setIsMuted(true);
+      }
     }
-  };
+  }, [isMuted]);
 
-  const handleMuteToggle = () => {
+  const handleMuteToggle = useCallback(() => {
     if (!playerInstanceRef.current) return;
     if (isMuted) {
       // Unmute and restore previous volume or default to 50
@@ -406,13 +405,13 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
       setVolume(0);
       setIsMuted(true);
     }
-  };
+  }, [isMuted, previousVolume, volume]);
 
-  const formatTime = (seconds: number) => {
+  const formatTime = useCallback((seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}:${secs.toString().padStart(2, '0')}`;
-  };
+  }, []);
 
   if (!videoId) {
     return (
@@ -436,25 +435,21 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
             ref={playerRef} 
             className="w-full h-full"
           />
-          {/* Overlay to prevent clicking through to YouTube - intercepts clicks but video plays via API */}
+          {/* Overlay to prevent clicking through to YouTube */}
           <div 
             className="absolute inset-0 z-10"
             onClick={(e) => {
-              // Intercept all clicks to prevent navigation to YouTube
               e.preventDefault();
               e.stopPropagation();
-              // Control video only through app controls
               if (isReady) {
                 handlePlayPause();
               }
             }}
             onDoubleClick={(e) => {
-              // Prevent double-click fullscreen
               e.preventDefault();
               e.stopPropagation();
             }}
             onMouseDown={(e) => {
-              // Prevent any mouse interactions that might trigger YouTube navigation
               e.preventDefault();
               e.stopPropagation();
             }}
@@ -482,12 +477,15 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 cursor-pointer relative" onClick={(e) => {
-              const rect = e.currentTarget.getBoundingClientRect();
-              const percent = (e.clientX - rect.left) / rect.width;
-              const seekTime = percent * duration;
-              handleSeek(seekTime);
-            }}>
+            <div 
+              className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 cursor-pointer relative" 
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const percent = (e.clientX - rect.left) / rect.width;
+                const seekTime = percent * duration;
+                handleSeek(seekTime);
+              }}
+            >
               <div
                 className="bg-primary h-2 sm:h-2.5 rounded-full transition-all"
                 style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}

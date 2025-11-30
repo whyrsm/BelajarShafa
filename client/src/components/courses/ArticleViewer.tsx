@@ -9,9 +9,10 @@ interface ArticleViewerProps {
   materialId: string;
   content?: string;
   title: string;
+  onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function ArticleViewer({ materialId, content, title }: ArticleViewerProps) {
+export function ArticleViewer({ materialId, content, title, onProgressUpdate }: ArticleViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -48,8 +49,12 @@ export function ArticleViewer({ materialId, content, title }: ArticleViewerProps
       if (scrollPercent >= 0.9 && !hasScrolled) {
         setHasScrolled(true);
         markMaterialComplete(materialId)
-          .then(() => {
+          .then(async () => {
             setIsCompleted(true);
+            // Trigger progress update callback
+            if (onProgressUpdate) {
+              await onProgressUpdate();
+            }
           })
           .catch(console.error);
       }
@@ -72,7 +77,7 @@ export function ArticleViewer({ materialId, content, title }: ArticleViewerProps
         element.removeEventListener('scroll', handleScroll);
       };
     }
-  }, [materialId, isCompleted, hasScrolled]);
+  }, [materialId, isCompleted, hasScrolled, onProgressUpdate]);
 
   // Mark as viewed when component mounts
   useEffect(() => {

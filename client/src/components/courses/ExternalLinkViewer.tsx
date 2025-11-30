@@ -10,9 +10,10 @@ interface ExternalLinkViewerProps {
   materialId: string;
   url?: string;
   title: string;
+  onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function ExternalLinkViewer({ materialId, url, title }: ExternalLinkViewerProps) {
+export function ExternalLinkViewer({ materialId, url, title, onProgressUpdate }: ExternalLinkViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
@@ -31,16 +32,21 @@ export function ExternalLinkViewer({ materialId, url, title }: ExternalLinkViewe
     loadProgress();
   }, [materialId]);
 
-  const handleOpenLink = () => {
+  const handleOpenLink = async () => {
     if (url) {
       window.open(url, '_blank');
       
       // Mark as complete when clicked
-      markMaterialComplete(materialId)
-        .then(() => {
-          setIsCompleted(true);
-        })
-        .catch(console.error);
+      try {
+        await markMaterialComplete(materialId);
+        setIsCompleted(true);
+        // Trigger progress update callback
+        if (onProgressUpdate) {
+          await onProgressUpdate();
+        }
+      } catch (error) {
+        console.error('Failed to mark link as complete:', error);
+      }
     }
   };
 
