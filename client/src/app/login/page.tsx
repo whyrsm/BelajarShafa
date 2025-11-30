@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogIn, Mail, Lock, Sparkles } from 'lucide-react';
+import { login } from '@/lib/api/auth';
 
 const loginSchema = z.object({
     email: z.string().email('Harap masukkan alamat email yang valid'),
@@ -31,41 +32,13 @@ export default function LoginPage() {
         setError('');
 
         try {
-            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
-            const response = await fetch(`${API_URL}/api/auth/login`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(data),
-            });
-
-            // Check if response is HTML (error page)
-            const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
-                const text = await response.text();
-                console.error('Non-JSON response received:', text.substring(0, 200));
-                throw new Error('Server mengembalikan respons yang tidak valid. Pastikan server API berjalan di ' + API_URL);
-            }
-
-            if (!response.ok) {
-                let errorMessage = 'Login gagal';
-                try {
-                    const errorData = await response.json();
-                    errorMessage = errorData.message || errorMessage;
-                } catch {
-                    errorMessage = `Login gagal (${response.status}: ${response.statusText})`;
-                }
-                throw new Error(errorMessage);
-            }
-
-            const result = await response.json();
+            const result = await login(data.email, data.password);
             console.log('Login success:', result);
-            
+
             if (!result.access_token) {
                 throw new Error('Token tidak diterima dari server');
             }
-            
+
             // Save token and redirect
             localStorage.setItem('access_token', result.access_token);
             window.location.href = '/dashboard';
