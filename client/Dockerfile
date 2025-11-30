@@ -15,7 +15,6 @@ COPY client ./client
 
 # Build the Next.js app
 WORKDIR /app/client
-ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:4000}
 RUN npm run build
 
