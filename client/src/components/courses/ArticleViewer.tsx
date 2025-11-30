@@ -94,13 +94,13 @@ export function ArticleViewer({ materialId, content, title }: ArticleViewerProps
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">{title}</h2>
+      <CardContent className="p-3 sm:p-4 lg:p-6">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">{title}</h2>
             {isCompleted && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Selesai</span>
               </div>
             )}
@@ -108,7 +108,7 @@ export function ArticleViewer({ materialId, content, title }: ArticleViewerProps
 
           <div
             ref={contentRef}
-            className="prose prose-sm max-w-none overflow-y-auto max-h-[70vh]"
+            className="prose prose-sm sm:prose-base max-w-none overflow-y-auto max-h-[60vh] sm:max-h-[70vh] text-sm sm:text-base"
             dangerouslySetInnerHTML={{ __html: content }}
           />
         </div>

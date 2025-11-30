@@ -9,7 +9,7 @@ import { DashboardLayout } from '@/components/navigation';
 import { getCourseById, Course } from '@/lib/api/courses';
 import { getCourseEnrollment, Enrollment } from '@/lib/api/enrollments';
 import { getTopicProgress, TopicProgress } from '@/lib/api/progress';
-import { ArrowLeft, CheckCircle2, Circle, ChevronDown, ChevronRight, BookOpen } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, ChevronDown, ChevronRight, BookOpen, Menu, X } from 'lucide-react';
 import { VideoPlayer } from '@/components/courses/VideoPlayer';
 import { DocumentViewer } from '@/components/courses/DocumentViewer';
 import { ArticleViewer } from '@/components/courses/ArticleViewer';
@@ -29,6 +29,7 @@ export default function CourseLearnPage() {
   const [error, setError] = useState('');
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
   const [topicProgressMap, setTopicProgressMap] = useState<Map<string, TopicProgress>>(new Map());
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [currentMaterial, setCurrentMaterial] = useState<{
     id: string;
     type: string;
@@ -124,6 +125,8 @@ export default function CourseLearnPage() {
 
   const selectMaterial = (materialId: string, topicId: string) => {
     router.push(`/dashboard/courses/${courseId}/learn?material=${materialId}&topic=${topicId}`);
+    // Close sidebar on mobile after selecting material
+    setSidebarOpen(false);
   };
 
   if (loading) {
@@ -162,19 +165,41 @@ export default function CourseLearnPage() {
 
   return (
     <DashboardLayout>
-      <div className="flex h-[calc(100vh-4rem)]">
+      <div className="flex h-[calc(100vh-4rem)] relative">
+        {/* Mobile Sidebar Overlay */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
         {/* Sidebar - Curriculum */}
-        <div className="w-80 border-r bg-background overflow-y-auto">
-          <div className="p-4 border-b sticky top-0 bg-background z-10">
-            <Link href={`/dashboard/courses/${courseId}`}>
-              <Button variant="ghost" size="sm" className="mb-2">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Kembali
+        <div
+          className={`fixed lg:static inset-y-0 left-0 w-80 border-r bg-background overflow-y-auto z-50 lg:z-auto transform transition-transform duration-300 ease-in-out ${
+            sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
+        >
+          <div className="p-3 sm:p-4 border-b sticky top-0 bg-background z-10">
+            <div className="flex items-center justify-between mb-2">
+              <Link href={`/dashboard/courses/${courseId}`} className="hidden md:block">
+                <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+                  <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-2" />
+                  Kembali
+                </Button>
+              </Link>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="lg:hidden"
+                onClick={() => setSidebarOpen(false)}
+              >
+                <X className="w-4 h-4" />
               </Button>
-            </Link>
-            <h2 className="font-semibold text-lg">{course.title}</h2>
+            </div>
+            <h2 className="font-semibold text-sm sm:text-base lg:text-lg line-clamp-2">{course.title}</h2>
             <div className="mt-2">
-              <div className="flex items-center justify-between text-sm mb-1">
+              <div className="flex items-center justify-between text-xs sm:text-sm mb-1">
                 <span className="text-muted-foreground">Progress</span>
                 <span className="font-medium">{enrollment.progressPercent}%</span>
               </div>
@@ -187,7 +212,7 @@ export default function CourseLearnPage() {
             </div>
           </div>
 
-          <div className="p-4 space-y-2">
+          <div className="p-3 sm:p-4 space-y-2">
             {course.topics?.map((topic) => {
               const isExpanded = expandedTopics.has(topic.id);
               const progress = topicProgressMap.get(topic.id);
@@ -197,17 +222,17 @@ export default function CourseLearnPage() {
                 <div key={topic.id} className="border rounded-lg overflow-hidden">
                   <button
                     onClick={() => toggleTopic(topic.id)}
-                    className="w-full p-3 flex items-center justify-between hover:bg-accent transition-colors"
+                    className="w-full p-2.5 sm:p-3 flex items-center justify-between hover:bg-accent transition-colors"
                   >
-                    <div className="flex items-center gap-2 flex-1 text-left">
+                    <div className="flex items-center gap-2 flex-1 text-left min-w-0">
                       {isExpanded ? (
-                        <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                        <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
                       ) : (
-                        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                        <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
                       )}
-                      <span className="font-medium text-sm">{topic.title}</span>
+                      <span className="font-medium text-xs sm:text-sm truncate">{topic.title}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground flex-shrink-0 ml-2">
                       {progress?.completedCount || 0}/{progress?.totalCount || topic.materials?.length || 0}
                     </span>
                   </button>
@@ -225,16 +250,16 @@ export default function CourseLearnPage() {
                           <button
                             key={material.id}
                             onClick={() => selectMaterial(material.id, topic.id)}
-                            className={`w-full p-3 pl-8 flex items-center gap-2 text-left text-sm hover:bg-accent transition-colors ${
+                            className={`w-full p-2.5 sm:p-3 pl-6 sm:pl-8 flex items-center gap-2 text-left text-xs sm:text-sm hover:bg-accent transition-colors ${
                               isActive ? 'bg-primary/10 border-l-2 border-l-primary' : ''
                             }`}
                           >
                             {isCompleted ? (
-                              <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0" />
+                              <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-600 flex-shrink-0" />
                             ) : (
-                              <Circle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                              <Circle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground flex-shrink-0" />
                             )}
-                            <span className={`flex-1 ${isActive ? 'font-medium' : ''}`}>
+                            <span className={`flex-1 min-w-0 truncate ${isActive ? 'font-medium' : ''}`}>
                               {material.title}
                             </span>
                           </button>
@@ -249,10 +274,22 @@ export default function CourseLearnPage() {
         </div>
 
         {/* Main Content Area */}
-        <div className="flex-1 overflow-y-auto bg-background">
+        <div className="flex-1 overflow-y-auto bg-background min-w-0">
           {currentMaterial ? (
-            <div className="p-6">
-              <h1 className="text-2xl font-bold mb-4">{currentMaterial.title}</h1>
+            <div className="p-3 sm:p-4 lg:p-6">
+              {/* Mobile Header with Menu Button */}
+              <div className="flex items-center justify-between mb-3 sm:mb-4 lg:hidden">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden"
+                >
+                  <Menu className="w-4 h-4 mr-2" />
+                  Kurikulum
+                </Button>
+              </div>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold mb-3 sm:mb-4">{currentMaterial.title}</h1>
               
               {currentMaterial.type === 'VIDEO' && (
                 <VideoPlayer
@@ -289,10 +326,19 @@ export default function CourseLearnPage() {
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full">
+            <div className="flex items-center justify-center h-full p-4">
               <div className="text-center">
-                <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">Pilih materi untuk mulai belajar</p>
+                <BookOpen className="w-12 h-12 sm:w-16 sm:h-16 text-muted-foreground mx-auto mb-3 sm:mb-4" />
+                <p className="text-sm sm:text-base text-muted-foreground">Pilih materi untuk mulai belajar</p>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setSidebarOpen(true)}
+                  className="mt-4 lg:hidden"
+                >
+                  <Menu className="w-4 h-4 mr-2" />
+                  Buka Kurikulum
+                </Button>
               </div>
             </div>
           )}
@@ -301,4 +347,3 @@ export default function CourseLearnPage() {
     </DashboardLayout>
   );
 }
-

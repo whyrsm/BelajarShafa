@@ -56,31 +56,31 @@ export function ExternalLinkViewer({ materialId, url, title }: ExternalLinkViewe
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold">{title}</h2>
+      <CardContent className="p-3 sm:p-4 lg:p-6">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+            <h2 className="text-lg sm:text-xl lg:text-2xl font-bold">{title}</h2>
             {isCompleted && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Selesai</span>
               </div>
             )}
           </div>
 
-          <div className="p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground mb-4">
+          <div className="p-3 sm:p-4 bg-muted rounded-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-3 sm:mb-4">
               Klik tombol di bawah untuk membuka link eksternal di tab baru.
             </p>
-            <Button onClick={handleOpenLink} size="lg">
-              <ExternalLink className="w-4 h-4 mr-2" />
+            <Button onClick={handleOpenLink} size="lg" className="w-full sm:w-auto text-sm sm:text-base">
+              <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
               Buka Link
             </Button>
           </div>
 
-          <div className="mt-4">
-            <p className="text-sm text-muted-foreground">URL:</p>
-            <p className="text-sm break-all text-blue-600">{url}</p>
+          <div className="mt-3 sm:mt-4">
+            <p className="text-xs sm:text-sm text-muted-foreground mb-1">URL:</p>
+            <p className="text-xs sm:text-sm break-all text-blue-600">{url}</p>
           </div>
         </div>
       </CardContent>

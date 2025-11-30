@@ -97,35 +97,35 @@ export function DocumentViewer({ materialId, documentUrl, fileName, title }: Doc
 
   return (
     <Card>
-      <CardContent className="p-6">
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold">{title}</h2>
+      <CardContent className="p-3 sm:p-4 lg:p-6">
+        <div className="space-y-3 sm:space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0">
+            <h2 className="text-lg sm:text-xl font-semibold">{title}</h2>
             {isCompleted && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
-                <CheckCircle2 className="w-4 h-4" />
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
+                <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Selesai</span>
               </div>
             )}
           </div>
 
           {fileName && (
-            <p className="text-sm text-muted-foreground">File: {fileName}</p>
+            <p className="text-xs sm:text-sm text-muted-foreground break-words">File: {fileName}</p>
           )}
 
-          <div className="flex gap-3">
-            <Button onClick={handlePreview} variant="outline">
-              <ExternalLink className="w-4 h-4 mr-2" />
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+            <Button onClick={handlePreview} variant="outline" className="w-full sm:w-auto text-sm">
+              <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
               Preview
             </Button>
-            <Button onClick={handleDownload}>
-              <Download className="w-4 h-4 mr-2" />
+            <Button onClick={handleDownload} className="w-full sm:w-auto text-sm">
+              <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2" />
               Download
             </Button>
           </div>
 
-          <div className="mt-4 p-4 bg-muted rounded-lg">
-            <p className="text-sm text-muted-foreground">
+          <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-muted rounded-lg">
+            <p className="text-xs sm:text-sm text-muted-foreground">
               Klik Preview atau Download untuk melihat dokumen. Dokumen akan otomatis ditandai sebagai selesai setelah 30 detik.
             </p>
           </div>

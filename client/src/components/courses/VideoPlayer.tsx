@@ -467,58 +467,60 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
         </div>
 
         {/* Video Controls */}
-        <div className="p-4 space-y-4">
+        <div className="p-3 sm:p-4 space-y-3 sm:space-y-4">
           {/* Forward Warning Message */}
           {showForwardWarning && (
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-2 rounded-md flex items-center gap-2 text-sm transition-all duration-300">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>Anda tidak dapat melompat ke depan. Hanya dapat kembali ke bagian sebelumnya.</span>
+            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-3 sm:px-4 py-2 rounded-md flex items-start sm:items-center gap-2 text-xs sm:text-sm transition-all duration-300">
+              <AlertCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 mt-0.5 sm:mt-0" />
+              <span className="flex-1">Anda tidak dapat melompat ke depan. Hanya dapat kembali ke bagian sebelumnya.</span>
             </div>
           )}
 
           {/* Progress Bar */}
           <div>
-            <div className="flex items-center justify-between text-sm text-muted-foreground mb-1">
+            <div className="flex items-center justify-between text-xs sm:text-sm text-muted-foreground mb-1">
               <span>{formatTime(currentTime)}</span>
               <span>{formatTime(duration)}</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 cursor-pointer relative" onClick={(e) => {
+            <div className="w-full bg-gray-200 rounded-full h-2 sm:h-2.5 cursor-pointer relative" onClick={(e) => {
               const rect = e.currentTarget.getBoundingClientRect();
               const percent = (e.clientX - rect.left) / rect.width;
               const seekTime = percent * duration;
               handleSeek(seekTime);
             }}>
               <div
-                className="bg-primary h-2 rounded-full transition-all"
+                className="bg-primary h-2 sm:h-2.5 rounded-full transition-all"
                 style={{ width: `${duration > 0 ? (currentTime / duration) * 100 : 0}%` }}
               />
             </div>
           </div>
 
           {/* Controls */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handlePlayPause}
                 disabled={!isReady}
+                className="h-8 sm:h-9"
               >
-                {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                {isPlaying ? <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
               </Button>
 
               {/* Volume Control */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 sm:gap-2">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleMuteToggle}
                   disabled={!isReady}
+                  className="h-8 sm:h-9"
                 >
                   {isMuted || volume === 0 ? (
-                    <VolumeX className="w-4 h-4" />
+                    <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   ) : (
-                    <Volume2 className="w-4 h-4" />
+                    <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   )}
                 </Button>
                 <input
@@ -527,20 +529,20 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
                   max="100"
                   value={volume}
                   onChange={(e) => handleVolumeChange(parseInt(e.target.value))}
-                  className="w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
+                  className="w-16 sm:w-20 h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:cursor-pointer [&::-moz-range-thumb]:w-3 [&::-moz-range-thumb]:h-3 [&::-moz-range-thumb]:rounded-full [&::-moz-range-thumb]:bg-primary [&::-moz-range-thumb]:border-0 [&::-moz-range-thumb]:cursor-pointer"
                   style={{
                     background: `linear-gradient(to right, hsl(var(--primary)) 0%, hsl(var(--primary)) ${volume}%, rgb(229, 231, 235) ${volume}%, rgb(229, 231, 235) 100%)`
                   }}
                   disabled={!isReady}
                 />
-                <span className="text-xs text-muted-foreground w-8">{volume}%</span>
+                <span className="text-xs text-muted-foreground w-6 sm:w-8 hidden sm:inline">{volume}%</span>
               </div>
 
               {/* Speed Control */}
               <select
                 value={playbackRate}
                 onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-                className="px-2 py-1 border rounded text-sm"
+                className="px-2 py-1 border rounded text-xs sm:text-sm h-8 sm:h-9"
                 disabled={!isReady}
               >
                 <option value="0.5">0.5x</option>
@@ -553,7 +555,7 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
             </div>
 
             {progress?.isCompleted && (
-              <div className="flex items-center gap-2 text-sm text-green-600">
+              <div className="flex items-center gap-2 text-xs sm:text-sm text-green-600">
                 <span>✓ Selesai</span>
               </div>
             )}
