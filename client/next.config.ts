@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
   env: {
     // Explicitly pass through the variable from root .env
     NEXT_PUBLIC_ALLOW_FORWARD_SEEK: process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK,
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
   },
 };
 
