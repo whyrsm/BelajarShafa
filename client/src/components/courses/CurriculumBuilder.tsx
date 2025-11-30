@@ -24,8 +24,19 @@ export function CurriculumBuilder({ courseId }: CurriculumBuilderProps) {
   const [materials, setMaterials] = useState<Record<string, Material[]>>({});
   const [isMaterialDialogOpen, setIsMaterialDialogOpen] = useState(false);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
-  const [newMaterial, setNewMaterial] = useState({
-    type: MaterialType.VIDEO as MaterialType,
+  const [newMaterial, setNewMaterial] = useState<{
+    type: MaterialType;
+    title: string;
+    content: {
+      videoUrl?: string;
+      documentUrl?: string;
+      fileName?: string;
+      fileSize?: number;
+      articleContent?: string;
+      externalUrl?: string;
+    };
+  }>({
+    type: MaterialType.VIDEO,
     title: '',
     content: { videoUrl: '' },
   });

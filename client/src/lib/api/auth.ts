@@ -1,7 +1,7 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem('access_token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
 
     const headers = {
         'Content-Type': 'application/json',

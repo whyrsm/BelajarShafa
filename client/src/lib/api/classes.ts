@@ -6,7 +6,7 @@ interface ApiResponse<T> {
 }
 
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-    const token = localStorage.getItem('access_token');
+    const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
     
     const headers = {
         'Content-Type': 'application/json',

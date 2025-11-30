@@ -1,8 +1,10 @@
+import { CourseLevel, CourseType, Topic } from './courses';
+
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = localStorage.getItem('access_token');
-  
+  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+
   const headers = {
     'Content-Type': 'application/json',
     ...(token && { Authorization: `Bearer ${token}` }),
@@ -41,9 +43,14 @@ export interface Enrollment {
     title: string;
     description?: string;
     thumbnailUrl?: string;
-    level: string;
+    level: CourseLevel;
     estimatedDuration?: number;
-    type: string;
+    type: CourseType;
+    isActive: boolean;
+    categoryId: string;
+    createdById: string;
+    createdAt: string;
+    updatedAt: string;
     category: {
       id: string;
       name: string;
@@ -54,14 +61,7 @@ export interface Enrollment {
       name: string;
       email: string;
     };
-    topics?: Array<{
-      id: string;
-      title: string;
-      sequence: number;
-      _count?: {
-        materials: number;
-      };
-    }>;
+    topics?: Topic[];
     _count?: {
       topics: number;
     };
