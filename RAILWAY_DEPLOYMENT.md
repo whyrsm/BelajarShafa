@@ -52,7 +52,9 @@ If you want to deploy just one service (server) from the root:
 
 - `railway.json` - Railway service configuration
 - `nixpacks.toml` - Nixpacks build configuration (alternative to railway.json)
-- Both files are provided for maximum compatibility
+- `Dockerfile` - Docker build configuration (fallback if Nixpacks fails)
+- `.npmrc` - npm configuration to handle peer dependency issues
+- All files are provided for maximum compatibility
 
 ## Important Notes
 
@@ -81,17 +83,38 @@ If you want to deploy just one service (server) from the root:
 - Ensure your database allows connections from Railway
 
 ### Build Failures
-- Check Railway build logs
-- Ensure all dependencies are in `package.json`
-- Verify Node.js version compatibility
+
+#### "npm ci" Error / "process did not complete successfully: exit code: 1"
+This error occurs when Railway tries to use `npm ci` which requires a `package-lock.json` file or has issues with workspace structures.
+
+**Solutions:**
+1. **CRITICAL: Set Root Directory correctly**
+   - Go to your Railway service settings
+   - Under "Settings" → "Root Directory", set it to `server` (for backend) or `client` (for frontend)
+   - This ensures Railway builds from the correct directory, not the monorepo root
+
+2. **Use Dockerfile instead of Nixpacks:**
+   - If the error persists, Railway will automatically detect and use the `Dockerfile` in the server directory
+   - The Dockerfile explicitly uses `npm install` instead of `npm ci`
+
+3. **Manual Build Command Override:**
+   - In Railway service settings, go to "Settings" → "Build & Deploy"
+   - Override the build command with: `npm install --legacy-peer-deps && npx prisma generate && npm run build`
+   - This bypasses the default `npm ci` behavior
+
+4. **Check Build Logs:**
+   - Look at the full error message in Railway build logs
+   - Ensure all dependencies are in `package.json`
+   - Verify Node.js version compatibility
 
 ## Manual Build Commands (if needed)
 
 If Railway doesn't detect the configuration automatically, you can set these manually:
 
 ### Server
-- **Build Command**: `npm install && npx prisma generate && npm run build`
+- **Build Command**: `npm install --legacy-peer-deps && npx prisma generate && npm run build`
 - **Start Command**: `npx prisma migrate deploy && npm run start:prod`
+- **Alternative**: Use the provided `Dockerfile` by setting builder to "Dockerfile" in Railway settings
 
 ### Client
 - **Build Command**: `npm install && npm run build`
