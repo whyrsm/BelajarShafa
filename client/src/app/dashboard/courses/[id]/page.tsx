@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getCourseById, Course } from '@/lib/api/courses';
 import { getProfile, UserProfile } from '@/lib/api/auth';
 import { enrollCourse, getCourseEnrollment, Enrollment } from '@/lib/api/enrollments';
-import { ArrowLeft, Edit, BookOpen, Play, Clock, User, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Edit, BookOpen, Play, Clock, User, CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import { DashboardLayout } from '@/components/navigation';
 
 export default function CourseDetailPage() {
@@ -21,6 +21,7 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [enrolling, setEnrolling] = useState(false);
+  const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -91,6 +92,16 @@ export default function CourseDetailPage() {
 
   const canEdit = user?.role === 'MANAGER' || user?.role === 'ADMIN';
 
+  const toggleTopic = (topicId: string) => {
+    const newExpanded = new Set(expandedTopics);
+    if (newExpanded.has(topicId)) {
+      newExpanded.delete(topicId);
+    } else {
+      newExpanded.add(topicId);
+    }
+    setExpandedTopics(newExpanded);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -144,154 +155,199 @@ export default function CourseDetailPage() {
           </Card>
         )}
 
-        {/* Course Header with Thumbnail */}
-        <Card className="mb-6 overflow-hidden">
-          <div className="relative aspect-video w-full bg-gradient-to-r from-gray-100 via-gray-50 to-yellow-400">
-            {course.thumbnailUrl ? (
-              <img
-                src={course.thumbnailUrl}
-                alt={course.title}
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
-                <BookOpen className="w-24 h-24 text-blue-300" />
-              </div>
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 text-white">
-              <h1 className="text-3xl font-bold mb-2 drop-shadow-lg">{course.title}</h1>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  <span className="drop-shadow-md">{course.creator.name}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span className="drop-shadow-md">{formatDuration(course.estimatedDuration)}</span>
-                </div>
-              </div>
-            </div>
+        {/* Two Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-[60%_40%] gap-6">
+          {/* Left Column: Topics with Accordion */}
+          <div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl flex items-center gap-2">
+                  <BookOpen className="w-6 h-6" />
+                  Kurikulum
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {course.topics && course.topics.length > 0 ? (
+                  <div className="space-y-2">
+                    {course.topics.map((topic) => {
+                      const isExpanded = expandedTopics.has(topic.id);
+                      return (
+                        <div key={topic.id} className="border rounded-lg overflow-hidden">
+                          <button
+                            onClick={() => toggleTopic(topic.id)}
+                            className="w-full p-4 flex items-center justify-between hover:bg-accent transition-colors text-left"
+                          >
+                            <div className="flex items-center gap-3 flex-1">
+                              {isExpanded ? (
+                                <ChevronDown className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                              ) : (
+                                <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                              )}
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-lg">
+                                  {topic.sequence}. {topic.title}
+                                </h3>
+                                {topic.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">{topic.description}</p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground ml-4">
+                              <span>{topic._count?.materials || topic.materials?.length || 0} materi</span>
+                              {topic.estimatedDuration && (
+                                <>
+                                  <span>•</span>
+                                  <span>{formatDuration(topic.estimatedDuration)}</span>
+                                </>
+                              )}
+                            </div>
+                          </button>
+                          {isExpanded && (
+                            <div className="border-t bg-muted/30">
+                              {topic.materials && topic.materials.length > 0 ? (
+                                <ul className="p-4 space-y-3">
+                                  {topic.materials.map((material) => (
+                                    <li key={material.id} className="flex items-start gap-3 text-sm">
+                                      <span className="text-muted-foreground mt-0.5">•</span>
+                                      <div className="flex-1">
+                                        <span className="font-medium">{material.title}</span>
+                                        <span className="text-xs text-muted-foreground ml-2">
+                                          ({material.type})
+                                        </span>
+                                        {material.estimatedDuration && (
+                                          <span className="text-xs text-muted-foreground ml-2">
+                                            • {formatDuration(material.estimatedDuration)}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <div className="p-4">
+                                  <p className="text-sm text-muted-foreground">Belum ada materi</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold mb-2">Belum ada topik</h3>
+                    <p className="text-muted-foreground">
+                      {canEdit
+                        ? 'Tambahkan topik pertama untuk memulai'
+                        : 'Modul ini belum memiliki topik'}
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
-          <CardContent className="p-6">
-            <div className="flex flex-wrap gap-4 mb-4">
-              <span className="bg-primary/10 text-primary px-3 py-1 rounded text-sm font-medium">
-                {course.category.name}
-              </span>
-              <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded text-sm font-medium">
-                {getLevelLabel(course.level)}
-              </span>
-              <span className="bg-muted text-muted-foreground px-3 py-1 rounded text-sm font-medium">
-                {course.type === 'PUBLIC' ? 'Umum' : 'Private'}
-              </span>
-            </div>
-            <p className="text-muted-foreground mb-6">{course.description || 'Tidak ada deskripsi'}</p>
-            
-            {/* Enrollment Status and Actions */}
-            {enrollment ? (
-              <div className="space-y-4">
-                <div>
-                  <div className="flex items-center justify-between text-sm mb-2">
-                    <span className="text-muted-foreground">Progress</span>
-                    <span className="font-medium">{enrollment.progressPercent}%</span>
+
+          {/* Right Column: Course Info */}
+          <div className="space-y-6">
+            {/* Course Image */}
+            <Card className="overflow-hidden">
+              <div className="relative aspect-video w-full bg-gradient-to-r from-gray-100 via-gray-50 to-yellow-400">
+                {course.thumbnailUrl ? (
+                  <img
+                    src={course.thumbnailUrl}
+                    alt={course.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center">
+                    <BookOpen className="w-24 h-24 text-blue-300" />
                   </div>
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-primary h-2 rounded-full transition-all"
-                      style={{ width: `${enrollment.progressPercent}%` }}
-                    />
-                  </div>
-                </div>
-                <Link href={`/dashboard/courses/${courseId}/learn`}>
-                  <Button size="lg" className="w-full">
-                    <Play className="w-5 h-5 mr-2" />
-                    {enrollment.progressPercent > 0 ? 'Lanjutkan Belajar' : 'Mulai Belajar'}
-                  </Button>
-                </Link>
+                )}
               </div>
-            ) : (
-              <Button size="lg" className="w-full" onClick={handleEnroll} disabled={enrolling}>
-                {enrolling ? 'Mendaftar...' : 'Ikuti Modul'}
-              </Button>
-            )}
-          </CardContent>
-        </Card>
+            </Card>
 
-        {/* Prerequisites */}
-        {course.prerequisites && (
-          <Card className="mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg">Prasyarat</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{course.prerequisites}</p>
-            </CardContent>
-          </Card>
-        )}
+            {/* Course Details */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">{course.title}</CardTitle>
+                <CardDescription className="flex items-center gap-4 text-sm mt-2">
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4" />
+                    <span>{course.creator.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    <span>{formatDuration(course.estimatedDuration)}</span>
+                  </div>
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="flex flex-wrap gap-2">
+                  <span className="bg-primary/10 text-primary px-3 py-1 rounded text-sm font-medium">
+                    {course.category.name}
+                  </span>
+                  <span className="bg-secondary text-secondary-foreground px-3 py-1 rounded text-sm font-medium">
+                    {getLevelLabel(course.level)}
+                  </span>
+                  <span className="bg-muted text-muted-foreground px-3 py-1 rounded text-sm font-medium">
+                    {course.type === 'PUBLIC' ? 'Umum' : 'Private'}
+                  </span>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold mb-2">Deskripsi</h4>
+                  <p className="text-sm text-muted-foreground">
+                    {course.description || 'Tidak ada deskripsi'}
+                  </p>
+                </div>
 
-        {/* Curriculum */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl flex items-center gap-2">
-              <BookOpen className="w-6 h-6" />
-              Kurikulum
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {course.topics && course.topics.length > 0 ? (
-              <div className="space-y-4">
-                {course.topics.map((topic) => (
-                  <div key={topic.id} className="border rounded-lg p-4">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg">
-                          {topic.sequence}. {topic.title}
-                        </h3>
-                        {topic.description && (
-                          <p className="text-sm text-muted-foreground mt-1">{topic.description}</p>
-                        )}
+                {/* Enrollment Status and Actions */}
+                {enrollment ? (
+                  <div className="space-y-4 pt-4 border-t">
+                    <div>
+                      <div className="flex items-center justify-between text-sm mb-2">
+                        <span className="text-muted-foreground">Progress</span>
+                        <span className="font-medium">{enrollment.progressPercent}%</span>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <span>{topic._count?.materials || topic.materials?.length || 0} materi</span>
-                        {topic.estimatedDuration && (
-                          <>
-                            <span>•</span>
-                            <span>{formatDuration(topic.estimatedDuration)}</span>
-                          </>
-                        )}
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-primary h-2 rounded-full transition-all"
+                          style={{ width: `${enrollment.progressPercent}%` }}
+                        />
                       </div>
                     </div>
-                    {topic.materials && topic.materials.length > 0 ? (
-                      <ul className="space-y-2 mt-3">
-                        {topic.materials.map((material) => (
-                          <li key={material.id} className="flex items-center gap-2 text-sm">
-                            <span className="text-muted-foreground">•</span>
-                            <span>{material.title}</span>
-                            <span className="text-xs text-muted-foreground">
-                              ({material.type})
-                            </span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-muted-foreground mt-2">Belum ada materi</p>
-                    )}
+                    <Link href={`/dashboard/courses/${courseId}/learn`}>
+                      <Button size="lg" className="w-full">
+                        <Play className="w-5 h-5 mr-2" />
+                        {enrollment.progressPercent > 0 ? 'Lanjutkan Belajar' : 'Mulai Belajar'}
+                      </Button>
+                    </Link>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12">
-                <BookOpen className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Belum ada topik</h3>
-                <p className="text-muted-foreground">
-                  {canEdit
-                    ? 'Tambahkan topik pertama untuk memulai'
-                    : 'Modul ini belum memiliki topik'}
-                </p>
-              </div>
+                ) : (
+                  <div className="pt-4 border-t">
+                    <Button size="lg" className="w-full" onClick={handleEnroll} disabled={enrolling}>
+                      {enrolling ? 'Mendaftar...' : 'Ikuti Modul'}
+                    </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Prerequisites */}
+            {course.prerequisites && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Prasyarat</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-muted-foreground">{course.prerequisites}</p>
+                </CardContent>
+              </Card>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </DashboardLayout>
   );
