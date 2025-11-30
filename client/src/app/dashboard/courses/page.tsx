@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DashboardLayout } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { getCourses, Course, CourseFilters } from '@/lib/api/courses';
@@ -78,7 +79,7 @@ export default function CoursesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <DashboardLayout>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -273,7 +274,7 @@ export default function CoursesPage() {
           </Card>
         )}
       </div>
-    </div>
+    </DashboardLayout>
   );
 }
 

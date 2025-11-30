@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
+import { DashboardLayout } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MemberList } from '@/components/classes/MemberList';
@@ -206,7 +207,7 @@ export default function ClassDetailPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-background">
+        <DashboardLayout>
             <div className="container mx-auto px-4 py-8 max-w-6xl">
                 {/* Header */}
                 <div className="mb-6">
@@ -340,11 +341,10 @@ export default function ClassDetailPage() {
                                 <button
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
-                                    className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${
-                                        activeTab === tab.id
-                                            ? 'border-primary text-primary font-medium'
-                                            : 'border-transparent text-muted-foreground hover:text-foreground'
-                                    }`}
+                                    className={`flex items-center gap-2 px-4 py-2 border-b-2 transition-colors ${activeTab === tab.id
+                                        ? 'border-primary text-primary font-medium'
+                                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                                        }`}
                                 >
                                     <Icon className="w-4 h-4" />
                                     {tab.label}
@@ -421,6 +421,6 @@ export default function ClassDetailPage() {
                     )}
                 </div>
             </div>
-        </div>
+        </DashboardLayout>
     );
 }
