@@ -10,8 +10,8 @@ This project contains both a NestJS backend (server) and Next.js frontend (clien
 2. **Add a new service** from your GitHub repository
 3. **Configure the service:**
    - **Root Directory**: Set to `server` (CRITICAL - must be set!)
-   - **Builder**: Will automatically use `Dockerfile` (configured in `server/railway.json`)
-   - The Dockerfile uses Node.js 20, which is required for Prisma 7.0.0 and Next.js 16.0.3
+   - **Builder**: Will automatically use `NIXPACKS` (configured in `server/railway.json`)
+   - The nixpacks.toml uses Node.js 20.19+, which is required for Prisma 7.0.0 and Next.js 16.0.3
 
 4. **Set Environment Variables:**
    ```
@@ -61,13 +61,13 @@ If you want to deploy just one service (server) from the root:
 ### For Server:
 - The server automatically runs `npx prisma migrate deploy` on startup
 - Make sure your `DATABASE_URL` is set correctly
-- The server uses Node.js 20
+- The server uses Node.js 20.19+ (required for Prisma 7.0.0)
 - OpenSSL is included for Prisma
 
 ### For Client:
 - The client connects to the backend via `NEXT_PUBLIC_API_URL`
 - Make sure to update this environment variable with your deployed backend URL
-- The client uses Node.js 20
+- The client uses Node.js 20.19+ (required for Next.js 16.0.3)
 
 ## Troubleshooting
 
@@ -94,9 +94,10 @@ This error occurs when Railway tries to use `npm ci` which requires a `package-l
    - This ensures Railway builds from the correct directory, not the monorepo root
 
 2. **Use Dockerfile (Already Configured):**
-   - The `server/railway.json` is configured to use the Dockerfile
-   - The Dockerfile explicitly uses Node.js 20 and `npm install` instead of `npm ci`
-   - Railway should automatically detect and use the Dockerfile
+   - The `server/railway.json` can be changed to use the Dockerfile if Nixpacks fails
+   - Change the "builder" field from "NIXPACKS" to "DOCKERFILE" in `server/railway.json`
+   - The Dockerfile explicitly uses Node.js 20.19 and `npm install` instead of `npm ci`
+   - Railway will automatically detect and use the Dockerfile
 
 3. **Manual Build Command Override:**
    - In Railway service settings, go to "Settings" → "Build & Deploy"
@@ -109,22 +110,27 @@ This error occurs when Railway tries to use `npm ci` which requires a `package-l
    - Verify Node.js version compatibility
 
 #### Node.js Version Error / "Prisma only supports Node.js versions 20.19+"
-This error occurs when Railway uses Node.js 18 instead of Node.js 20.
+This error occurs when Railway uses Node.js 18 instead of Node.js 20.19+.
 
 **Solutions:**
-1. **Use Dockerfile (Recommended):**
-   - The `server/railway.json` is configured to use Dockerfile which explicitly uses Node.js 20
-   - Make sure Root Directory is set to `server` in Railway settings
-   - Railway will use the Dockerfile which has `FROM node:20-slim`
+1. **Use Nixpacks with Explicit Configuration (Now Configured):**
+   - The project now has `.node-version` files specifying Node.js 20.19.0
+   - The `nixpacks.toml` files are configured to use `nodejs-20_x` with a specific nixpkgs archive
+   - Both `server/railway.json` and `client/railway.json` are configured to use NIXPACKS builder
+   - Make sure Root Directory is set to `server` or `client` in Railway settings
 
 2. **Verify Builder Settings:**
    - In Railway service settings, go to "Settings" → "Build & Deploy"
-   - Ensure "Builder" is set to "Dockerfile" (not Nixpacks)
-   - If using Nixpacks, it should detect Node.js 20 from `nixpacks.toml` and `.nvmrc`
+   - Ensure "Builder" is set to "Nixpacks" (default)
+   - Railway will detect Node.js 20.19+ from `.node-version` and `nixpacks.toml`
 
 3. **Check package.json engines:**
-   - Both `server/package.json` and `client/package.json` have `engines` field specifying Node.js 20
-   - Railway should respect this, but Dockerfile is more reliable
+   - All package.json files (root, server, client) have `engines` field specifying Node.js >=20.19.0
+   - Railway should respect this configuration
+
+4. **Alternative: Use Dockerfile:**
+   - The `server/Dockerfile` uses `FROM node:20.19-slim` which explicitly uses Node.js 20.19
+   - Change `server/railway.json` builder from "NIXPACKS" to "DOCKERFILE" if Nixpacks fails
 
 ## Manual Build Commands (if needed)
 
