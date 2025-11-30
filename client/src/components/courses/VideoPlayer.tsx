@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { updateMaterialProgress, getMaterialProgress, markMaterialComplete } from '@/lib/api/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,13 @@ interface VideoPlayerProps {
   materialId: string;
   videoUrl?: string;
   title: string;
+  /**
+   * Allow forward seeking in the video player.
+   * Can be set via prop or environment variable NEXT_PUBLIC_ALLOW_FORWARD_SEEK.
+   * Default: false (forward seeking is blocked)
+   * Set to true for development/testing purposes.
+   */
+  allowForwardSeek?: boolean;
 }
 
 // YouTube IFrame API types
@@ -20,7 +27,28 @@ declare global {
   }
 }
 
-export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
+export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: propAllowForwardSeek }: VideoPlayerProps) {
+  // Check environment variable first, then prop, default to false (prevent forward seek)
+  // For development: Set NEXT_PUBLIC_ALLOW_FORWARD_SEEK=true in .env.local (in client directory)
+  // Or pass allowForwardSeek={true} as a prop to the component
+  // Note: Restart dev server after adding env variable
+  const envValue = process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK;
+  const allowForwardSeek = 
+    envValue === 'true' || 
+    propAllowForwardSeek === true;
+  
+  // Debug logging (remove in production)
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('[VideoPlayer] Forward seek config:', {
+        envValue,
+        envValueType: typeof envValue,
+        propValue: propAllowForwardSeek,
+        allowForwardSeek,
+        'NEXT_PUBLIC_ALLOW_FORWARD_SEEK': process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK
+      });
+    }
+  }, [envValue, propAllowForwardSeek, allowForwardSeek]);
   const playerRef = useRef<HTMLDivElement>(null);
   const playerInstanceRef = useRef<any>(null);
   const [isReady, setIsReady] = useState(false);
@@ -166,9 +194,36 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     };
   }, [videoId, progress]);
 
-  // Auto-save progress every 10 seconds
+  // Save progress function
+  const saveProgress = useCallback(async (currentTimeValue?: number) => {
+    if (!isReady || !playerInstanceRef.current) return;
+    
+    try {
+      const time = currentTimeValue !== undefined ? currentTimeValue : playerInstanceRef.current.getCurrentTime();
+      const duration = playerInstanceRef.current.getDuration();
+      const watchedPercent = duration > 0 ? (time / duration) * 100 : 0;
+      const watchedSeconds = Math.floor(time);
+      
+      // Mark as complete if watched 95% or more (to account for small timing differences)
+      const isComplete = watchedPercent >= 95 || watchedSeconds >= duration - 1;
+
+      await updateMaterialProgress(materialId, {
+        watchedDuration: watchedSeconds,
+        isCompleted: isComplete,
+      });
+
+      setProgress({
+        watchedDuration: watchedSeconds,
+        isCompleted: isComplete,
+      });
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+    }
+  }, [isReady, materialId]);
+
+  // Auto-save progress every 10 seconds while playing
   useEffect(() => {
-    if (!isReady || !isPlaying) {
+    if (!isReady) {
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
         progressSaveIntervalRef.current = null;
@@ -176,34 +231,39 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
       return;
     }
 
-    progressSaveIntervalRef.current = setInterval(async () => {
-      if (playerInstanceRef.current) {
-        try {
-          const currentTime = playerInstanceRef.current.getCurrentTime();
-          const duration = playerInstanceRef.current.getDuration();
-          const watchedPercent = duration > 0 ? (currentTime / duration) * 100 : 0;
-
-          await updateMaterialProgress(materialId, {
-            watchedDuration: Math.floor(currentTime),
-            isCompleted: watchedPercent >= 80,
-          });
-
-          setProgress({
-            watchedDuration: Math.floor(currentTime),
-            isCompleted: watchedPercent >= 80,
-          });
-        } catch (error) {
-          console.error('Failed to save progress:', error);
-        }
+    // Save progress periodically while playing
+    if (isPlaying) {
+      progressSaveIntervalRef.current = setInterval(() => {
+        saveProgress();
+      }, 10000); // Save every 10 seconds
+    } else {
+      // Save progress when paused
+      if (progressSaveIntervalRef.current) {
+        clearInterval(progressSaveIntervalRef.current);
+        progressSaveIntervalRef.current = null;
       }
-    }, 10000); // Save every 10 seconds
+      // Save immediately when paused
+      saveProgress();
+    }
 
     return () => {
       if (progressSaveIntervalRef.current) {
         clearInterval(progressSaveIntervalRef.current);
       }
     };
-  }, [isReady, isPlaying, materialId]);
+  }, [isReady, isPlaying, saveProgress]);
+
+  // Save progress when current time changes significantly (e.g., after seeking)
+  useEffect(() => {
+    if (!isReady || !playerInstanceRef.current || currentTime === 0) return;
+    
+    // Save progress when time updates (debounced)
+    const timeoutId = setTimeout(() => {
+      saveProgress(currentTime);
+    }, 2000); // Save 2 seconds after time change
+
+    return () => clearTimeout(timeoutId);
+  }, [currentTime, isReady, saveProgress]);
 
   // Update current time periodically
   useEffect(() => {
@@ -212,7 +272,18 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     const interval = setInterval(() => {
       if (playerInstanceRef.current) {
         try {
-          setCurrentTime(playerInstanceRef.current.getCurrentTime());
+          const time = playerInstanceRef.current.getCurrentTime();
+          const duration = playerInstanceRef.current.getDuration();
+          setCurrentTime(time);
+          
+          // Auto-save and mark complete when reaching 95% or more
+          if (duration > 0) {
+            const percent = (time / duration) * 100;
+            if (percent >= 95 && (!progress?.isCompleted)) {
+              // Save progress when reaching completion threshold
+              saveProgress(time);
+            }
+          }
         } catch (error) {
           // Ignore errors
         }
@@ -220,7 +291,7 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [isReady]);
+  }, [isReady, saveProgress, progress?.isCompleted]);
 
   // Update volume when changed
   useEffect(() => {
@@ -258,9 +329,20 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
   };
 
   const handleVideoComplete = async () => {
+    if (!playerInstanceRef.current) return;
+    
     try {
-      await markMaterialComplete(materialId);
-      setProgress((prev) => prev ? { ...prev, isCompleted: true } : null);
+      // Get final duration and mark as complete
+      const duration = playerInstanceRef.current.getDuration();
+      await updateMaterialProgress(materialId, {
+        watchedDuration: Math.floor(duration),
+        isCompleted: true,
+      });
+      
+      setProgress({
+        watchedDuration: Math.floor(duration),
+        isCompleted: true,
+      });
     } catch (error) {
       console.error('Failed to mark video as complete:', error);
     }
@@ -274,8 +356,8 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
   const handleSeek = (seconds: number) => {
     if (!playerInstanceRef.current) return;
     
-    // Only allow backward seeking, prevent forward seeking
-    if (seconds > currentTime) {
+    // Check if forward seeking is allowed
+    if (!allowForwardSeek && seconds > currentTime) {
       // Show warning message
       setShowForwardWarning(true);
       
@@ -292,8 +374,13 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
       return; // Don't seek forward
     }
     
-    // Allow backward seeking
+    // Allow seeking (backward always, forward if allowed)
     playerInstanceRef.current.seekTo(seconds, true);
+    
+    // Save progress after seeking
+    setTimeout(() => {
+      saveProgress(seconds);
+    }, 500); // Small delay to ensure seek is complete
   };
 
   const handleVolumeChange = (newVolume: number) => {

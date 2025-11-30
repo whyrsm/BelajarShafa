@@ -259,6 +259,7 @@ export default function CourseLearnPage() {
                   materialId={currentMaterial.id}
                   videoUrl={currentMaterial.content?.videoUrl}
                   title={currentMaterial.title}
+                  allowForwardSeek={process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK === 'true'}
                 />
               )}
               
