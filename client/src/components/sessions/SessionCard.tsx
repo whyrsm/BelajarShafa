@@ -88,7 +88,14 @@ export function SessionCard({ session, userRole, userId, onUpdate }: SessionCard
                         </CardDescription>
                     </div>
                     <div className="flex gap-2">
-                        <Badge variant={isUpcoming ? 'default' : isPast ? 'secondary' : 'outline'}>
+                        <Badge
+                            variant="secondary"
+                            className={
+                                isUpcoming ? "bg-blue-50 text-blue-700 hover:bg-blue-50/80" :
+                                    isPast ? "bg-green-50 text-green-700 hover:bg-green-50/80" :
+                                        "bg-orange-50 text-orange-700 hover:bg-orange-50/80"
+                            }
+                        >
                             {isUpcoming ? 'Mendatang' : isPast ? 'Selesai' : 'Berlangsung'}
                         </Badge>
                         <Badge variant="outline">{session.type}</Badge>

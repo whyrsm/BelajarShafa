@@ -94,9 +94,9 @@ export default function DashboardPage() {
             </header>
 
             {/* Main Content */}
-            <main className="container mx-auto px-4 py-8">
+            <main className="container mx-auto px-4 py-6">
                 {/* Action Buttons */}
-                <div className="flex gap-4 mb-8">
+                <div className="flex gap-3 mb-6">
                     {canCreateClass && (
                         <Link href="/classes/create">
                             <Button size="lg">
@@ -115,6 +115,8 @@ export default function DashboardPage() {
                     )}
                 </div>
 
+                <div className="border-t border-gray-200 mb-6" />
+
                 {/* Error Message */}
                 {error && (
                     <Card className="mb-6 border-destructive">
@@ -126,7 +128,7 @@ export default function DashboardPage() {
 
                 {/* Classes Section */}
                 <div>
-                    <div className="flex items-center gap-2 mb-6">
+                    <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-6 h-6 text-primary" />
                         <h2 className="text-2xl font-bold">
                             {user?.role === 'MENTEE' ? 'Kelas Saya' : 'Kelas Saya'}
@@ -143,8 +145,8 @@ export default function DashboardPage() {
                                         {canCreateClass
                                             ? 'Buat kelas pertama Anda untuk memulai'
                                             : canJoinClass
-                                            ? 'Gabung kelas menggunakan kode kelas'
-                                            : 'Anda belum terdaftar di kelas manapun'}
+                                                ? 'Gabung kelas menggunakan kode kelas'
+                                                : 'Anda belum terdaftar di kelas manapun'}
                                     </p>
                                     {canCreateClass && (
                                         <Link href="/classes/create">
@@ -166,7 +168,7 @@ export default function DashboardPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {classes.map((classItem) => (
                                 <ClassCard key={classItem.id} classData={classItem} />
                             ))}

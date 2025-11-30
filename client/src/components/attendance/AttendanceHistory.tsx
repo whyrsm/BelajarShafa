@@ -33,10 +33,10 @@ const statusLabels: Record<AttendanceStatus, string> = {
 };
 
 const statusColors: Record<AttendanceStatus, string> = {
-    PRESENT: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
-    ABSENT: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
-    PERMIT: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
-    SICK: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+    PRESENT: 'bg-green-50 text-green-700 border-green-200 hover:bg-green-100',
+    ABSENT: 'bg-red-50 text-red-700 border-red-200 hover:bg-red-100',
+    PERMIT: 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100',
+    SICK: 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100',
 };
 
 export function AttendanceHistory({ data, userRole }: AttendanceHistoryProps) {

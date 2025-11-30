@@ -67,7 +67,6 @@
   - Set urutan priority (jika ada multiple assigned courses)
 - Sistem otomatis enroll semua mentee yang ada di kelas
 - Sistem auto-enroll mentee baru yang join kelas
-- Notifikasi ke mentee saat ada course baru di-assign
 - Mentor/Manager dapat unassign course dari kelas
 
 #### FR-LMS-006: Course Enrollment (Mentor/Mentee)

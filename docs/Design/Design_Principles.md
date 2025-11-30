@@ -74,10 +74,33 @@
 ## 10. Design Principles & Device Strategy
 
 ### Core Principles
-- **Clean & Minimal:** Fokus pada content, hindari clutter.
-- **Consistent:** Uniform spacing, typography, color palette.
-- **Accessible:** High contrast, clear labels, keyboard navigable.
-- **Feedback:** Clear loading states (skeleton screens), success/error toast.
+
+#### Visual Hierarchy & Depth
+- **Elevation System:** Use soft shadows with multiple layers (shadow-sm at rest, shadow-md on hover).
+- **Depth through Layering:** Subtle background patterns/gradients, distinct card sections, floating action buttons.
+- **Strategic Borders:** Color-coded accent borders (e.g., blue-500 left border for active items) instead of just gray lines.
+
+#### Typography & Spacing
+- **Purposeful Spacing:** Reduce excessive whitespace, use 12-16px gaps instead of 24px+.
+- **Font Hierarchy:** Semibold for titles, medium for labels, regular for body. Avoid uniform weights.
+- **Color Variation:** Headings in gray-900, secondary info in gray-600.
+
+#### Color & Interaction
+- **Accent Colors:** Beyond blue - success green for 'Selesai', warning orange for deadlines, warm neutral grays.
+- **Status Badges:** Background colors with matching text (e.g., 'Mendatang' in blue-50 with blue-700 text).
+- **Interactive States:** Cards scale(1.01) on hover, buttons have active states, links have underline-offset.
+
+#### Micro-details
+- **Icons:** Consistent sizing and optical alignment.
+- **Visual Separators:** Thin divider lines between sections (border-t border-gray-200).
+- **Rounded Corners:** Consistent but varied - cards rounded-lg, buttons rounded-md, badges rounded-full.
+- **Empty States:** Illustrations or subtle background patterns.
+
+#### Avoid AI-generated look
+- No overly rounded everything (not all rounded-2xl).
+- No excessive gradients or glass morphism everywhere.
+- Intentional asymmetry is human.
+- Functional density for productivity.
 
 ### Device Usage Strategy
 

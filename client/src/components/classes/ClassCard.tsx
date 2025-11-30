@@ -22,7 +22,7 @@ export function ClassCard({ classData, showActions = true }: ClassCardProps) {
     };
 
     return (
-        <Card className="border-2 hover:shadow-lg transition-shadow">
+        <Card className="border-l-4 border-l-primary">
             <CardHeader>
                 <div className="flex items-start justify-between">
                     <div className="flex-1">
