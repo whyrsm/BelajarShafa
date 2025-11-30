@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Course } from '@/lib/api/courses';
 import { BookOpen, Clock, User } from 'lucide-react';
@@ -49,8 +48,8 @@ export function CourseCard({ course, showProgress = false, progressPercent = 0 }
   };
 
   return (
-    <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-      <Link href={`/dashboard/courses/${course.id}`}>
+    <Card className="overflow-hidden hover:shadow-lg transition-shadow p-0">
+      <Link href={`/dashboard/courses/${course.id}`} className="block">
         {/* Thumbnail Section */}
         <div className="relative aspect-video w-full bg-gradient-to-r from-gray-100 via-gray-50 to-yellow-400 overflow-hidden">
           {course.thumbnailUrl ? (
@@ -75,8 +74,15 @@ export function CourseCard({ course, showProgress = false, progressPercent = 0 }
             </div>
           </div>
 
-          {/* Course Type Badge - bottom left */}
-          <div className="absolute bottom-3 left-3 z-10">
+          {/* Decorative dots - top right */}
+          <div className="absolute top-3 right-3 z-10 flex flex-col gap-1">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="w-1 h-1 rounded-full bg-white/60" />
+            ))}
+          </div>
+
+          {/* Course Type Badge - positioned above title to avoid overlap */}
+          <div className="absolute bottom-16 left-3 z-10">
             <Badge
               className={
                 course.type === 'PUBLIC'
@@ -86,13 +92,6 @@ export function CourseCard({ course, showProgress = false, progressPercent = 0 }
             >
               {course.type === 'PUBLIC' ? 'SHAFA PREMIUM' : 'Shafa Talks'}
             </Badge>
-          </div>
-
-          {/* Decorative dots - top right */}
-          <div className="absolute top-3 right-3 z-10 flex flex-col gap-1">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="w-1 h-1 rounded-full bg-white/60" />
-            ))}
           </div>
 
           {/* Course Title and Instructor - bottom left area */}
@@ -109,9 +108,6 @@ export function CourseCard({ course, showProgress = false, progressPercent = 0 }
 
         {/* Content Section */}
         <CardContent className="p-4">
-          {/* Course Title (repeated for clarity) */}
-          <h3 className="font-semibold text-lg mb-2 line-clamp-2">{course.title}</h3>
-
           {/* Course Info */}
           <div className="space-y-2 mb-4">
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
@@ -145,11 +141,6 @@ export function CourseCard({ course, showProgress = false, progressPercent = 0 }
               </div>
             </div>
           )}
-
-          {/* Enroll Button */}
-          <Button variant="outline" className="w-full" onClick={(e) => e.preventDefault()}>
-            {showProgress ? 'Lanjutkan Belajar' : 'Ikuti Modul'}
-          </Button>
         </CardContent>
       </Link>
     </Card>
