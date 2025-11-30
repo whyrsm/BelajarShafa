@@ -3,12 +3,13 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { DashboardLayout } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { ClassCard } from '@/components/classes/ClassCard';
 import { getClasses, Class } from '@/lib/api/classes';
 import { getProfile, UserProfile } from '@/lib/api/auth';
-import { Plus, LogOut, BookOpen, Users, Sparkles } from 'lucide-react';
+import { Plus, BookOpen, Users } from 'lucide-react';
 
 export default function DashboardPage() {
     const router = useRouter();
@@ -47,11 +48,6 @@ export default function DashboardPage() {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem('access_token');
-        router.push('/login');
-    };
-
     const canCreateClass = user?.role === 'MANAGER' || user?.role === 'MENTOR';
     const canJoinClass = user?.role === 'MENTEE';
 
@@ -67,34 +63,20 @@ export default function DashboardPage() {
     }
 
     return (
-        <div className="min-h-screen bg-background">
-            {/* Header */}
-            <header className="border-b bg-card">
-                <div className="container mx-auto px-4 py-4">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                                <Sparkles className="w-5 h-5 text-primary-foreground" />
-                            </div>
-                            <div>
-                                <h1 className="text-xl font-bold">BelajarShafa</h1>
-                                <p className="text-xs text-muted-foreground">
-                                    {user?.role === 'MANAGER' && 'Dasbor Manager'}
-                                    {user?.role === 'MENTOR' && 'Dasbor Mentor'}
-                                    {user?.role === 'MENTEE' && 'Dasbor Mentee'}
-                                </p>
-                            </div>
-                        </div>
-                        <Button variant="outline" onClick={handleLogout}>
-                            <LogOut className="w-4 h-4 mr-2" />
-                            Keluar
-                        </Button>
-                    </div>
+        <DashboardLayout>
+            <div className="container mx-auto px-4 py-6">
+                {/* Welcome Section */}
+                <div className="mb-6">
+                    <h1 className="text-3xl font-bold mb-2">
+                        Selamat Datang, {user?.name}! 👋
+                    </h1>
+                    <p className="text-muted-foreground">
+                        {user?.role === 'MANAGER' && 'Kelola organisasi, kelas, dan course Anda'}
+                        {user?.role === 'MENTOR' && 'Kelola kelas dan pantau progress mentee Anda'}
+                        {user?.role === 'MENTEE' && 'Mulai perjalanan belajar Anda hari ini'}
+                    </p>
                 </div>
-            </header>
 
-            {/* Main Content */}
-            <main className="container mx-auto px-4 py-6">
                 {/* Action Buttons */}
                 <div className="flex gap-3 mb-6">
                     {canCreateClass && (
@@ -114,8 +96,6 @@ export default function DashboardPage() {
                         </Link>
                     )}
                 </div>
-
-                <div className="border-t border-gray-200 mb-6" />
 
                 {/* Error Message */}
                 {error && (
@@ -175,8 +155,7 @@ export default function DashboardPage() {
                         </div>
                     )}
                 </div>
-            </main>
-        </div>
+            </div>
+        </DashboardLayout>
     );
 }
-

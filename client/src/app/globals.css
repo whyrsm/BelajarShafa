@@ -187,3 +187,8 @@
 * {
   transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
 }
+
+/* Safe Area for Mobile Devices */
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
