@@ -9,6 +9,9 @@
   "scripts": {
     "dev": "concurrently \"npm run dev --workspace=client\" \"npm run start:dev --workspace=server\"",
     "build": "npm run build --workspaces",
+    "start": "npm run start --workspace=server",
+    "start:server": "npm run start:prod --workspace=server",
+    "start:client": "npm run start --workspace=client",
     "test": "npm run test --workspaces"
   },
   "devDependencies": {
