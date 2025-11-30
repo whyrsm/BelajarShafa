@@ -1,9 +1,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowRight, BookOpen, Users, Trophy, Sparkles, GraduationCap, Target } from 'lucide-react';
-
-export const dynamic = 'force-dynamic';
 
 export default function Home() {
   return (
