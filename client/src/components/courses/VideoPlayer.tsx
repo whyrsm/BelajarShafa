@@ -62,6 +62,26 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     loadProgress();
   }, [materialId]);
 
+  // Add CSS to hide YouTube UI elements (note: these may not work due to iframe isolation)
+  useEffect(() => {
+    const style = document.createElement('style');
+    style.id = 'youtube-hide-ui';
+    style.textContent = `
+      /* Note: YouTube iframe content is isolated, so we can't directly hide YouTube UI elements via CSS */
+      /* The overlay and playerVars (controls: 0) handle hiding controls */
+    `;
+    if (!document.getElementById('youtube-hide-ui')) {
+      document.head.appendChild(style);
+    }
+    
+    return () => {
+      const existingStyle = document.getElementById('youtube-hide-ui');
+      if (existingStyle) {
+        document.head.removeChild(existingStyle);
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (!videoId || !playerRef.current) return;
 
@@ -89,9 +109,15 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
         playerVars: {
           autoplay: 0,
           start: Math.floor(startTime),
-          controls: 1,
+          controls: 0, // Hide YouTube's native controls
           rel: 0,
           modestbranding: 1,
+          disablekb: 1, // Disable keyboard controls
+          fs: 0, // Disable fullscreen button
+          iv_load_policy: 3, // Hide annotations
+          playsinline: 1, // Play inline on mobile
+          showinfo: 0, // Hide video info
+          cc_load_policy: 0, // Hide closed captions by default
         },
         events: {
           onReady: (event: any) => {
@@ -236,8 +262,42 @@ export function VideoPlayer({ materialId, videoUrl, title }: VideoPlayerProps) {
     <Card>
       <CardContent className="p-0">
         {/* Video Player */}
-        <div className="relative aspect-video bg-black">
-          <div ref={playerRef} className="w-full h-full" />
+        <div 
+          className="relative aspect-video bg-black"
+          onContextMenu={(e) => e.preventDefault()} // Prevent right-click menu
+        >
+          <div 
+            ref={playerRef} 
+            className="w-full h-full"
+          />
+          {/* Overlay to prevent clicking through to YouTube - intercepts clicks but video plays via API */}
+          <div 
+            className="absolute inset-0 z-10"
+            onClick={(e) => {
+              // Intercept all clicks to prevent navigation to YouTube
+              e.preventDefault();
+              e.stopPropagation();
+              // Control video only through app controls
+              if (isReady) {
+                handlePlayPause();
+              }
+            }}
+            onDoubleClick={(e) => {
+              // Prevent double-click fullscreen
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            onMouseDown={(e) => {
+              // Prevent any mouse interactions that might trigger YouTube navigation
+              e.preventDefault();
+              e.stopPropagation();
+            }}
+            style={{ 
+              cursor: 'pointer',
+              pointerEvents: 'auto',
+              background: 'transparent'
+            }}
+          />
         </div>
 
         {/* Video Controls */}
