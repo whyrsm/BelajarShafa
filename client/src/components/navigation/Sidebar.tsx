@@ -5,9 +5,7 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     BookOpen,
-    Users,
     GraduationCap,
-    Calendar,
     BarChart3,
     Settings,
     Building2,
@@ -30,11 +28,6 @@ const navItems: NavItem[] = [
         icon: LayoutDashboard,
     },
     {
-        label: 'Kelas',
-        href: '/dashboard/classes',
-        icon: Users,
-    },
-    {
         label: 'Jelajahi Modul',
         href: '/dashboard/courses/explore',
         icon: BookOpen,
@@ -49,12 +42,6 @@ const navItems: NavItem[] = [
         href: '/dashboard/courses',
         icon: BookOpen,
         roles: ['MANAGER', 'ADMIN'],
-    },
-    {
-        label: 'Sesi',
-        href: '/dashboard/sessions',
-        icon: Calendar,
-        roles: ['MENTOR', 'MANAGER'],
     },
     {
         label: 'Presensi',

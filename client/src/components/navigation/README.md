@@ -40,9 +40,9 @@ A fixed sidebar navigation for desktop users (lg breakpoint and above).
 
 **Navigation Items:**
 - Dashboard
-- Kelas (Classes)
-- Course
-- Sesi (Sessions) - *Mentor & Manager only*
+- Jelajahi Modul (Explore Courses)
+- Modul Saya (My Courses)
+- Kelola Modul (Manage Courses) - *Manager & Admin only*
 - Presensi (Attendance)
 - Organisasi (Organization) - *Manager only*
 - Statistik (Analytics) - *Manager & Mentor only*
@@ -62,9 +62,8 @@ A fixed bottom navigation bar for mobile users.
 
 **Navigation Items (Mobile-Optimized):**
 - Beranda (Home)
-- Kelas (Classes)
-- Course
-- Sesi (Sessions) - *Mentor & Manager only*
+- Modul (Courses)
+- Modul Saya (My Courses)
 - Presensi (Attendance) - *Mentee only*
 - Profil (Profile)
 
@@ -123,11 +122,9 @@ The navigation system automatically filters menu items based on user roles:
 - Full access to all navigation items
 - Organization management
 - Analytics and statistics
-- Class and course management
+- Course management
 
 ### Mentor
-- Class management
-- Session scheduling
 - Attendance tracking
 - Analytics (limited to their classes)
 
