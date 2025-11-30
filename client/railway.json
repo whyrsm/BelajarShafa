@@ -3,7 +3,10 @@
   "build": {
     "builder": "DOCKERFILE",
     "dockerfilePath": "client/Dockerfile",
-    "dockerContext": ".."
+    "dockerContext": "..",
+    "args": {
+      "NEXT_PUBLIC_API_URL": "$NEXT_PUBLIC_API_URL"
+    }
   },
   "deploy": {
     "restartPolicyType": "ON_FAILURE",
