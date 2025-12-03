@@ -5,8 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     BookOpen,
-    GraduationCap,
-    User,
     Library
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -34,17 +32,6 @@ const mobileNavItems: NavItem[] = [
         label: 'Modul Saya',
         href: '/dashboard/my-courses',
         icon: Library,
-    },
-    {
-        label: 'Presensi',
-        href: '/dashboard/attendance',
-        icon: GraduationCap,
-        roles: ['MENTEE'],
-    },
-    {
-        label: 'Profil',
-        href: '/dashboard/profile',
-        icon: User,
     },
 ];
 

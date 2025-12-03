@@ -5,9 +5,6 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     BookOpen,
-    GraduationCap,
-    BarChart3,
-    Settings,
     Building2,
     Sparkles,
     Library
@@ -44,26 +41,10 @@ const navItems: NavItem[] = [
         roles: ['MANAGER', 'ADMIN'],
     },
     {
-        label: 'Presensi',
-        href: '/dashboard/attendance',
-        icon: GraduationCap,
-    },
-    {
         label: 'Organisasi',
         href: '/dashboard/organization',
         icon: Building2,
         roles: ['MANAGER'],
-    },
-    {
-        label: 'Statistik',
-        href: '/dashboard/analytics',
-        icon: BarChart3,
-        roles: ['MANAGER', 'MENTOR'],
-    },
-    {
-        label: 'Pengaturan',
-        href: '/dashboard/settings',
-        icon: Settings,
     },
 ];
 
