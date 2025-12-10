@@ -90,7 +90,7 @@ export default function Home() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
             </span>
-            Platform Mentoring #1 untuk Organisasi Islam
+            Platform Mentoring #1 untuk Organisasi Pembinaan Karakter
           </div>
           
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 max-w-4xl mx-auto leading-tight text-slate-900 dark:text-slate-50">
@@ -98,7 +98,7 @@ export default function Home() {
           </h1>
           
           <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-            Platform mentoring management dan LMS yang membantu organisasi pendidikan Islam mengelola program berkualitas untuk ratusan mentee—tanpa mentor kewalahan, tanpa peserta tersesat.
+            Platform mentoring management dan LMS yang membantu organisasi pendidikan Islam mengelola program berkualitas untuk ratusan mentee tanpa mentor kewalahan.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-16 animate-fade-in delay-100">
@@ -117,24 +117,75 @@ export default function Home() {
 
           {/* Visual Placeholder */}
           <div className="relative max-w-5xl mx-auto mt-12 rounded-xl border bg-background/50 shadow-2xl p-2 backdrop-blur-sm animate-fade-in delay-200">
-            <div className="rounded-lg overflow-hidden bg-slate-100 aspect-[16/9] relative group">
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-900/5 group-hover:bg-slate-900/0 transition-colors">
-                 {/* This would be a real screenshot in production */}
-                 <div className="grid grid-cols-4 grid-rows-3 gap-4 w-full h-full p-8 opacity-40">
-                    <div className="col-span-1 row-span-3 bg-white rounded-lg shadow-sm"></div>
-                    <div className="col-span-3 row-span-1 bg-white rounded-lg shadow-sm flex items-center px-4 gap-4">
-                      <div className="w-8 h-8 rounded-full bg-slate-200"></div>
-                      <div className="h-4 w-32 bg-slate-200 rounded"></div>
-                    </div>
-                    <div className="col-span-2 row-span-2 bg-white rounded-lg shadow-sm"></div>
-                    <div className="col-span-1 row-span-2 bg-white rounded-lg shadow-sm"></div>
-                 </div>
-                 <div className="absolute inset-0 flex items-center justify-center">
-                    <span className="bg-background/90 backdrop-blur px-4 py-2 rounded-lg shadow-lg text-sm font-medium text-muted-foreground border">
-                      Dashboard Preview
-                    </span>
-                 </div>
-              </div>
+            <div className="rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-900 aspect-[16/9] relative group border border-slate-100 dark:border-slate-800">
+              {/* Abstract Dashboard Line Art */}
+              <svg className="w-full h-full text-slate-300 dark:text-slate-700" viewBox="0 0 1200 675" fill="none" xmlns="http://www.w3.org/2000/svg">
+                
+                {/* Background Grid (Subtle) */}
+                <defs>
+                  <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                    <path d="M 40 0 L 0 0 0 40" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.3"/>
+                  </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#grid)" />
+
+                {/* Sidebar */}
+                <rect x="20" y="20" width="220" height="635" rx="12" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeWidth="2"/>
+                {/* Sidebar Items */}
+                <circle cx="60" cy="70" r="16" stroke="currentColor" strokeWidth="2"/>
+                <rect x="90" y="60" width="110" height="20" rx="4" fill="currentColor" fillOpacity="0.2"/>
+                
+                {[140, 200, 260, 320, 380].map((y, i) => (
+                  <g key={i}>
+                    <rect x="50" y={y} width="24" height="24" rx="6" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="90" y1={y+12} x2="200" y2={y+12} stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                  </g>
+                ))}
+
+                {/* Top Header */}
+                <rect x="260" y="20" width="920" height="80" rx="12" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeWidth="2"/>
+                <circle cx="1140" cy="60" r="20" stroke="currentColor" strokeWidth="2"/>
+                <rect x="1000" y="50" width="100" height="20" rx="4" fill="currentColor" fillOpacity="0.1"/>
+
+                {/* Main Content Area */}
+                
+                {/* Stats Cards Row */}
+                {[260, 580, 900].map((x, i) => (
+                  <g key={i}>
+                    <rect x={x} y="120" width="280" height="140" rx="12" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.02"/>
+                    <circle cx={x+40} cy="160" r="16" stroke="currentColor" strokeWidth="2" opacity="0.6"/>
+                    <rect x={x+80} y="150" width="100" height="20" rx="4" fill="currentColor" fillOpacity="0.1"/>
+                    <rect x={x+40} y="200" width="140" height="30" rx="4" fill="currentColor" fillOpacity="0.2"/>
+                  </g>
+                ))}
+
+                {/* Chart Section */}
+                <rect x="260" y="280" width="600" height="375" rx="12" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.02"/>
+                {/* Chart Axes */}
+                <line x1="300" y1="600" x2="820" y2="600" stroke="currentColor" strokeWidth="2"/>
+                <line x1="300" y1="600" x2="300" y2="340" stroke="currentColor" strokeWidth="2"/>
+                {/* Chart Line */}
+                <path d="M 300 550 C 350 550, 350 450, 400 450 S 450 500, 500 500 S 550 400, 600 380 S 650 420, 700 420 S 750 350, 820 320" stroke="currentColor" strokeWidth="3" strokeLinecap="round" fill="none" className="text-primary"/>
+                {/* Chart Area Fill (Gradient simulation) */}
+                <path d="M 300 550 C 350 550, 350 450, 400 450 S 450 500, 500 500 S 550 400, 600 380 S 650 420, 700 420 S 750 350, 820 320 V 600 H 300 Z" fill="currentColor" fillOpacity="0.05" className="text-primary"/>
+
+                {/* Right Side List/Feed */}
+                <rect x="880" y="280" width="300" height="375" rx="12" stroke="currentColor" strokeWidth="2" fill="currentColor" fillOpacity="0.02"/>
+                {[320, 390, 460, 530, 600].map((y, i) => (
+                  <g key={i}>
+                    <circle cx="920" cy={y+15} r="12" fill="currentColor" fillOpacity="0.1"/>
+                    <line x1="950" y1={y+10} x2="1140" y2={y+10} stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                    <line x1="950" y1={y+25} x2="1050" y2={y+25} stroke="currentColor" strokeWidth="2" strokeLinecap="round" opacity="0.5"/>
+                  </g>
+                ))}
+
+                {/* Floating Elements for Depth */}
+                <circle cx="820" cy="320" r="6" fill="white" stroke="currentColor" strokeWidth="3" className="text-primary animate-pulse"/>
+                
+              </svg>
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none"></div>
             </div>
           </div>
         </div>
@@ -262,11 +313,49 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-100 rounded-2xl p-6 flex items-center justify-center border">
-                   {/* Placeholder for Organization Dashboard Visual */}
-                   <div className="text-center text-muted-foreground">
-                     <Layout className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                     <p>Organization Dashboard Interface</p>
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-2 border border-slate-100 dark:border-slate-800 shadow-lg">
+                   <div className="rounded-xl overflow-hidden bg-white dark:bg-slate-950 relative aspect-square md:aspect-[4/3]">
+                     <svg className="w-full h-full text-slate-300 dark:text-slate-700" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Background */}
+                        <rect width="100%" height="100%" fill="currentColor" fillOpacity="0.02"/>
+                        
+                        {/* Sidebar */}
+                        <rect x="0" y="0" width="60" height="600" fill="currentColor" fillOpacity="0.05"/>
+                        {[40, 100, 160, 220].map((y, i) => (
+                           <rect key={i} x="15" y={y} width="30" height="30" rx="8" fill="currentColor" fillOpacity={i===0 ? 0.4 : 0.1}/>
+                        ))}
+
+                        {/* Top Stats */}
+                        {[90, 320, 550].map((x, i) => (
+                           <g key={i}>
+                              <rect x={x} y="40" width="200" height="100" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                              <circle cx={x+30} cy="70" r="15" fill="currentColor" fillOpacity="0.1"/>
+                              <rect x={x+60} y="60" width="80" height="12" rx="4" fill="currentColor" fillOpacity="0.2"/>
+                              <rect x={x+30} y="100" width="60" height="20" rx="4" fill="currentColor" fillOpacity="0.4"/>
+                           </g>
+                        ))}
+
+                        {/* Main Chart */}
+                        <rect x="90" y="170" width="430" height="240" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <polyline points="120,350 180,300 240,320 300,250 360,280 420,200 480,230" stroke="currentColor" strokeWidth="3" fill="none" className="text-blue-500"/>
+                        <circle cx="480" cy="230" r="6" fill="white" stroke="currentColor" strokeWidth="2" className="text-blue-500"/>
+
+                        {/* Side Panel / Activity Feed */}
+                        <rect x="550" y="170" width="200" height="380" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        {[200, 260, 320, 380, 440, 500].map((y, i) => (
+                           <g key={i}>
+                              <circle cx="580" cy={y} r="10" fill="currentColor" fillOpacity="0.1"/>
+                              <rect x="600" y={y-5} width="120" height="10" rx="4" fill="currentColor" fillOpacity="0.2"/>
+                           </g>
+                        ))}
+
+                        {/* Bottom List */}
+                        <rect x="90" y="440" width="430" height="110" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <rect x="120" y="460" width="100" height="12" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                        {[490, 520].map((y, i) => (
+                           <line key={i} x1="120" y1={y} x2="480" y2={y} stroke="currentColor" strokeWidth="1" strokeDasharray="4 4"/>
+                        ))}
+                     </svg>
                    </div>
                 </div>
               </div>
@@ -316,11 +405,46 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-100 rounded-2xl p-6 flex items-center justify-center border">
-                   {/* Placeholder for Mentor Dashboard Visual */}
-                   <div className="text-center text-muted-foreground">
-                     <Users className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                     <p>Mentor Dashboard Interface</p>
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-2 border border-slate-100 dark:border-slate-800 shadow-lg">
+                   <div className="rounded-xl overflow-hidden bg-white dark:bg-slate-950 relative aspect-square md:aspect-[4/3]">
+                     <svg className="w-full h-full text-slate-300 dark:text-slate-700" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Background */}
+                        <rect width="100%" height="100%" fill="currentColor" fillOpacity="0.02"/>
+
+                        {/* Calendar Widget */}
+                        <rect x="40" y="40" width="280" height="240" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <rect x="40" y="40" width="280" height="40" rx="12" fill="currentColor" fillOpacity="0.1"/>
+                        <rect x="60" y="52" width="100" height="16" rx="4" fill="currentColor" fillOpacity="0.4"/>
+                        {/* Grid */}
+                        <g transform="translate(60, 100)">
+                           {[0, 1, 2, 3].map((row) => (
+                              [0, 1, 2, 3, 4, 5, 6].map((col) => (
+                                 <circle key={`${row}-${col}`} cx={col * 35} cy={row * 35} r="10" fill="currentColor" fillOpacity={Math.random() > 0.7 ? 0.4 : 0.05} className={Math.random() > 0.8 ? "text-primary" : ""}/>
+                              ))
+                           ))}
+                        </g>
+
+                        {/* Upcoming Session Card */}
+                        <rect x="40" y="310" width="280" height="250" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <circle cx="80" cy="360" r="20" fill="currentColor" fillOpacity="0.2"/>
+                        <rect x="120" y="350" width="140" height="20" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                        <rect x="60" y="410" width="240" height="120" rx="8" fill="currentColor" fillOpacity="0.05" stroke="currentColor" strokeDasharray="4 4"/>
+
+                        {/* Mentee List / Progress */}
+                        <rect x="350" y="40" width="410" height="520" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <rect x="380" y="70" width="150" height="20" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                        
+                        {[130, 210, 290, 370, 450].map((y, i) => (
+                           <g key={i}>
+                              <rect x="380" y={y} width="350" height="60" rx="8" fill="currentColor" fillOpacity="0.05"/>
+                              <circle cx="410" cy={y+30} r="15" fill="currentColor" fillOpacity="0.2"/>
+                              <rect x="440" y={y+20} width="120" height="12" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                              <rect x="440" y={y+40} width="80" height="8" rx="4" fill="currentColor" fillOpacity="0.1"/>
+                              {/* Status Indicator */}
+                              <circle cx="700" cy={y+30} r="6" fill="currentColor" className={i === 0 ? "text-green-500" : i === 2 ? "text-yellow-500" : "text-emerald-500"} fillOpacity="0.8"/>
+                           </g>
+                        ))}
+                     </svg>
                    </div>
                 </div>
               </div>
@@ -370,11 +494,37 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div className="bg-slate-100 rounded-2xl p-6 flex items-center justify-center border">
-                   {/* Placeholder for Mentee Dashboard Visual */}
-                   <div className="text-center text-muted-foreground">
-                     <PlayCircle className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                     <p>Mentee Learning Interface</p>
+                <div className="bg-slate-50 dark:bg-slate-900 rounded-2xl p-2 border border-slate-100 dark:border-slate-800 shadow-lg">
+                   <div className="rounded-xl overflow-hidden bg-white dark:bg-slate-950 relative aspect-square md:aspect-[4/3]">
+                     <svg className="w-full h-full text-slate-300 dark:text-slate-700" viewBox="0 0 800 600" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        {/* Background */}
+                        <rect width="100%" height="100%" fill="currentColor" fillOpacity="0.02"/>
+
+                        {/* Video Player */}
+                        <rect x="40" y="40" width="500" height="320" rx="12" fill="currentColor" fillOpacity="0.1"/>
+                        <circle cx="290" cy="200" r="30" fill="white" stroke="currentColor" strokeWidth="4" className="text-primary"/>
+                        <polygon points="285,190 305,200 285,210" fill="currentColor" className="text-primary"/>
+                        {/* Player Controls */}
+                        <rect x="60" y="320" width="460" height="6" rx="3" fill="currentColor" fillOpacity="0.2"/>
+                        <rect x="60" y="320" width="200" height="6" rx="3" fill="currentColor" className="text-primary"/>
+
+                        {/* Title and Description */}
+                        <rect x="40" y="390" width="300" height="24" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                        <rect x="40" y="430" width="450" height="12" rx="4" fill="currentColor" fillOpacity="0.1"/>
+                        <rect x="40" y="455" width="400" height="12" rx="4" fill="currentColor" fillOpacity="0.1"/>
+
+                        {/* Sidebar / Curriculum */}
+                        <rect x="570" y="40" width="190" height="520" rx="12" stroke="currentColor" strokeWidth="2" fill="white" fillOpacity="0.5"/>
+                        <rect x="590" y="70" width="100" height="16" rx="4" fill="currentColor" fillOpacity="0.3"/>
+                        
+                        {[120, 180, 240, 300, 360, 420, 480].map((y, i) => (
+                           <g key={i}>
+                              <rect x="590" y={y} width="150" height="40" rx="6" fill="currentColor" fillOpacity={i === 1 ? 0.2 : 0.05} className={i === 1 ? "text-primary" : ""}/>
+                              <circle cx="610" cy={y+20} r="8" stroke="currentColor" strokeWidth="2" fill={i < 2 ? "currentColor" : "none"} className={i < 2 ? "text-primary" : ""} />
+                              {i < 2 && <path d="M 606 620 L 610 624 L 614 616" stroke="white" strokeWidth="2" transform={`translate(0, ${y - 600})`}/>}
+                           </g>
+                        ))}
+                     </svg>
                    </div>
                 </div>
               </div>
@@ -497,23 +647,23 @@ export default function Home() {
       {/* Tech Stack */}
       <section className="py-20 bg-slate-900 text-white">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4">Built with Modern Tech Stack</h2>
+          <h2 className="text-2xl md:text-3xl font-bold mb-4">Keamanan & Reliabilitas Tanpa Kompromi</h2>
           <p className="text-slate-400 max-w-2xl mx-auto mb-12">
-            Kami percaya transparansi membangun trust. BelajarShafa dibangun dengan teknologi modern yang proven untuk handle growth.
+            Anda fokus mendidik, kami pastikan platform berjalan lancar. Data aman, akses cepat, dan selalu tersedia saat dibutuhkan.
           </p>
           
-          <div className="flex flex-wrap justify-center gap-4 md:gap-8 opacity-70">
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-               <Zap className="w-4 h-4" /> Next.js
+          <div className="flex flex-wrap justify-center gap-4 md:gap-8 opacity-90">
+             <div className="flex items-center gap-2 px-5 py-3 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+               <Shield className="w-4 h-4 text-emerald-400" /> Keamanan Data Terenkripsi
              </div>
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-               <Server className="w-4 h-4" /> Nest.js
+             <div className="flex items-center gap-2 px-5 py-3 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+               <Server className="w-4 h-4 text-blue-400" /> 99.9% Uptime Guarantee
              </div>
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-               <Layout className="w-4 h-4" /> Tailwind CSS
+             <div className="flex items-center gap-2 px-5 py-3 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+               <Zap className="w-4 h-4 text-yellow-400" /> Akses Cepat & Ringan
              </div>
-             <div className="flex items-center gap-2 px-4 py-2 bg-white/5 rounded-full border border-white/10">
-               <Shield className="w-4 h-4" /> Enterprise Encryption
+             <div className="flex items-center gap-2 px-5 py-3 bg-white/5 rounded-full border border-white/10 hover:bg-white/10 transition-colors cursor-default">
+               <CheckCircle2 className="w-4 h-4 text-primary" /> Backup Otomatis Berkala
              </div>
           </div>
         </div>
