@@ -13,9 +13,10 @@ import { TopicsModule } from './topics/topics.module';
 import { MaterialsModule } from './materials/materials.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
 import { ProgressModule } from './progress/progress.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, ClassesModule, SessionsModule, AttendanceModule, CategoriesModule, CoursesModule, TopicsModule, MaterialsModule, EnrollmentsModule, ProgressModule],
+  imports: [AuthModule, UsersModule, ClassesModule, SessionsModule, AttendanceModule, CategoriesModule, CoursesModule, TopicsModule, MaterialsModule, EnrollmentsModule, ProgressModule, UploadModule],
   controllers: [AppController],
   providers: [AppService],
 })

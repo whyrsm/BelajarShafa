@@ -128,10 +128,10 @@ export default function CourseDetailPage() {
             </Button>
           </Link>
           {canEdit && (
-            <Link href={`/dashboard/courses/${courseId}/edit`}>
+            <Link href={`/dashboard/courses/${courseId}/manage`}>
               <Button>
                 <Edit className="w-4 h-4 mr-2" />
-                Edit Modul
+                Kelola Modul
               </Button>
             </Link>
           )}

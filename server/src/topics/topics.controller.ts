@@ -59,5 +59,12 @@ export class TopicsController {
   reorder(@Param('courseId') courseId: string, @Body() reorderDto: ReorderTopicsDto, @Request() req) {
     return this.topicsService.reorder(courseId, reorderDto, req.user.userId, req.user.role);
   }
+
+  @Post(':id/duplicate')
+  @UseGuards(RolesGuard)
+  @Roles('MANAGER', 'ADMIN')
+  duplicate(@Param('id') id: string, @Request() req) {
+    return this.topicsService.duplicate(id, req.user.userId, req.user.role);
+  }
 }
 

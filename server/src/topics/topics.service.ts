@@ -275,5 +275,69 @@ export class TopicsService {
 
     return this.findAll(courseId);
   }
+
+  /**
+   * Duplicate a topic with all its materials
+   */
+  async duplicate(id: string, userId: string, userRole: string) {
+    if (userRole !== 'MANAGER' && userRole !== 'ADMIN') {
+      throw new ForbiddenException('Only Managers can duplicate topics');
+    }
+
+    const originalTopic = await this.prisma.topic.findUnique({
+      where: { id },
+      include: {
+        course: true,
+        materials: {
+          orderBy: {
+            sequence: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!originalTopic) {
+      throw new NotFoundException('Topic not found');
+    }
+
+    if (originalTopic.course.createdById !== userId && userRole !== 'ADMIN') {
+      throw new ForbiddenException('You can only duplicate topics in courses you created');
+    }
+
+    // Get the next sequence number
+    const lastTopic = await this.prisma.topic.findFirst({
+      where: { courseId: originalTopic.courseId },
+      orderBy: { sequence: 'desc' },
+    });
+    const newSequence = lastTopic ? lastTopic.sequence + 1 : 1;
+
+    // Create new topic
+    const newTopic = await this.prisma.topic.create({
+      data: {
+        courseId: originalTopic.courseId,
+        title: `${originalTopic.title} (Copy)`,
+        description: originalTopic.description,
+        sequence: newSequence,
+        estimatedDuration: originalTopic.estimatedDuration,
+        isMandatory: originalTopic.isMandatory,
+      },
+    });
+
+    // Duplicate materials
+    for (const material of originalTopic.materials) {
+      await this.prisma.material.create({
+        data: {
+          topicId: newTopic.id,
+          type: material.type,
+          title: material.title,
+          content: material.content as any,
+          sequence: material.sequence,
+          estimatedDuration: material.estimatedDuration,
+        },
+      });
+    }
+
+    return this.findOne(newTopic.id);
+  }
 }
 

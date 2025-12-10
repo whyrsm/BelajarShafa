@@ -124,3 +124,10 @@ export async function reorderTopics(courseId: string, data: ReorderTopicsData): 
   return response.json();
 }
 
+export async function duplicateTopic(id: string): Promise<Topic> {
+  const response = await fetchWithAuth(`/topics/${id}/duplicate`, {
+    method: 'POST',
+  });
+  return response.json();
+}
+
