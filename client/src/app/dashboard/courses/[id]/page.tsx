@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { getCourseById, Course } from '@/lib/api/courses';
 import { getProfile, UserProfile } from '@/lib/api/auth';
 import { enrollCourse, getCourseEnrollment, Enrollment } from '@/lib/api/enrollments';
-import { ArrowLeft, Edit, BookOpen, Play, Clock, User, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Edit, BookOpen, Play, Clock, User, CheckCircle2, FileText, ListChecks, GraduationCap, ChevronDown, ChevronRight, Video, File, ExternalLink } from 'lucide-react';
 import { DashboardLayout } from '@/components/navigation';
 
 export default function CourseDetailPage() {
@@ -22,6 +22,7 @@ export default function CourseDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [enrolling, setEnrolling] = useState(false);
+  const [expandedTopics, setExpandedTopics] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const token = localStorage.getItem('access_token');
@@ -87,6 +88,48 @@ export default function CourseDetailPage() {
         return 'Lanjutan';
       default:
         return level;
+    }
+  };
+
+  const toggleTopic = (topicId: string) => {
+    setExpandedTopics((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(topicId)) {
+        newSet.delete(topicId);
+      } else {
+        newSet.add(topicId);
+      }
+      return newSet;
+    });
+  };
+
+  const getMaterialIcon = (type: string) => {
+    switch (type) {
+      case 'VIDEO':
+        return <Video className="w-4 h-4 text-red-500" />;
+      case 'DOCUMENT':
+        return <File className="w-4 h-4 text-blue-500" />;
+      case 'ARTICLE':
+        return <FileText className="w-4 h-4 text-green-500" />;
+      case 'EXTERNAL_LINK':
+        return <ExternalLink className="w-4 h-4 text-purple-500" />;
+      default:
+        return <FileText className="w-4 h-4 text-muted-foreground" />;
+    }
+  };
+
+  const getMaterialTypeLabel = (type: string) => {
+    switch (type) {
+      case 'VIDEO':
+        return 'Video';
+      case 'DOCUMENT':
+        return 'Dokumen';
+      case 'ARTICLE':
+        return 'Artikel';
+      case 'EXTERNAL_LINK':
+        return 'Tautan Eksternal';
+      default:
+        return type;
     }
   };
 
@@ -167,7 +210,6 @@ export default function CourseDetailPage() {
 
               {/* Course Info */}
               <CardHeader>
-                <CardTitle className="text-xl">{course.title}</CardTitle>
                 <CardDescription className="flex items-center gap-4 text-sm mt-2">
                   <div className="flex items-center gap-2">
                     <User className="w-4 h-4" />
@@ -192,11 +234,6 @@ export default function CourseDetailPage() {
                     {course.type === 'PUBLIC' ? 'Umum' : 'Private'}
                   </span>
                 </div>
-
-                {/* Description */}
-                <p className="text-sm text-muted-foreground">
-                  {course.description || 'Tidak ada deskripsi'}
-                </p>
 
                 {/* Progress (if enrolled) */}
                 {enrollment && (
@@ -230,67 +267,128 @@ export default function CourseDetailPage() {
                   )}
                 </div>
 
-                {/* Prerequisites */}
-                {course.prerequisites && (
-                  <div className="pt-4 border-t">
-                    <h4 className="text-sm font-semibold mb-2">Prasyarat</h4>
-                    <p className="text-sm text-muted-foreground">{course.prerequisites}</p>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </div>
 
           {/* Curriculum - Second on mobile, Left on desktop (70%) */}
           <div className="order-2 lg:order-1 lg:col-span-7">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-2xl flex items-center gap-2">
-                  <BookOpen className="w-6 h-6" />
-                  Kurikulum
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
+            <div className="space-y-6">
+              {/* Course Overview */}
+              <Card>
+                <CardHeader className="pb-4">
+                  <CardTitle className="text-3xl font-bold flex items-center gap-3">
+                    <GraduationCap className="w-7 h-7 text-primary" />
+                    {course.title}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Course Description */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold">Deskripsi Modul</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground whitespace-pre-line pl-7">
+                      {course.description || 'Tidak ada deskripsi'}
+                    </p>
+                  </div>
+
+                  {/* Divider */}
+                  <div className="border-t"></div>
+
+                  {/* Prerequisites */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <ListChecks className="w-5 h-5 text-muted-foreground" />
+                      <h3 className="text-lg font-semibold">Prasyarat</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground whitespace-pre-line pl-7">
+                      {course.prerequisites || 'Tidak ada prasyarat'}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Curriculum */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-2xl flex items-center gap-2">
+                    <BookOpen className="w-6 h-6" />
+                    Kurikulum
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
                 {course.topics && course.topics.length > 0 ? (
                   <div className="space-y-4">
-                    {course.topics.map((topic) => (
-                      <div key={topic.id} className="border rounded-lg p-4">
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex-1">
-                            <h3 className="font-semibold text-lg">
-                              {topic.sequence}. {topic.title}
-                            </h3>
-                            {topic.description && (
-                              <p className="text-sm text-muted-foreground mt-1">{topic.description}</p>
-                            )}
-                          </div>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <span>{topic._count?.materials || topic.materials?.length || 0} materi</span>
-                            {topic.estimatedDuration && (
-                              <>
-                                <span>•</span>
-                                <span>{formatDuration(topic.estimatedDuration)}</span>
-                              </>
-                            )}
-                          </div>
+                    {course.topics.map((topic) => {
+                      const isExpanded = expandedTopics.has(topic.id);
+                      const materialCount = topic._count?.materials || topic.materials?.length || 0;
+                      
+                      return (
+                        <div key={topic.id} className="border rounded-lg overflow-hidden">
+                          {/* Topic Header - Clickable */}
+                          <button
+                            onClick={() => toggleTopic(topic.id)}
+                            className="w-full p-4 hover:bg-muted/50 transition-colors text-left"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex items-start gap-3 flex-1">
+                                <div className="mt-1">
+                                  {isExpanded ? (
+                                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                                  ) : (
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                  )}
+                                </div>
+                                <div className="flex-1">
+                                  <h3 className="font-semibold text-lg">
+                                    {topic.sequence}. {topic.title}
+                                  </h3>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground flex-shrink-0">
+                                <span>{materialCount} materi</span>
+                                {topic.estimatedDuration && (
+                                  <>
+                                    <span>•</span>
+                                    <span>{formatDuration(topic.estimatedDuration)}</span>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </button>
+
+                          {/* Materials List - Collapsible */}
+                          {isExpanded && (
+                            <div className="px-4 pb-4 border-t bg-muted/30">
+                              {topic.materials && topic.materials.length > 0 ? (
+                                <ul className="space-y-2 mt-3">
+                                  {topic.materials.map((material) => (
+                                    <li
+                                      key={material.id}
+                                      className="flex items-center gap-3 p-2 rounded-md hover:bg-background transition-colors"
+                                    >
+                                      {getMaterialIcon(material.type)}
+                                      <div className="flex-1">
+                                        <span className="text-sm font-medium">{material.title}</span>
+                                      </div>
+                                      <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                                        {getMaterialTypeLabel(material.type)}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              ) : (
+                                <p className="text-sm text-muted-foreground mt-3 text-center py-2">
+                                  Belum ada materi
+                                </p>
+                              )}
+                            </div>
+                          )}
                         </div>
-                        {topic.materials && topic.materials.length > 0 ? (
-                          <ul className="space-y-2 mt-3">
-                            {topic.materials.map((material) => (
-                              <li key={material.id} className="flex items-center gap-2 text-sm">
-                                <span className="text-muted-foreground">•</span>
-                                <span>{material.title}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  ({material.type})
-                                </span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <p className="text-sm text-muted-foreground mt-2">Belum ada materi</p>
-                        )}
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div className="text-center py-12">
@@ -305,6 +403,7 @@ export default function CourseDetailPage() {
                 )}
               </CardContent>
             </Card>
+            </div>
           </div>
         </div>
       </div>
