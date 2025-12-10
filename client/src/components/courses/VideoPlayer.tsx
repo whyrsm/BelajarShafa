@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, memo } from 'react';
 import { updateMaterialProgress, getMaterialProgress, markMaterialComplete } from '@/lib/api/progress';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -32,7 +32,7 @@ declare global {
   }
 }
 
-export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: propAllowForwardSeek, onProgressUpdate }: VideoPlayerProps) {
+function VideoPlayerComponent({ materialId, videoUrl, title, allowForwardSeek: propAllowForwardSeek, onProgressUpdate }: VideoPlayerProps) {
   // Check environment variable first, then prop, default to false (prevent forward seek)
   const envValue = process.env.NEXT_PUBLIC_ALLOW_FORWARD_SEEK;
   const allowForwardSeekRef = useRef(
@@ -563,4 +563,17 @@ export function VideoPlayer({ materialId, videoUrl, title, allowForwardSeek: pro
     </Card>
   );
 }
+
+// Memoize the component to prevent re-renders when parent state changes
+// Only re-render if materialId, videoUrl, title, or allowForwardSeek changes
+export const VideoPlayer = memo(VideoPlayerComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.materialId === nextProps.materialId &&
+    prevProps.videoUrl === nextProps.videoUrl &&
+    prevProps.title === nextProps.title &&
+    prevProps.allowForwardSeek === nextProps.allowForwardSeek
+  );
+});
+
+VideoPlayer.displayName = 'VideoPlayer';
 

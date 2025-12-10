@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { updateMaterialProgress, markMaterialComplete, getMaterialProgress } from '@/lib/api/progress';
@@ -14,7 +14,7 @@ interface DocumentViewerProps {
   onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function DocumentViewer({ materialId, documentUrl, fileName, title, onProgressUpdate }: DocumentViewerProps) {
+function DocumentViewerComponent({ materialId, documentUrl, fileName, title, onProgressUpdate }: DocumentViewerProps) {
   const [isViewed, setIsViewed] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [viewStartTime, setViewStartTime] = useState<Date | null>(null);
@@ -139,4 +139,16 @@ export function DocumentViewer({ materialId, documentUrl, fileName, title, onPro
     </Card>
   );
 }
+
+// Memoize the component to prevent re-renders when parent state changes
+export const DocumentViewer = memo(DocumentViewerComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.materialId === nextProps.materialId &&
+    prevProps.documentUrl === nextProps.documentUrl &&
+    prevProps.fileName === nextProps.fileName &&
+    prevProps.title === nextProps.title
+  );
+});
+
+DocumentViewer.displayName = 'DocumentViewer';
 

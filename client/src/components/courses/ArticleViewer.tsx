@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { updateMaterialProgress, markMaterialComplete, getMaterialProgress } from '@/lib/api/progress';
 import { CheckCircle2 } from 'lucide-react';
@@ -12,7 +12,7 @@ interface ArticleViewerProps {
   onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function ArticleViewer({ materialId, content, title, onProgressUpdate }: ArticleViewerProps) {
+function ArticleViewerComponent({ materialId, content, title, onProgressUpdate }: ArticleViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [hasScrolled, setHasScrolled] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -121,4 +121,15 @@ export function ArticleViewer({ materialId, content, title, onProgressUpdate }: 
     </Card>
   );
 }
+
+// Memoize the component to prevent re-renders when parent state changes
+export const ArticleViewer = memo(ArticleViewerComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.materialId === nextProps.materialId &&
+    prevProps.content === nextProps.content &&
+    prevProps.title === nextProps.title
+  );
+});
+
+ArticleViewer.displayName = 'ArticleViewer';
 

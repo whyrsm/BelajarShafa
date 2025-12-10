@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { updateMaterialProgress, markMaterialComplete, getMaterialProgress } from '@/lib/api/progress';
@@ -13,7 +13,7 @@ interface ExternalLinkViewerProps {
   onProgressUpdate?: () => void | Promise<void>;
 }
 
-export function ExternalLinkViewer({ materialId, url, title, onProgressUpdate }: ExternalLinkViewerProps) {
+function ExternalLinkViewerComponent({ materialId, url, title, onProgressUpdate }: ExternalLinkViewerProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   useEffect(() => {
@@ -93,4 +93,15 @@ export function ExternalLinkViewer({ materialId, url, title, onProgressUpdate }:
     </Card>
   );
 }
+
+// Memoize the component to prevent re-renders when parent state changes
+export const ExternalLinkViewer = memo(ExternalLinkViewerComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.materialId === nextProps.materialId &&
+    prevProps.url === nextProps.url &&
+    prevProps.title === nextProps.title
+  );
+});
+
+ExternalLinkViewer.displayName = 'ExternalLinkViewer';
 
