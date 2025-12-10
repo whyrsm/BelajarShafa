@@ -7,11 +7,11 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DashboardLayout } from '@/components/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { getCourses, Course, CourseFilters } from '@/lib/api/courses';
 import { getCategories, Category } from '@/lib/api/categories';
 import { getProfile, UserProfile } from '@/lib/api/auth';
-import { Plus, BookOpen, Filter, Eye, Search } from 'lucide-react';
+import { Plus, BookOpen, Eye, Search } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Input } from '@/components/ui/input';
 
@@ -101,17 +101,12 @@ export default function CoursesPage() {
 
         {/* Search and Filters */}
         <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Filter className="w-5 h-5" />
-              Pencarian & Filter
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {/* Search Bar */}
-            <div className="mb-4">
+          <CardContent className="pt-6">
+            {/* Search and Category Filter in One Row */}
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_300px] gap-4">
+              {/* Search Bar */}
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
                 <Input
                   type="text"
                   placeholder="Cari berdasarkan judul, deskripsi, atau kategori..."
@@ -120,14 +115,11 @@ export default function CoursesPage() {
                   className="pl-10"
                 />
               </div>
-            </div>
 
-            {/* Filters */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Category Filter */}
               <div>
-                <label className="text-sm font-medium mb-2 block">Kategori</label>
                 <select
-                  className="w-full px-3 py-2 border rounded-md"
+                  className="w-full px-3 py-1 border rounded-md h-9 text-sm"
                   value={filters.categoryId || ''}
                   onChange={(e) =>
                     setFilters({ ...filters, categoryId: e.target.value || undefined })
@@ -139,35 +131,6 @@ export default function CoursesPage() {
                       {cat.name}
                     </option>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Level</label>
-                <select
-                  className="w-full px-3 py-2 border rounded-md"
-                  value={filters.level || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, level: e.target.value as any || undefined })
-                  }
-                >
-                  <option value="">Semua Level</option>
-                  <option value="BEGINNER">Pemula</option>
-                  <option value="INTERMEDIATE">Menengah</option>
-                  <option value="ADVANCED">Lanjutan</option>
-                </select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-2 block">Tipe</label>
-                <select
-                  className="w-full px-3 py-2 border rounded-md"
-                  value={filters.type || ''}
-                  onChange={(e) =>
-                    setFilters({ ...filters, type: e.target.value as any || undefined })
-                  }
-                >
-                  <option value="">Semua Tipe</option>
-                  <option value="PUBLIC">Umum</option>
-                  <option value="PRIVATE">Private</option>
                 </select>
               </div>
             </div>
