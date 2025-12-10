@@ -1,34 +1,4 @@
-import { getApiUrl } from '@/lib/utils';
-
-const API_URL = getApiUrl();
-
-async function fetchWithAuth(url: string, options: RequestInit = {}): Promise<Response> {
-  const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
-  
-  const headers = {
-    'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` }),
-    ...options.headers,
-  };
-
-  const response = await fetch(`${API_URL}/api${url}`, {
-    ...options,
-    headers,
-  });
-
-  if (!response.ok) {
-    let errorMessage = `HTTP error! status: ${response.status}`;
-    try {
-      const error = await response.json();
-      errorMessage = error.message || errorMessage;
-    } catch {
-      errorMessage = response.statusText || errorMessage;
-    }
-    throw new Error(errorMessage);
-  }
-
-  return response;
-}
+import { fetchWithAuth } from './utils';
 
 export enum CourseLevel {
   BEGINNER = 'BEGINNER',
