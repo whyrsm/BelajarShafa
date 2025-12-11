@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
 import { UserRole, CreateUserData, UpdateUserData, User } from '@/lib/api/users';
 
@@ -18,8 +18,9 @@ interface UserFormProps {
 export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps) {
     const [name, setName] = useState(user?.name || '');
     const [email, setEmail] = useState(user?.email || '');
+    const [whatsappNumber, setWhatsappNumber] = useState(user?.whatsappNumber || '');
     const [password, setPassword] = useState('');
-    const [gender, setGender] = useState<'MALE' | 'FEMALE' | 'OTHER' | ''>(user?.gender || '');
+    const [gender, setGender] = useState<'MALE' | 'FEMALE' | ''>(user?.gender || '');
     const [roles, setRoles] = useState<UserRole[]>(user?.roles || []);
 
     const isEdit = !!user;
@@ -30,6 +31,13 @@ export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps)
                 ? prev.filter(r => r !== role)
                 : [...prev, role]
         );
+    };
+
+    const validateWhatsAppNumber = (number: string): boolean => {
+        // Validates Indonesian WhatsApp number formats:
+        // +6281234567890, 6281234567890, or 081234567890
+        const whatsappRegex = /^(\+62|62|0)[0-9]{9,12}$/;
+        return whatsappRegex.test(number);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -45,9 +53,15 @@ export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps)
             return;
         }
 
+        if (!whatsappNumber || !validateWhatsAppNumber(whatsappNumber)) {
+            alert('Please enter a valid WhatsApp number (e.g., +6281234567890, 6281234567890, or 081234567890)');
+            return;
+        }
+
         const data: any = {
             name,
             email,
+            whatsappNumber,
             roles,
             ...(gender && { gender }),
             ...(!isEdit && { password }),
@@ -87,6 +101,22 @@ export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps)
                 />
             </div>
 
+            <div>
+                <Label htmlFor="whatsappNumber">WhatsApp Number *</Label>
+                <Input
+                    id="whatsappNumber"
+                    type="tel"
+                    value={whatsappNumber}
+                    onChange={(e) => setWhatsappNumber(e.target.value)}
+                    placeholder="+6281234567890 or 081234567890"
+                    required
+                    disabled={isLoading}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                    Format: +6281234567890, 6281234567890, or 081234567890
+                </p>
+            </div>
+
             {!isEdit && (
                 <div>
                     <Label htmlFor="password">Password *</Label>
@@ -107,16 +137,25 @@ export function UserForm({ user, onSubmit, onCancel, isLoading }: UserFormProps)
 
             <div>
                 <Label htmlFor="gender">Gender</Label>
-                <Select value={gender} onValueChange={(value) => setGender(value as any)}>
-                    <SelectTrigger id="gender" disabled={isLoading}>
-                        <SelectValue placeholder="Select gender" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="MALE">Male</SelectItem>
-                        <SelectItem value="FEMALE">Female</SelectItem>
-                        <SelectItem value="OTHER">Other</SelectItem>
-                    </SelectContent>
-                </Select>
+                <RadioGroup 
+                    value={gender} 
+                    onValueChange={(value) => setGender(value as 'MALE' | 'FEMALE')}
+                    className="flex flex-row gap-6 mt-2"
+                    disabled={isLoading}
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="MALE" id="gender-male" disabled={isLoading} />
+                        <Label htmlFor="gender-male" className="text-sm font-normal cursor-pointer">
+                            Male
+                        </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="FEMALE" id="gender-female" disabled={isLoading} />
+                        <Label htmlFor="gender-female" className="text-sm font-normal cursor-pointer">
+                            Female
+                        </Label>
+                    </div>
+                </RadioGroup>
             </div>
 
             <div>

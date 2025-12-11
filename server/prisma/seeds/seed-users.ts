@@ -30,6 +30,7 @@ async function main() {
     update: {
       password: hashedPassword,
       name: 'Super Admin',
+      whatsappNumber: '+6281234567890',
       roles: ['ADMIN'],
       isVerified: true,
     },
@@ -37,6 +38,7 @@ async function main() {
       email: 'admin@belajarshafa.com',
       password: hashedPassword,
       name: 'Super Admin',
+      whatsappNumber: '+6281234567890',
       roles: ['ADMIN'],
       isVerified: true,
     },
@@ -49,6 +51,7 @@ async function main() {
     update: {
       password: hashedPassword,
       name: 'Manager',
+      whatsappNumber: '+6281234567891',
       roles: ['MANAGER'],
       isVerified: true,
     },
@@ -56,6 +59,7 @@ async function main() {
       email: 'manager@belajarshafa.com',
       password: hashedPassword,
       name: 'Manager',
+      whatsappNumber: '+6281234567891',
       roles: ['MANAGER'],
       isVerified: true,
     },

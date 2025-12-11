@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { User, UserRole } from '@/lib/api/users';
-import { Edit, Eye, Power, PowerOff, Trash2 } from 'lucide-react';
+import { Edit, Eye, Power, PowerOff, Trash2, Phone } from 'lucide-react';
 
 interface UserTableProps {
     users: User[];
@@ -54,6 +54,7 @@ export function UserTable({ users, onToggleActive, onDelete, isLoading }: UserTa
                     <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Email</TableHead>
+                        <TableHead>WhatsApp</TableHead>
                         <TableHead>Roles</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead className="text-right">Actions</TableHead>
@@ -79,6 +80,12 @@ export function UserTable({ users, onToggleActive, onDelete, isLoading }: UserTa
                                 </div>
                             </TableCell>
                             <TableCell>{user.email}</TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-2">
+                                    <Phone className="h-4 w-4 text-muted-foreground" />
+                                    <span className="text-sm">{user.whatsappNumber}</span>
+                                </div>
+                            </TableCell>
                             <TableCell>
                                 <div className="flex flex-wrap gap-1">
                                     {user.roles.map((role) => (

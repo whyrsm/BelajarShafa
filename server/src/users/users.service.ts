@@ -157,6 +157,7 @@ export class UsersService {
           id: true,
           name: true,
           email: true,
+          whatsappNumber: true,
           roles: true,
           gender: true,
           avatarUrl: true,

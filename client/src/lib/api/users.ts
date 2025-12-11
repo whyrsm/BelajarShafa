@@ -14,8 +14,9 @@ export interface User {
     id: string;
     name: string;
     email: string;
+    whatsappNumber: string;
     roles: UserRole[];
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    gender?: 'MALE' | 'FEMALE';
     avatarUrl?: string;
     isActive: boolean;
     isVerified: boolean;
@@ -105,16 +106,18 @@ export interface CreateUserData {
     email: string;
     password: string;
     name: string;
+    whatsappNumber: string;
     roles: UserRole[];
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    gender?: 'MALE' | 'FEMALE';
 }
 
 export interface UpdateUserData {
     name?: string;
     email?: string;
     password?: string;
+    whatsappNumber?: string;
     roles?: UserRole[];
-    gender?: 'MALE' | 'FEMALE' | 'OTHER';
+    gender?: 'MALE' | 'FEMALE';
     isActive?: boolean;
 }
 

@@ -10,13 +10,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserPlus, Mail, Lock, User, GraduationCap, Sparkles } from 'lucide-react';
+import { UserPlus, Mail, Lock, User, GraduationCap, Sparkles, Phone } from 'lucide-react';
 import { register as registerUser } from '@/lib/api/auth';
 
 const registerSchema = z.object({
     email: z.string().email('Harap masukkan alamat email yang valid'),
     password: z.string().min(8, 'Kata sandi minimal 8 karakter'),
     name: z.string().min(1, 'Nama wajib diisi'),
+    whatsappNumber: z.string()
+        .min(1, 'Nomor WhatsApp wajib diisi')
+        .regex(/^(\+62|62|0)[0-9]{9,12}$/, 'Format nomor WhatsApp tidak valid. Gunakan format: +6281234567890, 6281234567890, atau 081234567890'),
     role: z.enum(['MENTEE', 'MENTOR']),
 });
 
@@ -135,6 +138,29 @@ export default function RegisterPage() {
                                         {errors.password.message}
                                     </p>
                                 )}
+                            </div>
+
+                            {/* WhatsApp Number Field */}
+                            <div className="space-y-2">
+                                <Label htmlFor="whatsappNumber" className="flex items-center gap-2">
+                                    <Phone className="w-4 h-4 text-muted-foreground" />
+                                    Nomor WhatsApp
+                                </Label>
+                                <Input
+                                    id="whatsappNumber"
+                                    type="tel"
+                                    placeholder="+6281234567890 atau 081234567890"
+                                    {...register('whatsappNumber')}
+                                    className={errors.whatsappNumber ? 'border-destructive' : ''}
+                                />
+                                {errors.whatsappNumber && (
+                                    <p className="text-sm text-destructive font-medium">
+                                        {errors.whatsappNumber.message}
+                                    </p>
+                                )}
+                                <p className="text-xs text-muted-foreground">
+                                    Nomor WhatsApp diperlukan untuk notifikasi aplikasi dan pemulihan kata sandi
+                                </p>
                             </div>
 
                             {/* Role Selection */}

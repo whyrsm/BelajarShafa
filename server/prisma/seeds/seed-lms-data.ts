@@ -111,6 +111,7 @@ async function main() {
         email: 'manager@belajarshafa.com',
         password: '$2b$10$dummy', // Dummy password, should be changed
         name: 'Default Manager',
+        whatsappNumber: '+6281234567891',
         roles: ['MANAGER'],
       },
     });

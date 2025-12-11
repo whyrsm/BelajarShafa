@@ -1,4 +1,4 @@
-import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsArray, ArrayMinSize } from 'class-validator';
+import { IsEmail, IsEnum, IsNotEmpty, IsOptional, IsString, MinLength, IsArray, ArrayMinSize, Matches } from 'class-validator';
 import { UserRole, Gender } from '@prisma/client';
 
 export class CreateUserDto {
@@ -12,6 +12,13 @@ export class CreateUserDto {
     @IsString()
     @IsNotEmpty()
     name: string;
+
+    @IsString()
+    @IsNotEmpty({ message: 'WhatsApp number is required' })
+    @Matches(/^(\+62|62|0)[0-9]{9,12}$/, {
+        message: 'WhatsApp number must be in valid format (e.g., +6281234567890, 6281234567890, or 081234567890)'
+    })
+    whatsappNumber: string;
 
     @IsArray()
     @ArrayMinSize(1, { message: 'At least one role is required' })

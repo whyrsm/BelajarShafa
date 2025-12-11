@@ -24,7 +24,7 @@ import {
     UserRole,
     UpdateUserData,
 } from '@/lib/api/users';
-import { ArrowLeft, Edit, Power, PowerOff, GraduationCap, Briefcase, Users, BookOpen } from 'lucide-react';
+import { ArrowLeft, Edit, Power, PowerOff, GraduationCap, Briefcase, Users, BookOpen, Phone } from 'lucide-react';
 import Link from 'next/link';
 
 const ROLE_COLORS: Record<UserRole, string> = {
@@ -191,6 +191,13 @@ export default function UserDetailsPage() {
                         <div>
                             <p className="text-sm text-muted-foreground">Email</p>
                             <p className="font-medium">{user.email}</p>
+                        </div>
+                        <div>
+                            <p className="text-sm text-muted-foreground flex items-center gap-2">
+                                <Phone className="h-4 w-4" />
+                                WhatsApp Number
+                            </p>
+                            <p className="font-medium">{user.whatsappNumber}</p>
                         </div>
                         {user.gender && (
                             <div>
