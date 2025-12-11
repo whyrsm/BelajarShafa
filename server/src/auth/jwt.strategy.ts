@@ -13,6 +13,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: any) {
-        return { userId: payload.sub, email: payload.email, role: payload.role };
+        // Support both roles array and single role (backward compatibility)
+        const roles = payload.roles || (payload.role ? [payload.role] : []);
+        return { 
+            userId: payload.sub, 
+            email: payload.email, 
+            roles: roles,
+            role: roles[0] // Keep for backward compatibility
+        };
     }
 }

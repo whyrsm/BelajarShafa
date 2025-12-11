@@ -21,14 +21,17 @@ export class AuthService {
     }
 
     async login(user: any) {
-        const payload = { email: user.email, sub: user.id, role: user.role };
+        // Support both single role (legacy) and roles array
+        const roles = user.roles || (user.role ? [user.role] : []);
+        const payload = { email: user.email, sub: user.id, roles, role: roles[0] }; // Keep role for backward compatibility
         return {
             access_token: this.jwtService.sign(payload),
             user: {
                 id: user.id,
                 email: user.email,
                 name: user.name,
-                role: user.role,
+                roles: roles,
+                role: roles[0], // Keep for backward compatibility
             }
         };
     }

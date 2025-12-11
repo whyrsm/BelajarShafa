@@ -11,10 +11,11 @@ model User {
   email           String         @unique
   password        String
   name            String
-  role            UserRole
+  roles           UserRole[]
   gender          Gender?
   avatarUrl       String?
   isVerified      Boolean        @default(false)
+  isActive        Boolean        @default(true)
   createdAt       DateTime       @default(now())
   updatedAt       DateTime       @updatedAt
   attendances     Attendance[]  @relation("AttendanceUser")

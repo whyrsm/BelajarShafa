@@ -52,10 +52,14 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
         );
     }
 
+    // Support both single role (legacy) and roles array
+    const userRoles = user?.roles && user.roles.length > 0 ? user.roles : (user?.role ? [user.role] : []);
+    const primaryRole = user?.roles?.[0] || user?.role || '';
+
     return (
         <div className="min-h-screen bg-background">
             {/* Desktop Sidebar */}
-            <Sidebar userRole={user?.role} />
+            <Sidebar userRole={userRoles.length > 0 ? userRoles : primaryRole} />
 
             {/* Main Content Area */}
             <div className="lg:pl-64">
@@ -63,7 +67,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <TopHeader
                     userName={user?.name}
                     userEmail={user?.email}
-                    userRole={user?.role}
+                    userRole={primaryRole}
                     notificationCount={0}
                 />
 
@@ -74,7 +78,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </div>
 
             {/* Mobile Bottom Navigation */}
-            <BottomNav userRole={user?.role} />
+            <BottomNav userRole={userRoles.length > 0 ? userRoles : primaryRole} />
         </div>
     );
 }

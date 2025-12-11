@@ -36,7 +36,7 @@ const mobileNavItems: NavItem[] = [
 ];
 
 interface BottomNavProps {
-    userRole?: string;
+    userRole?: string | string[];
 }
 
 export function BottomNav({ userRole }: BottomNavProps) {
@@ -44,6 +44,10 @@ export function BottomNav({ userRole }: BottomNavProps) {
 
     const filteredNavItems = mobileNavItems.filter(item => {
         if (!item.roles) return true;
+        // Support both single role (legacy) and roles array
+        if (Array.isArray(userRole)) {
+            return userRole.some(role => item.roles?.includes(role));
+        }
         return userRole && item.roles.includes(userRole);
     }).slice(0, 5); // Limit to 5 items for mobile
 

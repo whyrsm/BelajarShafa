@@ -61,7 +61,7 @@ export class ClassesService {
         const mentors = await this.prisma.user.findMany({
             where: {
                 id: { in: mentorIds },
-                role: 'MENTOR',
+                roles: { has: 'MENTOR' },
             },
         });
 
@@ -615,7 +615,7 @@ export class ClassesService {
         const mentors = await this.prisma.user.findMany({
             where: {
                 id: { in: assignMentorsDto.mentorIds },
-                role: 'MENTOR',
+                roles: { has: 'MENTOR' },
             },
         });
 

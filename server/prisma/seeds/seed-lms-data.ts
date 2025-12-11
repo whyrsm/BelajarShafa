@@ -101,7 +101,7 @@ async function main() {
 
   // Get a manager user to assign as creator (or create a default one)
   let managerUser = await prisma.user.findFirst({
-    where: { role: 'MANAGER' },
+    where: { roles: { has: 'MANAGER' } },
   });
 
   if (!managerUser) {
@@ -111,7 +111,7 @@ async function main() {
         email: 'manager@belajarshafa.com',
         password: '$2b$10$dummy', // Dummy password, should be changed
         name: 'Default Manager',
-        role: 'MANAGER',
+        roles: ['MANAGER'],
       },
     });
     console.log('Created default manager user for course creation');

@@ -30,14 +30,14 @@ async function main() {
     update: {
       password: hashedPassword,
       name: 'Super Admin',
-      role: 'ADMIN',
+      roles: ['ADMIN'],
       isVerified: true,
     },
     create: {
       email: 'admin@belajarshafa.com',
       password: hashedPassword,
       name: 'Super Admin',
-      role: 'ADMIN',
+      roles: ['ADMIN'],
       isVerified: true,
     },
   });
@@ -49,14 +49,14 @@ async function main() {
     update: {
       password: hashedPassword,
       name: 'Manager',
-      role: 'MANAGER',
+      roles: ['MANAGER'],
       isVerified: true,
     },
     create: {
       email: 'manager@belajarshafa.com',
       password: hashedPassword,
       name: 'Manager',
-      role: 'MANAGER',
+      roles: ['MANAGER'],
       isVerified: true,
     },
   });

@@ -7,7 +7,8 @@ import {
     BookOpen,
     Building2,
     Sparkles,
-    Library
+    Library,
+    Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,19 +24,22 @@ const navItems: NavItem[] = [
         label: 'Dashboard',
         href: '/dashboard',
         icon: LayoutDashboard,
+        roles: ['MENTEE', 'MENTOR', 'MANAGER', 'ADMIN'],
     },
     {
-        label: 'Jelajahi Modul',
+        label: 'Explore Modul',
         href: '/dashboard/courses/explore',
         icon: BookOpen,
+        roles: ['MENTEE', 'MENTOR', 'MANAGER', 'ADMIN'],
     },
     {
         label: 'Modul Saya',
         href: '/dashboard/my-courses',
         icon: Library,
+        roles: ['MENTEE', 'MENTOR', 'MANAGER', 'ADMIN'],
     },
     {
-        label: 'Kelola Modul',
+        label: 'Modul',
         href: '/dashboard/courses',
         icon: BookOpen,
         roles: ['MANAGER', 'ADMIN'],
@@ -44,12 +48,18 @@ const navItems: NavItem[] = [
         label: 'Organisasi',
         href: '/dashboard/organization',
         icon: Building2,
-        roles: ['MANAGER'],
+        roles: ['MANAGER', 'ADMIN'],
+    },
+    {
+        label: 'Pengguna',
+        href: '/dashboard/users',
+        icon: Users,
+        roles: ['MANAGER', 'ADMIN'],
     },
 ];
 
 interface SidebarProps {
-    userRole?: string;
+    userRole?: string | string[];
 }
 
 export function Sidebar({ userRole }: SidebarProps) {
@@ -57,6 +67,10 @@ export function Sidebar({ userRole }: SidebarProps) {
 
     const filteredNavItems = navItems.filter(item => {
         if (!item.roles) return true;
+        // Support both single role (legacy) and roles array
+        if (Array.isArray(userRole)) {
+            return item.roles.some(role => userRole.includes(role));
+        }
         return userRole && item.roles.includes(userRole);
     });
 
@@ -70,9 +84,14 @@ export function Sidebar({ userRole }: SidebarProps) {
                 <div>
                     <h1 className="text-lg font-bold">BelajarShafa</h1>
                     <p className="text-xs text-muted-foreground">
-                        {userRole === 'MANAGER' && 'Manager'}
-                        {userRole === 'MENTOR' && 'Mentor'}
-                        {userRole === 'MENTEE' && 'Mentee'}
+                        {(() => {
+                            const roles = Array.isArray(userRole) ? userRole : (userRole ? [userRole] : []);
+                            if (roles.includes('ADMIN')) return 'Admin';
+                            if (roles.includes('MANAGER')) return 'Manager';
+                            if (roles.includes('MENTOR')) return 'Mentor';
+                            if (roles.includes('MENTEE')) return 'Mentee';
+                            return '';
+                        })()}
                     </p>
                 </div>
             </div>

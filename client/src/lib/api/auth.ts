@@ -7,7 +7,8 @@ export interface UserProfile {
     userId: string;
     email: string;
     name?: string;
-    role: string;
+    role: string; // Kept for backward compatibility
+    roles?: string[]; // New: array of roles
 }
 
 export async function login(email: string, password: string) {

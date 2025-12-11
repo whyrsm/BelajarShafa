@@ -15,12 +15,25 @@ config({ path: envPath });
 
 // Now import NestJS modules after env is loaded
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.enableCors();
+  
+  // Enable validation pipe with transformation
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+      whitelist: true,
+    }),
+  );
+  
   await app.listen(process.env.PORT ?? 4000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }

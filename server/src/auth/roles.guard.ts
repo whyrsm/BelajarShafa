@@ -8,8 +8,8 @@ export class RolesGuard implements CanActivate {
     constructor(private reflector: Reflector) { }
 
     canActivate(context: ExecutionContext): boolean {
-        const roles = this.reflector.get<string[]>('roles', context.getHandler());
-        if (!roles) {
+        const requiredRoles = this.reflector.get<string[]>('roles', context.getHandler());
+        if (!requiredRoles) {
             return true;
         }
 
@@ -20,7 +20,11 @@ export class RolesGuard implements CanActivate {
             return false;
         }
 
-        return roles.includes(user.role);
+        // Support both single role (legacy) and roles array
+        const userRoles = user.roles || (user.role ? [user.role] : []);
+        
+        // Check if user has ANY of the required roles
+        return requiredRoles.some(role => userRoles.includes(role));
     }
 }
 
