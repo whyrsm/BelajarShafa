@@ -20,6 +20,7 @@ import {
     getUserStats,
     createUser,
     toggleUserActive,
+    deleteUser,
     UserFilterParams,
     UserStats,
     User,
@@ -88,6 +89,20 @@ export default function UsersPage() {
         }
     };
 
+    const handleDeleteUser = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) {
+            return;
+        }
+        
+        try {
+            await deleteUser(id);
+            loadData();
+        } catch (error) {
+            console.error('Failed to delete user:', error);
+            alert('Failed to delete user. Please try again.');
+        }
+    };
+
     const handlePageChange = (page: number) => {
         setFilters({ ...filters, page });
     };
@@ -130,6 +145,7 @@ export default function UsersPage() {
                     <UserTable
                         users={users}
                         onToggleActive={handleToggleActive}
+                        onDelete={handleDeleteUser}
                         isLoading={isLoading}
                     />
 

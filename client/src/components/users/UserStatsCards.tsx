@@ -2,7 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { UserStats } from '@/lib/api/users';
-import { Users, UserCheck, UserX, GraduationCap, Briefcase, UserCircle } from 'lucide-react';
+import { Users, GraduationCap, Briefcase, UserCircle } from 'lucide-react';
 
 interface UserStatsCardsProps {
     stats: UserStats;
@@ -12,8 +12,8 @@ interface UserStatsCardsProps {
 export function UserStatsCards({ stats, isLoading }: UserStatsCardsProps) {
     if (isLoading) {
         return (
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
-                {[...Array(6)].map((_, i) => (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {[...Array(4)].map((_, i) => (
                     <Card key={i} className="p-6">
                         <div className="h-16 animate-pulse bg-muted rounded" />
                     </Card>
@@ -28,18 +28,6 @@ export function UserStatsCards({ stats, isLoading }: UserStatsCardsProps) {
             value: stats.total,
             icon: Users,
             className: 'bg-blue-50 text-blue-600 dark:bg-blue-950 dark:text-blue-400',
-        },
-        {
-            title: 'Active Users',
-            value: stats.active,
-            icon: UserCheck,
-            className: 'bg-green-50 text-green-600 dark:bg-green-950 dark:text-green-400',
-        },
-        {
-            title: 'Inactive Users',
-            value: stats.inactive,
-            icon: UserX,
-            className: 'bg-gray-50 text-gray-600 dark:bg-gray-950 dark:text-gray-400',
         },
         {
             title: 'Mentors',
@@ -62,7 +50,7 @@ export function UserStatsCards({ stats, isLoading }: UserStatsCardsProps) {
     ];
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
             {cards.map((card) => {
                 const Icon = card.icon;
                 return (

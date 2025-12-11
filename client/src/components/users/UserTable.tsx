@@ -12,11 +12,12 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { User, UserRole } from '@/lib/api/users';
-import { Edit, Eye, Power, PowerOff } from 'lucide-react';
+import { Edit, Eye, Power, PowerOff, Trash2 } from 'lucide-react';
 
 interface UserTableProps {
     users: User[];
     onToggleActive: (id: string) => Promise<void>;
+    onDelete?: (id: string) => Promise<void>;
     isLoading?: boolean;
 }
 
@@ -27,7 +28,7 @@ const ROLE_COLORS: Record<UserRole, string> = {
     MENTEE: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
 };
 
-export function UserTable({ users, onToggleActive, isLoading }: UserTableProps) {
+export function UserTable({ users, onToggleActive, onDelete, isLoading }: UserTableProps) {
     if (isLoading) {
         return (
             <div className="space-y-2">
@@ -117,6 +118,16 @@ export function UserTable({ users, onToggleActive, isLoading }: UserTableProps) 
                                             <Power className="h-4 w-4 text-green-600" />
                                         )}
                                     </Button>
+                                    {onDelete && (
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => onDelete(user.id)}
+                                            title="Delete user"
+                                        >
+                                            <Trash2 className="h-4 w-4 text-destructive" />
+                                        </Button>
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>

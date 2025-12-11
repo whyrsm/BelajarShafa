@@ -195,6 +195,12 @@ export async function toggleUserActive(id: string): Promise<User> {
     return response.json();
 }
 
+export async function deleteUser(id: string): Promise<void> {
+    await fetchWithAuth(`/users/${id}`, {
+        method: 'DELETE',
+    });
+}
+
 export async function getUserDetails(id: string): Promise<UserDetails> {
     const response = await fetchWithAuth(`/users/${id}/details`);
     return response.json();

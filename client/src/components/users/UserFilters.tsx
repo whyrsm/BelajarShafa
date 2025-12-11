@@ -1,12 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { UserRole, UserFilterParams } from '@/lib/api/users';
-import { Search, X } from 'lucide-react';
+import { Search, X, ChevronDown } from 'lucide-react';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuCheckboxItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 interface UserFiltersProps {
     filters: UserFilterParams;
@@ -19,8 +26,31 @@ const ROLE_OPTIONS: { value: UserRole; label: string }[] = [
     { value: 'MENTEE', label: 'Mentee' },
 ];
 
+const STATUS_OPTIONS: { value: boolean; label: string }[] = [
+    { value: true, label: 'Active' },
+    { value: false, label: 'Inactive' },
+];
+
 export function UserFilters({ filters, onFiltersChange }: UserFiltersProps) {
     const [search, setSearch] = useState(filters.search || '');
+    // Track selected statuses for UI (can have multiple)
+    const [selectedStatuses, setSelectedStatuses] = useState<boolean[]>(
+        filters.isActive !== undefined ? [filters.isActive] : []
+    );
+
+    // Sync selectedStatuses when filters.isActive changes externally
+    useEffect(() => {
+        if (filters.isActive !== undefined) {
+            setSelectedStatuses([filters.isActive]);
+        } else {
+            setSelectedStatuses([]);
+        }
+    }, [filters.isActive]);
+
+    // Sync search when filters.search changes externally
+    useEffect(() => {
+        setSearch(filters.search || '');
+    }, [filters.search]);
 
     const handleSearchChange = (value: string) => {
         setSearch(value);
@@ -35,25 +65,58 @@ export function UserFilters({ filters, onFiltersChange }: UserFiltersProps) {
         onFiltersChange({ ...filters, roles: newRoles.length > 0 ? newRoles : undefined, page: 1 });
     };
 
-    const handleActiveToggle = (isActive: boolean | undefined) => {
-        onFiltersChange({ ...filters, isActive, page: 1 });
+    const handleStatusToggle = (status: boolean) => {
+        const newStatuses = selectedStatuses.includes(status)
+            ? selectedStatuses.filter(s => s !== status)
+            : [...selectedStatuses, status];
+        
+        setSelectedStatuses(newStatuses);
+        
+        // Map to API format: if both selected or none selected, show all (undefined)
+        // If only one selected, use that value
+        if (newStatuses.length === 0 || newStatuses.length === 2) {
+            onFiltersChange({ ...filters, isActive: undefined, page: 1 });
+        } else {
+            onFiltersChange({ ...filters, isActive: newStatuses[0], page: 1 });
+        }
     };
 
     const handleReset = () => {
         setSearch('');
+        setSelectedStatuses([]);
         onFiltersChange({ page: 1, limit: 10 });
     };
+
+    const selectedRoles = filters.roles || [];
 
     const hasActiveFilters = 
         !!filters.search || 
         (filters.roles && filters.roles.length > 0) || 
-        filters.isActive !== undefined;
+        selectedStatuses.length > 0;
+
+    const getRolesLabel = () => {
+        if (selectedRoles.length === 0) return 'All Roles';
+        if (selectedRoles.length === 1) {
+            const role = ROLE_OPTIONS.find(r => r.value === selectedRoles[0]);
+            return role?.label || selectedRoles[0];
+        }
+        return `${selectedRoles.length} selected`;
+    };
+
+    const getStatusLabel = () => {
+        if (selectedStatuses.length === 0) return 'All Status';
+        if (selectedStatuses.length === 2) return 'All Status';
+        if (selectedStatuses.length === 1) {
+            return selectedStatuses[0] ? 'Active' : 'Inactive';
+        }
+        return 'All Status';
+    };
 
     return (
         <Card className="p-4">
-            <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
                 {/* Search */}
-                <div className="relative">
+                <div className="relative flex-1 w-full sm:w-auto">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                         placeholder="Search by name or email..."
@@ -63,52 +126,51 @@ export function UserFilters({ filters, onFiltersChange }: UserFiltersProps) {
                     />
                 </div>
 
-                {/* Role Filters */}
-                <div>
-                    <Label className="text-sm font-medium mb-2 block">Roles</Label>
-                    <div className="flex flex-wrap gap-2">
-                        {ROLE_OPTIONS.map((option) => {
-                            const isSelected = filters.roles?.includes(option.value);
-                            return (
-                                <Button
-                                    key={option.value}
-                                    type="button"
-                                    variant={isSelected ? 'default' : 'outline'}
-                                    size="sm"
-                                    onClick={() => handleRoleToggle(option.value)}
-                                    className="h-8"
-                                >
-                                    {option.label}
-                                </Button>
-                            );
-                        })}
-                    </div>
-                </div>
+                {/* Role Filter Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full sm:w-auto justify-between">
+                            {getRolesLabel()}
+                            <ChevronDown className="ml-2 h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Roles</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {ROLE_OPTIONS.map((option) => (
+                            <DropdownMenuCheckboxItem
+                                key={option.value}
+                                checked={selectedRoles.includes(option.value)}
+                                onCheckedChange={() => handleRoleToggle(option.value)}
+                            >
+                                {option.label}
+                            </DropdownMenuCheckboxItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
-                {/* Active Status Filter */}
-                <div>
-                    <Label className="text-sm font-medium mb-2 block">Status</Label>
-                    <div className="flex gap-2">
-                        <Button
-                            type="button"
-                            variant={filters.isActive === true ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => handleActiveToggle(filters.isActive === true ? undefined : true)}
-                            className="h-8"
-                        >
-                            Active
+                {/* Status Filter Dropdown */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" className="w-full sm:w-auto justify-between">
+                            {getStatusLabel()}
+                            <ChevronDown className="ml-2 h-4 w-4" />
                         </Button>
-                        <Button
-                            type="button"
-                            variant={filters.isActive === false ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => handleActiveToggle(filters.isActive === false ? undefined : false)}
-                            className="h-8"
-                        >
-                            Inactive
-                        </Button>
-                    </div>
-                </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuLabel>Status</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        {STATUS_OPTIONS.map((option) => (
+                            <DropdownMenuCheckboxItem
+                                key={String(option.value)}
+                                checked={selectedStatuses.includes(option.value)}
+                                onCheckedChange={() => handleStatusToggle(option.value)}
+                            >
+                                {option.label}
+                            </DropdownMenuCheckboxItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
 
                 {/* Reset Button */}
                 {hasActiveFilters && (
@@ -117,10 +179,10 @@ export function UserFilters({ filters, onFiltersChange }: UserFiltersProps) {
                         variant="ghost"
                         size="sm"
                         onClick={handleReset}
-                        className="w-full"
+                        className="w-full sm:w-auto"
                     >
                         <X className="h-4 w-4 mr-2" />
-                        Reset Filters
+                        Reset
                     </Button>
                 )}
             </div>
