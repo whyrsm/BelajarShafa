@@ -29,6 +29,23 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<'organisasi' | 'mentor' | 'mentee'>('organisasi');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  const handleSmoothScroll = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
+    e.preventDefault();
+    const element = document.getElementById(targetId);
+    if (element) {
+      const headerOffset = 80; // Account for fixed header height + padding
+      const elementPosition = element.getBoundingClientRect().top;
+      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+      window.scrollTo({
+        top: offsetPosition,
+        behavior: 'smooth'
+      });
+    }
+    // Close mobile menu if open
+    setMobileMenuOpen(false);
+  };
+
   return (
     <main className="min-h-screen font-sans selection:bg-primary/20">
       
@@ -43,9 +60,9 @@ export default function Home() {
           </div>
           
           <div className="hidden md:flex items-center gap-8">
-            <Link href="#features" className="text-sm font-medium hover:text-primary transition-colors">Fitur</Link>
-            <Link href="#testimonials" className="text-sm font-medium hover:text-primary transition-colors">Testimoni</Link>
-            <Link href="#pricing" className="text-sm font-medium hover:text-primary transition-colors">Harga</Link>
+            <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Fitur</a>
+            <a href="#testimonials" onClick={(e) => handleSmoothScroll(e, 'testimonials')} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Testimoni</a>
+            <a href="#pricing" onClick={(e) => handleSmoothScroll(e, 'pricing')} className="text-sm font-medium hover:text-primary transition-colors cursor-pointer">Harga</a>
             <div className="flex items-center gap-4">
               <Link href="/login">
                 <Button variant="ghost" className="font-medium">Masuk</Button>
@@ -64,9 +81,9 @@ export default function Home() {
         {/* Mobile Menu */}
         {mobileMenuOpen && (
           <div className="md:hidden absolute top-16 left-0 w-full bg-background border-b p-4 flex flex-col gap-4 shadow-lg animate-in slide-in-from-top-5">
-            <Link href="#features" className="text-sm font-medium p-2 hover:bg-muted rounded-md">Fitur</Link>
-            <Link href="#testimonials" className="text-sm font-medium p-2 hover:bg-muted rounded-md">Testimoni</Link>
-            <Link href="#pricing" className="text-sm font-medium p-2 hover:bg-muted rounded-md">Harga</Link>
+            <a href="#features" onClick={(e) => handleSmoothScroll(e, 'features')} className="text-sm font-medium p-2 hover:bg-muted rounded-md cursor-pointer">Fitur</a>
+            <a href="#testimonials" onClick={(e) => handleSmoothScroll(e, 'testimonials')} className="text-sm font-medium p-2 hover:bg-muted rounded-md cursor-pointer">Testimoni</a>
+            <a href="#pricing" onClick={(e) => handleSmoothScroll(e, 'pricing')} className="text-sm font-medium p-2 hover:bg-muted rounded-md cursor-pointer">Harga</a>
             <div className="flex flex-col gap-2 mt-2">
               <Link href="/login">
                 <Button variant="outline" className="w-full justify-center">Masuk</Button>
@@ -194,6 +211,13 @@ export default function Home() {
       {/* Problem Statement */}
       <section className="py-20 bg-slate-50 dark:bg-slate-900/50">
         <div className="container mx-auto px-4">
+          <div className="text-center mb-16 max-w-3xl mx-auto">
+            <h2 className="text-3xl font-bold mb-4">Mengelola Program Mentoring Itu Menantang</h2>
+            <p className="text-lg text-muted-foreground">
+              Banyak organisasi pendidikan Islam memiliki visi besar, namun terhambat oleh kendala operasional saat mencoba menjangkau lebih banyak peserta.
+            </p>
+          </div>
+
           <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
             <div className="bg-background p-8 rounded-2xl border shadow-sm hover:shadow-md transition-shadow">
               <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center mb-6">
