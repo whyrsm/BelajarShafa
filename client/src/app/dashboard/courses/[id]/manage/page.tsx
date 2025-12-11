@@ -45,7 +45,7 @@ export default function CourseManagePage() {
       }
 
       // Check if user is the creator or is admin
-      if (courseData.createdById !== userData.id && userData.role !== 'ADMIN') {
+      if (courseData.createdById !== userData.userId && userData.role !== 'ADMIN') {
         setError('Anda hanya dapat mengelola modul yang Anda buat');
         return;
       }

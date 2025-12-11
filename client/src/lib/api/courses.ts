@@ -1,4 +1,5 @@
 import { fetchWithAuth } from './utils';
+import { MaterialType, Material } from './materials';
 
 export enum CourseLevel {
   BEGINNER = 'BEGINNER',
@@ -27,24 +28,8 @@ export interface Topic {
   };
 }
 
-export interface Material {
-  id: string;
-  topicId: string;
-  type: 'VIDEO' | 'DOCUMENT' | 'ARTICLE' | 'EXTERNAL_LINK';
-  title: string;
-  content: {
-    videoUrl?: string;
-    documentUrl?: string;
-    fileName?: string;
-    fileSize?: number;
-    articleContent?: string;
-    externalUrl?: string;
-  };
-  sequence: number;
-  estimatedDuration?: number;
-  createdAt: string;
-  updatedAt: string;
-}
+// Re-export Material type for convenience
+export type { Material };
 
 export interface Course {
   id: string;
