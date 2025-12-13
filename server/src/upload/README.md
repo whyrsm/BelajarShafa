@@ -41,3 +41,5 @@ course-materials/{timestamp}-{uuid}-{sanitized-filename}.{ext}
 ```
 
 Example: `course-materials/1703123456789-abc123-def456-my-document.pdf`
+
+

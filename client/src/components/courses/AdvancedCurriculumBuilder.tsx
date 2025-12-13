@@ -856,3 +856,5 @@ export function AdvancedCurriculumBuilder({ courseId }: AdvancedCurriculumBuilde
     </div>
   );
 }
+
+

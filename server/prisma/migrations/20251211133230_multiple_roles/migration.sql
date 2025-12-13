@@ -13,3 +13,5 @@ ALTER TABLE "User" ALTER COLUMN "roles" DROP DEFAULT;
 
 -- Drop the old role column
 ALTER TABLE "User" DROP COLUMN "role";
+
+

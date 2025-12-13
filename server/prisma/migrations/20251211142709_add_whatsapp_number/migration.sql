@@ -7,3 +7,5 @@ ALTER TABLE "User" ADD COLUMN "whatsappNumber" TEXT NOT NULL DEFAULT '';
 
 -- Note: After backfilling data, you may want to remove the DEFAULT constraint
 -- ALTER TABLE "User" ALTER COLUMN "whatsappNumber" DROP DEFAULT;
+
+
