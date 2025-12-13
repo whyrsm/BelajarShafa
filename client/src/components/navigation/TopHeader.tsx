@@ -23,7 +23,7 @@ interface TopHeaderProps {
 }
 
 export function TopHeader({
-    userName = 'User',
+    userName,
     userEmail = '',
     userRole = '',
     onMenuClick,
@@ -31,6 +31,9 @@ export function TopHeader({
 }: TopHeaderProps) {
     const router = useRouter();
     const [showSearch, setShowSearch] = useState(false);
+
+    // Use userName if provided, otherwise fallback to email or 'User'
+    const displayName = userName || userEmail?.split('@')[0] || 'User';
 
     const handleLogout = () => {
         localStorage.removeItem('access_token');
@@ -120,7 +123,7 @@ export function TopHeader({
                                     <User className="w-4 h-4 text-primary" />
                                 </div>
                                 <div className="hidden lg:block text-left">
-                                    <p className="text-sm font-medium">{userName}</p>
+                                    <p className="text-sm font-medium">{displayName}</p>
                                     <p className="text-xs text-muted-foreground">{userEmail}</p>
                                 </div>
                             </Button>
@@ -128,7 +131,7 @@ export function TopHeader({
                         <DropdownMenuContent align="end" className="w-56">
                             <DropdownMenuLabel>
                                 <div className="flex flex-col gap-1">
-                                    <p className="font-medium">{userName}</p>
+                                    <p className="font-medium">{displayName}</p>
                                     <p className="text-xs text-muted-foreground font-normal">{userEmail}</p>
                                     {userRole && (
                                         <Badge variant={getRoleBadgeVariant(userRole)} className="w-fit mt-1">
@@ -138,13 +141,15 @@ export function TopHeader({
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/profile')}>
+                            <DropdownMenuItem disabled className="cursor-not-allowed opacity-50">
                                 <User className="w-4 h-4 mr-2" />
-                                Profil Saya
+                                <span className="flex-1">Profil Saya</span>
+                                <Badge variant="outline" className="text-xs ml-2">Coming Soon</Badge>
                             </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push('/dashboard/settings')}>
+                            <DropdownMenuItem disabled className="cursor-not-allowed opacity-50">
                                 <User className="w-4 h-4 mr-2" />
-                                Pengaturan
+                                <span className="flex-1">Pengaturan</span>
+                                <Badge variant="outline" className="text-xs ml-2">Coming Soon</Badge>
                             </DropdownMenuItem>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={handleLogout} className="text-destructive">

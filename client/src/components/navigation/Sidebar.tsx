@@ -102,7 +102,10 @@ export function Sidebar({ userRole }: SidebarProps) {
                     const Icon = item.icon;
                     // More specific active state checking
                     let isActive = false;
-                    if (item.href === '/dashboard/courses') {
+                    if (item.href === '/dashboard') {
+                        // Dashboard should only be active for exact match, not child routes
+                        isActive = pathname === item.href;
+                    } else if (item.href === '/dashboard/courses') {
                         // Only active for exact match or courses management pages (create, edit, [id] detail), but not explore/learn
                         isActive = pathname === item.href || 
                                   (pathname.startsWith('/dashboard/courses/') && 
