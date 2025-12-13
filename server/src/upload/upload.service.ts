@@ -53,6 +53,15 @@ export class UploadService {
   }
 
   /**
+   * Validate image file type
+   */
+  validateImageType(filename: string): boolean {
+    const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp'];
+    const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    return allowedExtensions.includes(extension);
+  }
+
+  /**
    * Validate file size (max 10MB)
    */
   validateFileSize(size: number): boolean {
@@ -78,6 +87,21 @@ export class UploadService {
   }
 
   /**
+   * Get image MIME type from filename
+   */
+  getImageMimeType(filename: string): string {
+    const extension = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    const mimeTypes: Record<string, string> = {
+      '.jpg': 'image/jpeg',
+      '.jpeg': 'image/jpeg',
+      '.png': 'image/png',
+      '.gif': 'image/gif',
+      '.webp': 'image/webp',
+    };
+    return mimeTypes[extension] || 'image/jpeg';
+  }
+
+  /**
    * Generate unique file key for R2
    */
   generateFileKey(originalname: string): string {
@@ -90,6 +114,21 @@ export class UploadService {
       .toLowerCase();
     
     return `course-materials/${timestamp}-${uuid}-${sanitizedName}${extension}`;
+  }
+
+  /**
+   * Generate unique image key for R2
+   */
+  generateImageKey(originalname: string): string {
+    const timestamp = Date.now();
+    const uuid = uuidv4();
+    const extension = originalname.substring(originalname.lastIndexOf('.'));
+    const sanitizedName = originalname
+      .substring(0, originalname.lastIndexOf('.'))
+      .replace(/[^a-zA-Z0-9]/g, '-')
+      .toLowerCase();
+    
+    return `course-thumbnails/${timestamp}-${uuid}-${sanitizedName}${extension}`;
   }
 
   /**
@@ -143,6 +182,60 @@ export class UploadService {
     } catch (error) {
       this.logger.error(`Failed to upload file to R2: ${error.message}`, error.stack);
       throw new BadRequestException(`Failed to upload file: ${error.message}`);
+    }
+  }
+
+  /**
+   * Upload image to Cloudflare R2
+   */
+  async uploadImage(file: {
+    originalname: string;
+    size: number;
+    buffer: Buffer;
+    mimetype?: string;
+  }): Promise<{ url: string; filename: string; size: number; key: string }> {
+    // Validate image
+    if (!this.validateImageType(file.originalname)) {
+      throw new BadRequestException(
+        'Image type not allowed. Allowed types: JPG, JPEG, PNG, GIF, WEBP',
+      );
+    }
+
+    // Max size for images: 5MB
+    const maxImageSize = 5 * 1024 * 1024; // 5MB in bytes
+    if (file.size > maxImageSize) {
+      throw new BadRequestException('Image size exceeds 5MB limit');
+    }
+
+    try {
+      // Generate unique image key
+      const imageKey = this.generateImageKey(file.originalname);
+      const mimeType = file.mimetype || this.getImageMimeType(file.originalname);
+
+      // Upload to R2
+      const command = new PutObjectCommand({
+        Bucket: this.bucketName,
+        Key: imageKey,
+        Body: file.buffer,
+        ContentType: mimeType,
+      });
+
+      await this.s3Client.send(command);
+
+      // Generate public URL
+      const publicUrl = `${this.publicEndpoint}/${imageKey}`;
+
+      this.logger.log(`Image uploaded successfully: ${imageKey}`);
+
+      return {
+        url: publicUrl,
+        filename: file.originalname,
+        size: file.size,
+        key: imageKey,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to upload image to R2: ${error.message}`, error.stack);
+      throw new BadRequestException(`Failed to upload image: ${error.message}`);
     }
   }
 }

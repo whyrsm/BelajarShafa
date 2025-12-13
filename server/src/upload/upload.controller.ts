@@ -58,6 +58,34 @@ export class UploadController {
       throw new BadRequestException(error.message || 'Failed to upload file');
     }
   }
+
+  @Post('image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@UploadedFile() file: UploadedFile, @Request() req) {
+    if (!file) {
+      throw new BadRequestException('No file provided');
+    }
+
+    try {
+      const result = await this.uploadService.uploadImage({
+        originalname: file.originalname,
+        size: file.size,
+        buffer: file.buffer,
+        mimetype: file.mimetype,
+      });
+      return {
+        success: true,
+        data: {
+          imageUrl: result.url,
+          fileName: result.filename,
+          fileSize: result.size,
+          key: result.key,
+        },
+      };
+    } catch (error) {
+      throw new BadRequestException(error.message || 'Failed to upload image');
+    }
+  }
 }
 
 

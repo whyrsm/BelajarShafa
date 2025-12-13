@@ -49,8 +49,11 @@ export default function DashboardPage() {
         }
     };
 
-    const canCreateClass = user?.role === 'MANAGER' || user?.role === 'MENTOR';
-    const canJoinClass = user?.role === 'MENTEE';
+    // Support both single role (legacy) and roles array
+    const userRoles = user?.roles && user.roles.length > 0 ? user.roles : (user?.role ? [user?.role] : []);
+    
+    const canCreateClass = userRoles.includes('MANAGER') || userRoles.includes('MENTOR');
+    const canJoinClass = userRoles.includes('MENTEE');
 
     if (loading) {
         return (
@@ -72,9 +75,21 @@ export default function DashboardPage() {
                         Selamat Datang, {user?.name}! 👋
                     </h1>
                     <p className="text-muted-foreground">
-                        {user?.role === 'MANAGER' && 'Kelola organisasi, kelas, dan course Anda'}
-                        {user?.role === 'MENTOR' && 'Kelola kelas dan pantau progress mentee Anda'}
-                        {user?.role === 'MENTEE' && 'Mulai perjalanan belajar Anda hari ini'}
+                        {(() => {
+                            if (userRoles.includes('MANAGER')) {
+                                return 'Kelola organisasi, kelas, dan course Anda';
+                            }
+                            if (userRoles.includes('MENTOR') && userRoles.includes('MENTEE')) {
+                                return 'Sebagai Mentor, kelola kelas dan pantau progress mentee. Sebagai Mentee, mulai perjalanan belajar Anda';
+                            }
+                            if (userRoles.includes('MENTOR')) {
+                                return 'Kelola kelas dan pantau progress mentee Anda';
+                            }
+                            if (userRoles.includes('MENTEE')) {
+                                return 'Mulai perjalanan belajar Anda hari ini';
+                            }
+                            return 'Selamat datang di dashboard Anda';
+                        })()}
                     </p>
                 </div>
 
@@ -112,7 +127,7 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-2 mb-4">
                         <BookOpen className="w-6 h-6 text-primary" />
                         <h2 className="text-2xl font-bold">
-                            {user?.role === 'MENTEE' ? 'Kelas Saya' : 'Kelas Saya'}
+                            Kelas Saya
                         </h2>
                     </div>
 
@@ -129,22 +144,24 @@ export default function DashboardPage() {
                                                 ? 'Gabung kelas menggunakan kode kelas'
                                                 : 'Anda belum terdaftar di kelas manapun'}
                                     </p>
-                                    {canCreateClass && (
-                                        <Link href="/classes/create">
-                                            <Button>
-                                                <Plus className="w-4 h-4 mr-2" />
-                                                Buat Kelas
-                                            </Button>
-                                        </Link>
-                                    )}
-                                    {canJoinClass && (
-                                        <Link href="/classes/join">
-                                            <Button>
-                                                <BookOpen className="w-4 h-4 mr-2" />
-                                                Gabung Kelas
-                                            </Button>
-                                        </Link>
-                                    )}
+                                    <div className="flex gap-3 justify-center">
+                                        {canCreateClass && (
+                                            <Link href="/classes/create">
+                                                <Button>
+                                                    <Plus className="w-4 h-4 mr-2" />
+                                                    Buat Kelas
+                                                </Button>
+                                            </Link>
+                                        )}
+                                        {canJoinClass && (
+                                            <Link href="/classes/join">
+                                                <Button>
+                                                    <BookOpen className="w-4 h-4 mr-2" />
+                                                    Gabung Kelas
+                                                </Button>
+                                            </Link>
+                                        )}
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

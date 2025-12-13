@@ -17,7 +17,7 @@ import { Badge } from '@/components/ui/badge';
 interface TopHeaderProps {
     userName?: string;
     userEmail?: string;
-    userRole?: string;
+    userRole?: string | string[]; // Support both single role (legacy) and roles array
     onMenuClick?: () => void;
     notificationCount?: number;
 }
@@ -133,11 +133,25 @@ export function TopHeader({
                                 <div className="flex flex-col gap-1">
                                     <p className="font-medium">{displayName}</p>
                                     <p className="text-xs text-muted-foreground font-normal">{userEmail}</p>
-                                    {userRole && (
-                                        <Badge variant={getRoleBadgeVariant(userRole)} className="w-fit mt-1">
-                                            {getRoleLabel(userRole)}
-                                        </Badge>
-                                    )}
+                                    {(() => {
+                                        // Support both single role (legacy) and roles array
+                                        const roles = Array.isArray(userRole) ? userRole : (userRole ? [userRole] : []);
+                                        if (roles.length === 0) return null;
+                                        
+                                        return (
+                                            <div className="flex flex-wrap gap-1 mt-1">
+                                                {roles.map((role) => (
+                                                    <Badge 
+                                                        key={role} 
+                                                        variant={getRoleBadgeVariant(role)} 
+                                                        className="w-fit"
+                                                    >
+                                                        {getRoleLabel(role)}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />

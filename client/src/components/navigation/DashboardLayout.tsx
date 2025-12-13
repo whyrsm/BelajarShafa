@@ -67,7 +67,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 <TopHeader
                     userName={user?.name}
                     userEmail={user?.email}
-                    userRole={primaryRole}
+                    userRole={userRoles.length > 0 ? userRoles : primaryRole}
                     notificationCount={0}
                 />
 

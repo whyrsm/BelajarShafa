@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,15 +11,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Course, CourseLevel, CourseType, UpdateCourseData } from '@/lib/api/courses';
 import { Category, getCategories } from '@/lib/api/categories';
 import { useWizardContext } from './CourseManagementWizard';
-import { Upload, X, Image as ImageIcon } from 'lucide-react';
+import { Upload, X, Image as ImageIcon, Loader2 } from 'lucide-react';
+import { RichTextEditor } from '@/components/ui/rich-text-editor';
+import { uploadImage } from '@/lib/api/upload';
 
 const courseInfoSchema = z.object({
   title: z.string().min(3, 'Judul minimal 3 karakter').max(100, 'Judul maksimal 100 karakter'),
-  description: z.string().max(1000, 'Deskripsi maksimal 1000 karakter').optional(),
-  thumbnailUrl: z.string().url('URL tidak valid').optional().or(z.literal('')),
+  description: z.string().optional(),
+  thumbnailUrl: z.string().optional(),
   level: z.nativeEnum(CourseLevel),
   estimatedDuration: z.number().int().min(0, 'Durasi harus positif').optional(),
-  prerequisites: z.string().max(500, 'Prasyarat maksimal 500 karakter').optional(),
+  prerequisites: z.string().optional(),
   type: z.nativeEnum(CourseType),
   categoryId: z.string().uuid('Kategori tidak valid'),
   isActive: z.boolean().optional(),
@@ -36,6 +38,8 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(course.thumbnailUrl || null);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const {
     register,
@@ -58,19 +62,9 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
     },
   });
 
-  const watchedThumbnail = watch('thumbnailUrl');
-
   useEffect(() => {
     loadCategories();
   }, []);
-
-  useEffect(() => {
-    if (watchedThumbnail) {
-      setThumbnailPreview(watchedThumbnail);
-    } else {
-      setThumbnailPreview(null);
-    }
-  }, [watchedThumbnail]);
 
   const loadCategories = async () => {
     try {
@@ -101,6 +95,41 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
   const handleThumbnailRemove = () => {
     setValue('thumbnailUrl', '');
     setThumbnailPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleThumbnailUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      alert('Format file tidak didukung. Gunakan JPG, PNG, GIF, atau WEBP.');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Ukuran file terlalu besar. Maksimal 5MB.');
+      return;
+    }
+
+    setUploadingThumbnail(true);
+    try {
+      const response = await uploadImage(file);
+      if (response.success && response.data.imageUrl) {
+        setValue('thumbnailUrl', response.data.imageUrl);
+        setThumbnailPreview(response.data.imageUrl);
+      }
+    } catch (error) {
+      console.error('Failed to upload thumbnail:', error);
+      alert('Gagal mengunggah thumbnail. Silakan coba lagi.');
+    } finally {
+      setUploadingThumbnail(false);
+    }
   };
 
   const getLevelLabel = (level: CourseLevel) => {
@@ -139,16 +168,12 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
 
             <div className="space-y-2">
               <Label htmlFor="description">Deskripsi</Label>
-              <textarea
-                id="description"
-                {...register('description')}
+              <RichTextEditor
+                value={watch('description') || ''}
+                onChange={(value) => setValue('description', value, { shouldDirty: true })}
                 placeholder="Deskripsi modul..."
-                className="w-full min-h-[120px] px-3 py-2 text-sm rounded-md border border-input bg-background resize-none"
                 maxLength={1000}
               />
-              <p className="text-xs text-muted-foreground">
-                {watch('description')?.length || 0} / 1000 karakter
-              </p>
               {errors.description && (
                 <p className="text-sm text-destructive">{errors.description.message}</p>
               )}
@@ -236,43 +261,14 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
 
             <div className="space-y-2">
               <Label htmlFor="prerequisites">Prasyarat</Label>
-              <textarea
-                id="prerequisites"
-                {...register('prerequisites')}
+              <RichTextEditor
+                value={watch('prerequisites') || ''}
+                onChange={(value) => setValue('prerequisites', value, { shouldDirty: true })}
                 placeholder="Prasyarat untuk mengikuti modul ini..."
-                className="w-full min-h-[80px] px-3 py-2 text-sm rounded-md border border-input bg-background resize-none"
                 maxLength={500}
               />
-              <p className="text-xs text-muted-foreground">
-                {watch('prerequisites')?.length || 0} / 500 karakter
-              </p>
               {errors.prerequisites && (
                 <p className="text-sm text-destructive">{errors.prerequisites.message}</p>
-              )}
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="thumbnailUrl">URL Thumbnail</Label>
-              <div className="flex gap-2">
-                <Input
-                  id="thumbnailUrl"
-                  {...register('thumbnailUrl')}
-                  placeholder="https://example.com/image.jpg"
-                  type="url"
-                />
-                {thumbnailPreview && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={handleThumbnailRemove}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                )}
-              </div>
-              {errors.thumbnailUrl && (
-                <p className="text-sm text-destructive">{errors.thumbnailUrl.message}</p>
               )}
             </div>
 
@@ -293,25 +289,65 @@ export function CourseInfoEditor({ course }: CourseInfoEditorProps) {
         {/* Right Column - Thumbnail Preview */}
         <div className="lg:col-span-1">
           <Card>
-            <CardContent className="pt-6">
-              <h3 className="text-sm font-semibold mb-4">Preview Thumbnail</h3>
+            <CardContent className="pt-6 space-y-4">
+              <h3 className="text-sm font-semibold">Preview Thumbnail</h3>
               {thumbnailPreview ? (
-                <div className="relative aspect-video w-full rounded-lg overflow-hidden border">
+                <div className="relative aspect-video w-full rounded-lg overflow-hidden border group">
                   <img
                     src={thumbnailPreview}
                     alt="Course thumbnail"
                     className="w-full h-full object-cover"
                     onError={() => setThumbnailPreview(null)}
                   />
+                  <button
+                    type="button"
+                    onClick={handleThumbnailRemove}
+                    className="absolute top-2 right-2 p-1.5 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
               ) : (
                 <div className="aspect-video w-full rounded-lg border-2 border-dashed border-muted-foreground/25 flex items-center justify-center bg-muted/50">
                   <div className="text-center">
                     <ImageIcon className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">Tidak ada thumbnail</p>
+                    <p className="text-sm text-muted-foreground mb-2">Tidak ada thumbnail</p>
                   </div>
                 </div>
               )}
+              <div className="space-y-2">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                  onChange={handleThumbnailUpload}
+                  className="hidden"
+                  id="thumbnail-upload"
+                  disabled={uploadingThumbnail}
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingThumbnail}
+                >
+                  {uploadingThumbnail ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Mengunggah...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-4 h-4 mr-2" />
+                      Unggah Thumbnail
+                    </>
+                  )}
+                </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  JPG, PNG, GIF, atau WEBP (maks. 5MB)
+                </p>
+              </div>
             </CardContent>
           </Card>
         </div>

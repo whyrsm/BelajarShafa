@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
@@ -45,15 +46,25 @@ export class ClassesService {
     /**
      * Create a new class
      */
-    async create(createClassDto: CreateClassDto, userId: string, userRole: string) {
+    async create(createClassDto: CreateClassDto, userId: string, userRoles: string[]) {
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array and undefined cases
+        let roles: string[] = [];
+        if (Array.isArray(userRoles)) {
+            roles = userRoles.filter(role => role); // Remove any falsy values
+        } else if (userRoles) {
+            roles = [userRoles];
+        }
+        
         // Only Manager and Mentor can create classes
-        if (userRole !== 'MANAGER' && userRole !== 'MENTOR') {
+        const hasPermission = roles.includes('MANAGER') || roles.includes('MENTOR');
+        if (!hasPermission) {
             throw new ForbiddenException('Only Managers and Mentors can create classes');
         }
 
         // If creator is a MENTOR, automatically include them in mentorIds (avoid duplicates)
         let mentorIds = [...createClassDto.mentorIds];
-        if (userRole === 'MENTOR' && !mentorIds.includes(userId)) {
+        if (roles.includes('MENTOR') && !mentorIds.includes(userId)) {
             mentorIds.push(userId);
         }
 
@@ -151,172 +162,107 @@ export class ClassesService {
     /**
      * Get all classes for the current user (role-based)
      */
-    async findAll(userId: string, userRole: string) {
-        let classes;
+    async findAll(userId: string, userRoles: string[]) {
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array and undefined cases
+        let roles: string[] = [];
+        if (Array.isArray(userRoles)) {
+            roles = userRoles.filter(role => role); // Remove any falsy values
+        } else if (userRoles) {
+            roles = [userRoles];
+        }
+        
+        const includeOptions = {
+            mentors: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    avatarUrl: true,
+                },
+            },
+            mentees: {
+                select: {
+                    id: true,
+                    name: true,
+                    email: true,
+                    avatarUrl: true,
+                },
+            },
+            organization: {
+                select: {
+                    id: true,
+                    name: true,
+                },
+            },
+            sessions: {
+                select: {
+                    id: true,
+                    title: true,
+                    startTime: true,
+                    endTime: true,
+                    type: true,
+                },
+                orderBy: {
+                    startTime: Prisma.SortOrder.desc,
+                },
+                take: 5, // Limit to recent 5 sessions for list view
+            },
+            _count: {
+                select: {
+                    sessions: true,
+                },
+            },
+        };
 
-        if (userRole === 'MANAGER') {
-            // Managers see all classes (for now, since we don't have org filtering yet)
+        let classes = [];
+
+        // If user is a MANAGER, they see all classes
+        if (roles.includes('MANAGER')) {
             classes = await this.prisma.class.findMany({
-                include: {
-                    mentors: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    mentees: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    organization: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
-                    },
-                    sessions: {
-                        select: {
-                            id: true,
-                            title: true,
-                            startTime: true,
-                            endTime: true,
-                            type: true,
-                        },
-                        orderBy: {
-                            startTime: 'desc',
-                        },
-                        take: 5, // Limit to recent 5 sessions for list view
-                    },
-                    _count: {
-                        select: {
-                            sessions: true,
-                        },
-                    },
-                },
-                orderBy: {
-                    createdAt: 'desc',
-                },
-            });
-        } else if (userRole === 'MENTOR') {
-            // Mentors see classes they are assigned to
-            classes = await this.prisma.class.findMany({
-                where: {
-                    mentors: {
-                        some: {
-                            id: userId,
-                        },
-                    },
-                },
-                include: {
-                    mentors: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    mentees: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    organization: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
-                    },
-                    sessions: {
-                        select: {
-                            id: true,
-                            title: true,
-                            startTime: true,
-                            endTime: true,
-                            type: true,
-                        },
-                        orderBy: {
-                            startTime: 'desc',
-                        },
-                        take: 5, // Limit to recent 5 sessions for list view
-                    },
-                    _count: {
-                        select: {
-                            sessions: true,
-                        },
-                    },
-                },
-                orderBy: {
-                    createdAt: 'desc',
-                },
-            });
-        } else if (userRole === 'MENTEE') {
-            // Mentees see classes they joined
-            classes = await this.prisma.class.findMany({
-                where: {
-                    mentees: {
-                        some: {
-                            id: userId,
-                        },
-                    },
-                },
-                include: {
-                    mentors: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    mentees: {
-                        select: {
-                            id: true,
-                            name: true,
-                            email: true,
-                            avatarUrl: true,
-                        },
-                    },
-                    organization: {
-                        select: {
-                            id: true,
-                            name: true,
-                        },
-                    },
-                    sessions: {
-                        select: {
-                            id: true,
-                            title: true,
-                            startTime: true,
-                            endTime: true,
-                            type: true,
-                        },
-                        orderBy: {
-                            startTime: 'desc',
-                        },
-                        take: 5, // Limit to recent 5 sessions for list view
-                    },
-                    _count: {
-                        select: {
-                            sessions: true,
-                        },
-                    },
-                },
+                include: includeOptions,
                 orderBy: {
                     createdAt: 'desc',
                 },
             });
         } else {
-            classes = [];
+            // Build where conditions for multiple roles
+            const whereConditions: any[] = [];
+
+            // If user is a MENTOR, include classes where they are a mentor
+            if (roles.includes('MENTOR')) {
+                whereConditions.push({
+                    mentors: {
+                        some: {
+                            id: userId,
+                        },
+                    },
+                });
+            }
+
+            // If user is a MENTEE, include classes where they are a mentee
+            if (roles.includes('MENTEE')) {
+                whereConditions.push({
+                    mentees: {
+                        some: {
+                            id: userId,
+                        },
+                    },
+                });
+            }
+
+            // If user has relevant roles, fetch classes
+            if (whereConditions.length > 0) {
+                classes = await this.prisma.class.findMany({
+                    where: {
+                        OR: whereConditions,
+                    },
+                    include: includeOptions,
+                    orderBy: {
+                        createdAt: 'desc',
+                    },
+                });
+            }
         }
 
         return classes;
@@ -325,7 +271,16 @@ export class ClassesService {
     /**
      * Get a single class by ID
      */
-    async findOne(id: string, userId: string, userRole: string) {
+    async findOne(id: string, userId: string, userRoles: string[]) {
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array and undefined cases
+        let roles: string[] = [];
+        if (Array.isArray(userRoles)) {
+            roles = userRoles.filter(role => role); // Remove any falsy values
+        } else if (userRoles) {
+            roles = [userRoles];
+        }
+        
         const classData = await this.prisma.class.findUnique({
             where: { id },
             include: {
@@ -374,7 +329,7 @@ export class ClassesService {
                         },
                     },
                     orderBy: {
-                        startTime: 'desc',
+                        startTime: Prisma.SortOrder.desc,
                     },
                 },
                 _count: {
@@ -390,20 +345,29 @@ export class ClassesService {
         }
 
         // Check access permissions
-        if (userRole === 'MENTOR') {
+        // MANAGER and ADMIN can access any class
+        if (roles.includes('MANAGER') || roles.includes('ADMIN')) {
+            return classData;
+        }
+
+        // Check if user is a mentor of this class
+        if (roles.includes('MENTOR')) {
             const isMentor = classData.mentors.some(m => m.id === userId);
-            if (!isMentor) {
-                throw new ForbiddenException('You do not have access to this class');
-            }
-        } else if (userRole === 'MENTEE') {
-            const isMentee = classData.mentees.some(m => m.id === userId);
-            if (!isMentee) {
-                throw new ForbiddenException('You do not have access to this class');
+            if (isMentor) {
+                return classData;
             }
         }
-        // MANAGER and ADMIN can access any class
 
-        return classData;
+        // Check if user is a mentee of this class
+        if (roles.includes('MENTEE')) {
+            const isMentee = classData.mentees.some(m => m.id === userId);
+            if (isMentee) {
+                return classData;
+            }
+        }
+
+        // If user has none of the above permissions, deny access
+        throw new ForbiddenException('You do not have access to this class');
     }
 
     /**

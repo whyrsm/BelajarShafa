@@ -273,7 +273,10 @@ export function CourseReviewStep({ course, courseId, onPublish }: CourseReviewSt
           {finalCourse.description && (
             <div>
               <p className="text-sm text-muted-foreground mb-2">Deskripsi</p>
-              <p className="text-sm">{finalCourse.description}</p>
+              <div
+                className="text-sm prose prose-sm max-w-none [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:pl-6 [&_ol]:pl-6 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1"
+                dangerouslySetInnerHTML={{ __html: finalCourse.description }}
+              />
             </div>
           )}
         </CardContent>

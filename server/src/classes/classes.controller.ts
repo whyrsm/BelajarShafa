@@ -27,16 +27,26 @@ export class ClassesController {
     @UseGuards(RolesGuard)
     @Roles('MANAGER', 'MENTOR')
     create(@Body() createClassDto: CreateClassDto, @Request() req) {
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array case: if roles is empty array, fallback to role
+        const userRoles = (req.user.roles && req.user.roles.length > 0) 
+            ? req.user.roles 
+            : (req.user.role ? [req.user.role] : []);
         return this.classesService.create(
             createClassDto,
             req.user.userId,
-            req.user.role,
+            userRoles,
         );
     }
 
     @Get()
     findAll(@Request() req) {
-        return this.classesService.findAll(req.user.userId, req.user.role);
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array case: if roles is empty array, fallback to role
+        const userRoles = (req.user.roles && req.user.roles.length > 0) 
+            ? req.user.roles 
+            : (req.user.role ? [req.user.role] : []);
+        return this.classesService.findAll(req.user.userId, userRoles);
     }
 
     @Post('join')
@@ -48,7 +58,12 @@ export class ClassesController {
 
     @Get(':id')
     findOne(@Param('id') id: string, @Request() req) {
-        return this.classesService.findOne(id, req.user.userId, req.user.role);
+        // Support both roles array and single role (backward compatibility)
+        // Handle empty array case: if roles is empty array, fallback to role
+        const userRoles = (req.user.roles && req.user.roles.length > 0) 
+            ? req.user.roles 
+            : (req.user.role ? [req.user.role] : []);
+        return this.classesService.findOne(id, req.user.userId, userRoles);
     }
 
     @Patch(':id')

@@ -289,9 +289,14 @@ export default function CourseDetailPage() {
                       <FileText className="w-5 h-5 text-muted-foreground" />
                       <h3 className="text-lg font-semibold">Deskripsi Modul</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground whitespace-pre-line pl-7">
-                      {course.description || 'Tidak ada deskripsi'}
-                    </p>
+                    {course.description ? (
+                      <div
+                        className="text-sm text-muted-foreground pl-7 prose prose-sm max-w-none [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:pl-6 [&_ol]:pl-6 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1"
+                        dangerouslySetInnerHTML={{ __html: course.description }}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground pl-7">Tidak ada deskripsi</p>
+                    )}
                   </div>
 
                   {/* Divider */}
@@ -303,9 +308,14 @@ export default function CourseDetailPage() {
                       <ListChecks className="w-5 h-5 text-muted-foreground" />
                       <h3 className="text-lg font-semibold">Prasyarat</h3>
                     </div>
-                    <p className="text-sm text-muted-foreground whitespace-pre-line pl-7">
-                      {course.prerequisites || 'Tidak ada prasyarat'}
-                    </p>
+                    {course.prerequisites ? (
+                      <div
+                        className="text-sm text-muted-foreground pl-7 prose prose-sm max-w-none [&_p]:my-2 [&_p:first-child]:mt-0 [&_p:last-child]:mb-0 [&_ul]:pl-6 [&_ol]:pl-6 [&_ul]:my-2 [&_ol]:my-2 [&_li]:my-1"
+                        dangerouslySetInnerHTML={{ __html: course.prerequisites }}
+                      />
+                    ) : (
+                      <p className="text-sm text-muted-foreground pl-7">Tidak ada prasyarat</p>
+                    )}
                   </div>
                 </CardContent>
               </Card>
